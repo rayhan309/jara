@@ -26,21 +26,29 @@ const revenueData = [
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
 
+  const revenue = payload.find((entry) => entry.dataKey === "revenue")?.value ?? 0;
+  const orderCount = payload.find((entry) => entry.dataKey === "orders")?.value ?? 0;
+
   return (
-    <div className="border border-dash-border bg-white px-3 py-2 shadow-lg">
+    <div className="rounded-md border border-dash-border bg-white px-3 py-2 shadow-lg">
       <p className="text-xs font-semibold text-dash-text">{label}</p>
-      <p className="text-sm font-bold text-indigo-600">
-        ৳{(payload[0].value * 1000).toLocaleString()}
-      </p>
+      <p className="text-sm font-bold text-indigo-600">৳{Number(revenue).toLocaleString()}</p>
+      <p className="text-xs text-dash-muted">{orderCount} orders</p>
     </div>
   );
 }
 
-export default function RevenueChart() {
+export default function RevenueChart({ data = [] }) {
+  const chartData = data.length
+    ? data
+    : [{ month: "—", revenue: 0, orders: 0 }];
+
+  const maxRevenue = Math.max(...chartData.map((entry) => entry.revenue), 1);
+
   return (
-    <div className="h-56 w-full pt-2">
+    <div className="h-44 w-full pt-2 sm:h-56">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={revenueData} barSize={32}>
+        <BarChart data={chartData} barSize={32}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
           <XAxis
             dataKey="month"
@@ -52,14 +60,16 @@ export default function RevenueChart() {
             axisLine={false}
             tickLine={false}
             tick={{ fill: "#64748b", fontSize: 11 }}
-            tickFormatter={(v) => `${v}k`}
+            tickFormatter={(value) =>
+              value >= 1000 ? `${Math.round(value / 1000)}k` : value
+            }
           />
           <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(99, 102, 241, 0.06)" }} />
           <Bar dataKey="revenue" radius={[0, 0, 0, 0]}>
-            {revenueData.map((entry, index) => (
+            {chartData.map((entry, index) => (
               <Cell
-                key={entry.month}
-                fill={index === revenueData.length - 2 ? "#4f46e5" : "#a5b4fc"}
+                key={`${entry.month}-${index}`}
+                fill={entry.revenue === maxRevenue && entry.revenue > 0 ? "#4f46e5" : "#a5b4fc"}
               />
             ))}
           </Bar>

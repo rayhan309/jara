@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
   LayoutDashboard,
+  Layers,
   LogOut,
   Package,
   ShoppingBag,
@@ -19,6 +20,7 @@ const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
   { href: "/dashboard/products", label: "Products", icon: Package },
+  { href: "/dashboard/categories", label: "Categories", icon: Layers },
   { href: "/dashboard/customers", label: "Customers", icon: Users },
 ];
 
@@ -76,7 +78,7 @@ export default function Sidebar({ isOpen, onClose }) {
       >
         <div className="absolute inset-y-0 right-0 w-px bg-dash-sidebar-border" />
 
-        <div className="relative border-b border-dash-sidebar-border border-gray-700 px-5 py-5 sm:px-6">
+        <div className="rounded-md relative border-b border-dash-sidebar-border border-gray-700 px-5 py-5 sm:px-6">
           <div className="flex items-center justify-between gap-3">
             <motion.div
               initial={{ opacity: 0, x: -12 }}
@@ -99,7 +101,7 @@ export default function Sidebar({ isOpen, onClose }) {
               type="button"
               aria-label="Close sidebar"
               onClick={onClose}
-              className="flex h-9 w-9 shrink-0 items-center justify-center border border-slate-700 text-slate-300 transition-colors hover:border-slate-500 hover:bg-white/10 hover:text-white lg:hidden"
+              className="rounded-md flex h-9 w-9 shrink-0 items-center justify-center border border-slate-700 text-slate-300 transition-colors hover:border-slate-500 hover:bg-white/10 hover:text-white lg:hidden"
             >
               <X className="h-5 w-5" />
             </button>
@@ -138,7 +140,7 @@ export default function Sidebar({ isOpen, onClose }) {
                       />
                     ) : null}
                     <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center border transition-colors ${
+                      className={`rounded-md flex h-9 w-9 shrink-0 items-center justify-center border transition-colors ${
                         active
                           ? "border-indigo-400/40 bg-indigo-500/20 text-indigo-200"
                           : "border-slate-700 bg-slate-800/50 text-slate-400 group-hover:border-slate-600 group-hover:text-white"
@@ -154,7 +156,7 @@ export default function Sidebar({ isOpen, onClose }) {
           </nav>
         </div>
 
-        <div className="mt-auto border-t border-dash-sidebar-border p-3 sm:p-4">
+        <div className="rounded-md mt-auto border-t border-dash-sidebar-border border-gray-700 p-3 sm:p-4">
           <div className="mb-3 flex items-center gap-3 bg-white/5 p-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-gradient-to-br from-slate-600 to-slate-700 text-sm font-bold uppercase">
               {(auth?.username || "A").charAt(0)}
@@ -171,7 +173,7 @@ export default function Sidebar({ isOpen, onClose }) {
             onClick={handleLogout}
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
-            className="flex w-full items-center justify-center gap-2 border border-slate-700 py-2.5 text-xs font-semibold tracking-wide text-slate-300 uppercase transition-colors hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-300"
+            className="rounded-md flex w-full items-center justify-center gap-2 border border-slate-700 py-2.5 text-xs font-semibold tracking-wide text-slate-300 uppercase transition-colors hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-300"
           >
             <LogOut className="h-4 w-4" />
             Sign Out

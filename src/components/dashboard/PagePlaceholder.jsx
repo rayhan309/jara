@@ -14,7 +14,7 @@ export default function PagePlaceholder({ title, description, icon: Icon }) {
       <motion.div
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        className="relative mb-6 flex h-20 w-20 items-center justify-center border border-indigo-200 bg-indigo-50"
+        className="rounded-md relative mb-6 flex h-20 w-20 items-center justify-center border border-indigo-200 bg-indigo-50"
       >
         {Icon ? (
           <Icon className="h-8 w-8 text-indigo-600" />

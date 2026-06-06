@@ -20,7 +20,7 @@ export default function DashboardBackground() {
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
-          className="absolute border border-indigo-300/40 bg-indigo-50/50"
+          className="rounded-md absolute border border-indigo-300/40 bg-indigo-50/50"
           style={{
             width: `${48 + i * 24}px`,
             height: `${48 + i * 24}px`,

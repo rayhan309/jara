@@ -4,8 +4,8 @@ export async function POST(request) {
   const adminUsername = process.env.ADMINUSERNAME;
   const adminPassword = process.env.ADMINPASS;
 
-  console.log(adminUsername, adminPassword);
-  console.log(username, password);
+  // console.log(adminUsername, adminPassword);
+  // console.log(username, password);
 
   if (!adminUsername || !adminPassword) {
     return Response.json(

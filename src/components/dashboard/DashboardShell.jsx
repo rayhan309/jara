@@ -45,7 +45,7 @@ export default function DashboardShell({ children }) {
                 aria-label="Open menu"
                 whileTap={{ scale: 0.95 }}
                 onClick={openSidebar}
-                className="flex h-9 w-9 shrink-0 items-center justify-center border border-dash-border bg-white text-dash-muted transition-colors hover:border-indigo-300 hover:text-indigo-600 sm:h-10 sm:w-10 lg:hidden"
+                className="rounded-md flex h-9 w-9 shrink-0 items-center justify-center border border-dash-border bg-white text-dash-muted transition-colors hover:border-indigo-300 hover:text-indigo-600 sm:h-10 sm:w-10 lg:hidden"
               >
                 <Menu className="h-5 w-5" />
               </motion.button>
@@ -80,7 +80,7 @@ export default function DashboardShell({ children }) {
                 <input
                   type="search"
                   placeholder="Search orders, products..."
-                  className="w-64 border border-dash-border bg-white py-2 pr-4 pl-9 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="rounded-md w-64 border border-dash-border bg-white py-2 pr-4 pl-9 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                 />
               </div>
 
@@ -89,14 +89,14 @@ export default function DashboardShell({ children }) {
                 aria-label="Notifications"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="relative flex h-9 w-9 shrink-0 items-center justify-center border border-dash-border bg-white text-dash-muted transition-colors hover:border-indigo-300 hover:text-indigo-600 sm:h-10 sm:w-10"
+                className="rounded-md relative flex h-9 w-9 shrink-0 items-center justify-center border border-dash-border bg-white text-dash-muted transition-colors hover:border-indigo-300 hover:text-indigo-600 sm:h-10 sm:w-10"
               >
                 <Bell className="h-[18px] w-[18px] sm:h-5 sm:w-5" />
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-indigo-500 sm:top-2 sm:right-2" />
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-md bg-indigo-500 sm:top-2 sm:right-2" />
               </motion.button>
 
               <div
-                className="flex h-9 shrink-0 items-center justify-center gap-1.5 border border-emerald-200 bg-emerald-50 px-2 sm:h-10 sm:gap-2 sm:px-3"
+                className="rounded-md flex h-9 shrink-0 items-center justify-center gap-1.5 border border-emerald-200 bg-emerald-50 px-2 sm:h-10 sm:gap-2 sm:px-3"
                 title="Live"
               >
                 <Radio className="h-3.5 w-3.5 text-emerald-600" />
@@ -113,7 +113,7 @@ export default function DashboardShell({ children }) {
               <input
                 type="search"
                 placeholder="Search orders, products..."
-                className="w-full border border-dash-border bg-white py-2.5 pr-4 pl-9 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                className="rounded-md w-full border border-dash-border bg-white py-2.5 pr-4 pl-9 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
               />
             </div>
           </div>

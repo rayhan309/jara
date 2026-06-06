@@ -42,7 +42,7 @@ export default function StatCard({
   return (
     <MotionFadeIn delay={delay}>
       <MotionHoverCard>
-        <div className="dash-card group relative overflow-hidden p-6 transition-shadow hover:shadow-lg">
+        <div className="dash-card group relative overflow-hidden p-4 sm:p-6 transition-shadow hover:shadow-lg">
           <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${gradient}`} />
 
           <div className="flex items-start justify-between">
@@ -54,7 +54,7 @@ export default function StatCard({
                 {showCurrencyIcon ? (
                   <HiOutlineCurrencyBangladeshi className="h-6 w-6 text-indigo-500" />
                 ) : null}
-                <p className="text-3xl font-bold tracking-tight text-dash-text">{value}</p>
+                <p className="text-2xl font-bold tracking-tight text-dash-text sm:text-3xl">{value}</p>
               </div>
               {subtitle ? (
                 <p className="mt-1 text-xs text-dash-muted">{subtitle}</p>
@@ -63,7 +63,7 @@ export default function StatCard({
 
             {change ? (
               <div
-                className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold ${
+                className={`rounded-md flex items-center gap-1 px-2 py-1 text-xs font-semibold ${
                   isPositive ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"
                 }`}
               >

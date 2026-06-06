@@ -8,8 +8,10 @@ export const metadata = {
 
 export default function DashboardLayout({ children }) {
   return (
-    <AdminAuthGuard>
-      <DashboardShell>{children}</DashboardShell>
-    </AdminAuthGuard>
+    <div className="font-dashboard">
+      <AdminAuthGuard>
+        <DashboardShell>{children}</DashboardShell>
+      </AdminAuthGuard>
+    </div>
   );
 }

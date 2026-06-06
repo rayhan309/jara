@@ -27,7 +27,7 @@ export default function AdminAuthGuard({ children }) {
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center gap-5"
         >
-          <div className="relative flex h-14 w-14 items-center justify-center border border-indigo-200 bg-white">
+          <div className="rounded-md relative flex h-14 w-14 items-center justify-center border border-indigo-200 bg-white">
             <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
           </div>
           <p className="text-xs font-semibold tracking-[0.2em] text-dash-muted uppercase">

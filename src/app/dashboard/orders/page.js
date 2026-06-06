@@ -1,14 +1,7 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
-import PagePlaceholder from "@/components/dashboard/PagePlaceholder";
+import OrdersManager from "@/components/dashboard/OrdersManager";
 
 export default function OrdersPage() {
-  return (
-    <PagePlaceholder
-      title="Orders Management"
-      description="Track, filter, and fulfill customer orders from this module. Full order pipeline coming soon."
-      icon={ShoppingBag}
-    />
-  );
+  return <OrdersManager />;
 }
