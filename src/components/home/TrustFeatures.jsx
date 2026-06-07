@@ -3,52 +3,46 @@ import { Headphones, RefreshCw, ShieldCheck, Truck } from "lucide-react";
 const FEATURES = [
   {
     icon: RefreshCw,
-    title: "৭ দিনের মধ্যে পরিবর্তন",
-    desc: "নির্দিষ্ট পণ্যে বিনামূল্যে রিপ্লেসমেন্ট",
+    title: "সহজ পরিবর্তনের গ্যারান্টি",
   },
   {
     icon: Truck,
-    title: "ফ্রি হোম ডেলিভারি",
-    desc: "ঢাকার মধ্যে নির্বাচিত অর্ডারে",
+    title: "সারাদেশে ক্যাশ অন হোম ডেলিভারি",
   },
   {
     icon: ShieldCheck,
-    title: "নিরাপদ পেমেন্ট",
-    desc: "ক্যাশ অন ডেলিভারি সহজ ও নিরাপদ",
+    title: "নিরাপদে পেমেন্ট করার সহজ উপায়",
   },
   {
     icon: Headphones,
-    title: "গ্রাহক সেবা",
-    desc: "সর্বক্ষণিক দ্রুত সহায়তা",
+    title: "সর্বক্ষণিক ও দ্রুত গ্রাহক সেবা",
   },
 ];
 
 export default function TrustFeatures() {
   return (
-    <section className="border-b border-zinc-100 bg-white py-4 sm:py-5">
+    <section className="bg-white py-4 sm:py-5">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-4 lg:gap-4 [&::-webkit-scrollbar]:hidden">
-          {FEATURES.map((feature) => {
-            const Icon = feature.icon;
-            return (
-              <div
-                key={feature.title}
-                className="flex min-w-[82%] shrink-0 snap-start items-center gap-3 rounded-md border border-zinc-100 bg-zinc-50/90 p-3.5 sm:min-w-0 sm:p-4"
-              >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-indigo-600 text-white shadow-sm shadow-indigo-200">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[13px] font-bold leading-snug text-zinc-900 sm:text-sm">
+        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white sm:rounded-full">
+          <div className="flex snap-x snap-mandatory divide-x divide-zinc-200 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
+            {FEATURES.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <div
+                  key={feature.title}
+                  className="flex min-w-[78%] shrink-0 snap-start items-center gap-3 px-4 py-3.5 sm:min-w-0 sm:px-5 sm:py-4 lg:justify-center lg:px-6"
+                >
+                  <Icon
+                    className="h-6 w-6 shrink-0 text-zinc-900 sm:h-7 sm:w-7"
+                    strokeWidth={1.6}
+                  />
+                  <p className="text-[13px] leading-snug font-bold text-zinc-900 sm:text-sm">
                     {feature.title}
                   </p>
-                  <p className="mt-0.5 text-[11px] leading-snug text-zinc-500 sm:text-xs">
-                    {feature.desc}
-                  </p>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
