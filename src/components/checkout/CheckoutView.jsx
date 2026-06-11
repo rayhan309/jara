@@ -119,7 +119,7 @@ function CheckoutItemCard({ item, items, products, onUpdateQty, onUpdateVariant,
 
           <div className="mt-3 flex flex-wrap items-end gap-2.5 sm:gap-3">
             {hasVariants ? (
-              <div className="min-w-[120px] flex-1">
+              <div className="min-w-0 flex-1 sm:min-w-[120px]">
                 <label className="mb-1 block text-[10px] font-semibold tracking-wide text-zinc-500 uppercase">
                   {variantLabel}
                 </label>
@@ -287,7 +287,7 @@ export default function CheckoutView() {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-lg rounded-md border border-dashed border-zinc-200 bg-white p-10 text-center">
+      <div className="mx-auto max-w-lg rounded-md border border-dashed border-zinc-200 bg-white p-6 text-center sm:p-10">
         <ShoppingBag className="mx-auto h-10 w-10 text-zinc-300" />
         <p className="mt-4 text-sm text-zinc-500">আপনার কার্ট খালি।</p>
         <Link href="/products" className="mt-4 inline-block text-sm font-semibold text-indigo-600">
@@ -450,7 +450,7 @@ export default function CheckoutView() {
                     onChange={() => setDelivery(option.id)}
                     className="h-4 w-4 accent-indigo-600"
                   />
-                  <span className="text-sm font-medium text-zinc-800">
+                  <span className="min-w-0 text-sm font-medium text-zinc-800">
                     {option.label} — ৳{option.charge}
                   </span>
                 </label>

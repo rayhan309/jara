@@ -137,19 +137,19 @@ function NavbarContent() {
   return (
     <>
       <header className="shadow-sm">
-        <div className="bg-indigo-700 px-4 py-2 text-center text-[11px] font-medium text-white sm:text-xs">
+        <div className="bg-indigo-700 px-3 py-1.5 text-center text-[10px] leading-snug font-medium text-white sm:px-4 sm:py-2 sm:text-xs">
           বিশ্বস্ত অনলাইন শপিং — দ্রুত ডেলিভারি ও সহজ অর্ডার ট্র্যাকিং
         </div>
 
         <div className="border-b border-zinc-100 bg-white">
-          <div className="store-container py-3 sm:py-4">
+          <div className="store-container py-2.5 sm:py-4">
             <div className="flex items-center justify-between gap-3 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:gap-8">
               <Link href="/" className="group flex shrink-0 items-center gap-2.5 sm:gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-md bg-indigo-600 shadow-md shadow-indigo-200 sm:h-11 sm:w-11">
                   <RiStore2Fill className="h-5 w-5 text-white sm:h-5 sm:w-5" />
                 </div>
                 <div>
-                  <p className="text-base font-bold tracking-tight text-zinc-900 transition-colors group-hover:text-indigo-600 sm:text-xl">
+                  <p className="text-sm font-bold tracking-tight text-zinc-900 transition-colors group-hover:text-indigo-600 min-[360px]:text-base sm:text-xl">
                     Nexa
                   </p>
                   <p className="hidden text-[11px] text-zinc-400 sm:block">প্রিমিয়াম অনলাইন শপিং</p>
@@ -204,10 +204,6 @@ function NavbarContent() {
                 </button>
               </div>
             </div>
-
-            <div className="mt-3 lg:hidden">
-              <HeaderSearch />
-            </div>
           </div>
         </div>
 
@@ -215,11 +211,11 @@ function NavbarContent() {
           aria-label="ক্যাটাগরি মেনু"
           className="border-b border-indigo-800/80 bg-indigo-700 text-white"
         >
-          <div className="store-container flex items-center gap-2">
-            <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="store-container flex items-center gap-1.5 sm:gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto py-1.5 sm:gap-1 sm:py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <Link
                 href="/"
-                className={`shrink-0 rounded-md px-3 py-1.5 text-[13px] font-semibold whitespace-nowrap transition-colors sm:text-sm ${
+                className={`shrink-0 rounded-md px-2.5 py-1.5 text-[12px] font-semibold whitespace-nowrap transition-colors sm:px-3 sm:text-sm ${
                   pathname === "/"
                     ? navLinkActiveClass
                     : navLinkInactiveClass
@@ -242,7 +238,7 @@ function NavbarContent() {
                       key={category._id}
                       href={`/products?category=${category.slug}`}
                       onClick={() => setSelectedCategoryId(category._id)}
-                      className={`shrink-0 rounded-md px-3 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors sm:text-sm ${
+                      className={`shrink-0 rounded-md px-2.5 py-1.5 text-[12px] font-medium whitespace-nowrap transition-colors sm:px-3 sm:text-sm ${
                         active ? navLinkActiveClass : navLinkInactiveClass
                       }`}
                     >
@@ -253,7 +249,7 @@ function NavbarContent() {
               )}
             </div>
 
-            <div className="flex shrink-0 items-center gap-2 border-l border-indigo-600 py-2 pl-2 sm:pl-3">
+            <div className="hidden shrink-0 items-center gap-2 border-l border-indigo-600 py-2 pl-2 sm:flex sm:pl-3">
               <button
                 type="button"
                 aria-label="কার্ট খুলুন"
@@ -272,8 +268,7 @@ function NavbarContent() {
                 className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-emerald-400 sm:px-4 sm:text-[13px]"
               >
                 <Truck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">অর্ডার ট্র্যাক</span>
-                <span className="sm:hidden">ট্র্যাক</span>
+                <span>অর্ডার ট্র্যাক</span>
               </Link>
             </div>
           </div>
@@ -297,7 +292,7 @@ function NavbarContent() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 320, damping: 32 }}
-              className="fixed inset-y-0 right-0 z-50 flex w-[min(100%,320px)] flex-col border-l border-zinc-200 bg-white shadow-2xl lg:hidden"
+              className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[min(100%,320px)] flex-col border-l border-zinc-200 bg-white shadow-2xl lg:hidden"
             >
               <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4">
                 <p className="text-sm font-bold text-zinc-900">মেনু</p>

@@ -27,7 +27,7 @@ function CategoryBlockSkeleton() {
   return (
     <section className="py-6 sm:py-8">
       <div className="mb-5 mx-auto h-6 w-40 animate-pulse rounded-md bg-zinc-100" />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+      <div className="store-product-grid">
         {Array.from({ length: 4 }).map((_, index) => (
           <ProductSkeleton key={index} />
         ))}
@@ -74,7 +74,7 @@ export default function HomeCategoryProductsSection({
           ) : null}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+        <div className="store-product-grid">
           {products.map((product, productIndex) => (
             <StoreProductCard key={product._id} product={product} index={productIndex} />
           ))}

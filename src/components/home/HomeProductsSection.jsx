@@ -30,7 +30,7 @@ export default function HomeProductsSection({
 }) {
   return (
     <section className={`py-8 sm:py-12 lg:py-14 ${className}`}>
-      <div className="store-container">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <HomeSectionHeader
           eyebrow={eyebrow}
           title={title}

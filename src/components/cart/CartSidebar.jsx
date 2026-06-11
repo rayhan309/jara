@@ -45,9 +45,9 @@ export default function CartSidebar({ open, onClose }) {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 320, damping: 32 }}
-            className="fixed inset-y-0 right-0 z-[70] flex w-[min(100%,380px)] flex-col border-l border-zinc-200 bg-white shadow-2xl"
+            className="fixed inset-y-0 right-0 z-[70] flex w-full max-w-[min(100%,380px)] flex-col border-l border-zinc-200 bg-white shadow-2xl"
           >
-            <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4">
+            <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-4 sm:px-5">
               <div>
                 <p className="text-sm font-bold text-zinc-900">আপনার কার্ট</p>
                 <p className="text-xs text-zinc-500">{count}টি আইটেম</p>
@@ -77,7 +77,7 @@ export default function CartSidebar({ open, onClose }) {
               </div>
             ) : (
               <>
-                <div className="flex-1 space-y-3 overflow-y-auto p-4">
+                <div className="flex-1 space-y-3 overflow-y-auto p-3 sm:p-4">
                   {items.map((item) => {
                     const lineTotal = item.price * item.quantity;
                     const variantLabel = item.variant_type === "weight" ? "ওজন" : "সাইজ";
@@ -112,7 +112,7 @@ export default function CartSidebar({ open, onClose }) {
                                   {item.title}
                                 </p>
                                 {item.selected_variant ? (
-                                  <span className="mt-1 inline-flex rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700">
+                                  <span className="mt-1 inline-flex max-w-full truncate rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700">
                                     {variantLabel}: {item.selected_variant}
                                   </span>
                                 ) : null}
@@ -180,7 +180,7 @@ export default function CartSidebar({ open, onClose }) {
                   })}
                 </div>
 
-                <div className="border-t border-zinc-100 p-4">
+                <div className="store-safe-bottom border-t border-zinc-100 p-3 sm:p-4">
                   <div className="mb-4 flex items-center justify-between">
                     <span className="text-sm text-zinc-600">মোট</span>
                     <span className="text-lg font-bold text-zinc-900">৳{total.toLocaleString()}</span>

@@ -31,6 +31,7 @@ const labelClass = "mb-1.5 block text-sm font-semibold text-dash-text";
 
 const emptyValues = {
   title_bn: "",
+  title_en: "",
   slug: "",
   brand_or_vendor: "",
   category: "",
@@ -85,8 +86,9 @@ function ProductFormModal({ open, onClose, product }) {
     [regularPrice, salePrice]
   );
 
-  const titleBnValue = watch("title_bn");
+  const titleEnValue = watch("title_en");
   const titleBnField = register("title_bn", { required: "পণ্যের নাম লিখুন।" });
+  const titleEnField = register("title_en", { required: "English title is required." });
   const categoryField = register("category", { required: "Please select a category." });
   const regularPriceField = register("regular_price", {
     required: "Regular price is required.",
@@ -167,8 +169,9 @@ function ProductFormModal({ open, onClose, product }) {
 
     const formData = new FormData();
     const titleBn = values.title_bn.trim();
+    const titleEn = values.title_en.trim();
     formData.append("title_bn", titleBn);
-    formData.append("title_en", titleBn);
+    formData.append("title_en", titleEn);
     formData.append("slug", values.slug.trim());
     formData.append("brand_or_vendor", values.brand_or_vendor.trim());
     formData.append("category", values.category);
@@ -217,7 +220,8 @@ function ProductFormModal({ open, onClose, product }) {
 
     if (product) {
       reset({
-        title_bn: product.title_bn || product.title_en || "",
+        title_bn: product.title_bn || "",
+        title_en: product.title_en || "",
         slug: product.slug || "",
         brand_or_vendor: product.brand_or_vendor || "",
         category: product.category || "",
@@ -245,8 +249,8 @@ function ProductFormModal({ open, onClose, product }) {
 
   useEffect(() => {
     if (!open || slugEdited) return;
-    setValue("slug", slugify(titleBnValue || ""));
-  }, [titleBnValue, slugEdited, open, setValue]);
+    setValue("slug", slugify(titleEnValue || ""));
+  }, [titleEnValue, slugEdited, open, setValue]);
 
   useEffect(() => {
     if (!open) return;
@@ -317,14 +321,26 @@ function ProductFormModal({ open, onClose, product }) {
                       <input
                         id="title-bn"
                         {...titleBnField}
-                        onChange={(event) => {
-                          titleBnField.onChange(event);
-                          if (!slugEdited) setValue("slug", slugify(event.target.value));
-                        }}
                         placeholder="প্রিমিয়াম ম্যাজিক মশারি"
                         className={inputClass}
                       />
                       <FieldError message={errors.title_bn?.message} />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label htmlFor="title-en" className={labelClass}>
+                        English Title <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        id="title-en"
+                        {...titleEnField}
+                        onChange={(event) => {
+                          titleEnField.onChange(event);
+                          if (!slugEdited) setValue("slug", slugify(event.target.value));
+                        }}
+                        placeholder="Premium Magic Mosquito Net"
+                        className={inputClass}
+                      />
+                      <FieldError message={errors.title_en?.message} />
                     </div>
                     <div>
                       <label htmlFor="slug" className={labelClass}>Slug (অটো)</label>

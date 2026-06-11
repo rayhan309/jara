@@ -84,7 +84,7 @@ export async function POST(request) {
     const formData = await request.formData();
 
     const titleBn = String(formData.get("title_bn") || "").trim();
-    const titleEn = titleBn;
+    const titleEn = String(formData.get("title_en") || "").trim();
     const slugInput = String(formData.get("slug") || "").trim();
     const brandOrVendor = String(formData.get("brand_or_vendor") || "").trim();
     const category = String(formData.get("category") || "").trim();
@@ -105,6 +105,10 @@ export async function POST(request) {
 
     if (!titleBn) {
       return NextResponse.json({ error: "পণ্যের নাম প্রয়োজন।" }, { status: 400 });
+    }
+
+    if (!titleEn) {
+      return NextResponse.json({ error: "English title is required." }, { status: 400 });
     }
 
     if (!category) {
@@ -132,7 +136,7 @@ export async function POST(request) {
       }
     }
 
-    const baseSlug = slugify(slugInput || titleBn);
+    const baseSlug = slugify(slugInput || titleEn);
     if (!baseSlug) {
       return NextResponse.json({ error: "A valid slug could not be generated." }, { status: 400 });
     }

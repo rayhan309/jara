@@ -6,7 +6,7 @@ import HomeSectionHeader from "@/components/home/HomeSectionHeader";
 export default function HomeVideoSection() {
   return (
     <section className="border-t border-zinc-100 bg-white py-8 sm:py-12 lg:py-14">
-      <div className="store-container">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <HomeSectionHeader
           eyebrow="রিভিউ"
           title="প্রডাক্ট রিভিউ ভিডিও"

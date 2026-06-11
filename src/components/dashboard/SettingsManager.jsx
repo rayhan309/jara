@@ -412,7 +412,7 @@ export default function SettingsManager() {
                 key={banner.id}
                 className="grid gap-4 rounded-md border border-dash-border bg-slate-50/70 p-3 sm:grid-cols-[180px_1fr_auto] sm:items-start sm:p-4"
               >
-                <div className="relative aspect-[21/8] overflow-hidden rounded-lg border border-dash-border bg-white sm:aspect-[16/9]">
+                <div className="relative aspect-[1170/880] overflow-hidden rounded-lg border border-dash-border bg-white">
                   <Image
                     src={banner.image.url}
                     alt={banner.alt || `Banner ${index + 1}`}

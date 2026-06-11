@@ -21,7 +21,7 @@ export default function HeroSwiper() {
 
   return (
     <section className="bg-white py-4 sm:py-5 lg:py-6">
-      <div className="store-container">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-xl border border-zinc-200/90 bg-zinc-100 shadow-sm">
           <Swiper
             modules={[Autoplay, Pagination, EffectFade]}
@@ -37,7 +37,7 @@ export default function HeroSwiper() {
               return (
                 <SwiperSlide key={slide.id}>
                   <Link href={slide.href || "/products"} className="block">
-                    <div className="relative aspect-[16/9] w-full sm:aspect-[21/8]">
+                    <div className="relative aspect-[16/10] w-full sm:aspect-[21/9]">
                       <Image
                         src={imageUrl}
                         alt={slide.alt}
@@ -45,8 +45,8 @@ export default function HeroSwiper() {
                         priority
                         quality={95}
                         unoptimized={imageUrl.includes("ik.imagekit.io")}
-                        className="object-cover object-center"
-                        sizes="(max-width: 1280px) 100vw, 1280px"
+                        className="object-fill object-center"
+                        sizes="(max-width: 1170px) 100vw, 1170px"
                       />
                     </div>
                   </Link>

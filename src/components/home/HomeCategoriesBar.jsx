@@ -18,7 +18,7 @@ export default function HomeCategoriesBar() {
       aria-label="ক্যাটাগরি মেনু"
       className="border-b border-indigo-800/80 bg-indigo-700 text-white"
     >
-      <div className="store-container flex items-center gap-1 overflow-x-auto py-2 sm:gap-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center gap-1 overflow-x-auto py-2 sm:gap-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <Link
           href="/"
           className="shrink-0 rounded-md bg-indigo-600 px-3 py-1.5 text-[13px] font-semibold whitespace-nowrap transition-colors hover:bg-indigo-500 sm:text-sm"

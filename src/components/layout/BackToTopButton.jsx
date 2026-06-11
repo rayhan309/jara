@@ -33,7 +33,8 @@ export default function BackToTopButton() {
           onClick={scrollToTop}
           aria-label="উপরে যান"
           title="উপরে যান"
-          className="fixed bottom-5 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-indigo-600 text-white shadow-[0_8px_24px_-6px_rgba(79,70,229,0.55)] transition-colors hover:bg-indigo-700 sm:bottom-6 sm:right-6 sm:h-12 sm:w-12"
+          className="fixed right-3 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-white shadow-[0_8px_24px_-6px_rgba(79,70,229,0.55)] transition-colors hover:bg-indigo-700 sm:right-6 sm:h-12 sm:w-12"
+          style={{ bottom: "max(1rem, env(safe-area-inset-bottom, 0px))" }}
         >
           <ArrowUp className="h-5 w-5" strokeWidth={2.5} />
         </motion.button>

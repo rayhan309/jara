@@ -37,7 +37,7 @@ function StoreProductsFallback() {
         <div className="mx-auto h-7 w-32 animate-pulse rounded-md bg-zinc-100 sm:h-8 sm:w-40" />
         <div className="mx-auto mt-2.5 h-0.5 w-12 animate-pulse rounded-full bg-zinc-100" />
       </div>
-      <div className="mt-6 grid grid-cols-2 gap-2.5 sm:mt-8 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="store-product-grid mt-6 sm:mt-8">
         {Array.from({ length: 12 }).map((_, index) => (
           <ProductSkeleton key={index} />
         ))}
@@ -90,7 +90,7 @@ function StoreProductsContent() {
 
       <div className="mt-6 sm:mt-8">
         {isLoadingContent ? (
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="store-product-grid">
             {Array.from({ length: 12 }).map((_, index) => (
               <ProductSkeleton key={index} />
             ))}
@@ -127,7 +127,7 @@ function StoreProductsContent() {
             ) : null}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="store-product-grid">
             {filteredProducts.map((product, index) => (
               <StoreProductCard key={product._id} product={product} index={index} />
             ))}

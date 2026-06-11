@@ -45,7 +45,7 @@ export function CategoryPageCard({ category, productCount = 0, index = 0 }) {
         </div>
 
         <div className="min-w-0 px-0.5 text-center">
-          <h3 className="line-clamp-2 text-[11px] leading-snug font-semibold text-zinc-800 transition-colors group-hover:text-indigo-700 sm:text-xs">
+          <h3 className="line-clamp-2 text-[10px] leading-snug font-semibold text-zinc-800 transition-colors group-hover:text-indigo-700 min-[360px]:text-[11px] sm:text-xs">
             {category.name}
           </h3>
           <p className="mt-0.5 text-[10px] text-zinc-400">{productCount} পণ্য</p>

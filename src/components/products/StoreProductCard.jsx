@@ -49,7 +49,7 @@ export default function StoreProductCard({ product, index = 0 }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03, duration: 0.3 }}
-      className="group flex h-full flex-col overflow-hidden rounded-md border border-zinc-200/90 bg-white transition-all duration-200 hover:border-zinc-300 hover:shadow-[0_8px_24px_-12px_rgba(15,23,42,0.18)]"
+      className="group flex h-full min-w-0 flex-col overflow-hidden rounded-md border border-zinc-200/90 bg-white transition-all duration-200 hover:border-zinc-300 hover:shadow-[0_8px_24px_-12px_rgba(15,23,42,0.18)]"
     >
       <Link href={`/products/${product.slug}`} className="flex flex-1 flex-col">
         <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-zinc-50">
@@ -81,17 +81,17 @@ export default function StoreProductCard({ product, index = 0 }) {
           ) : null}
         </div>
 
-        <div className="px-2.5 pt-2.5">
-          <h3 className="line-clamp-2 text-sm leading-5 font-semibold text-zinc-800 sm:text-base sm:leading-6">
+        <div className="px-2 pt-2 sm:px-2.5 sm:pt-2.5">
+          <h3 className="line-clamp-2 text-[12px] leading-4 font-semibold text-zinc-800 min-[360px]:text-[13px] sm:text-sm sm:leading-5">
             {title}
           </h3>
 
-          <div className="mt-1 flex flex-wrap items-baseline gap-2 sm:mt-1.5">
-            <span className="text-base font-bold text-zinc-900 sm:text-lg">
+          <div className="mt-1 flex flex-wrap items-baseline gap-1.5 sm:mt-1.5 sm:gap-2">
+            <span className="text-[13px] font-bold text-zinc-900 min-[360px]:text-sm sm:text-base">
               ৳{salePrice?.toLocaleString()}
             </span>
             {regularPrice > salePrice ? (
-              <span className="text-xs text-zinc-400 line-through sm:text-sm">
+              <span className="text-[11px] text-zinc-400 line-through sm:text-xs md:text-sm">
                 ৳{regularPrice.toLocaleString()}
               </span>
             ) : null}
@@ -99,13 +99,13 @@ export default function StoreProductCard({ product, index = 0 }) {
         </div>
       </Link>
 
-      <div className="grid grid-cols-[2.75rem_1fr] gap-1.5 px-2.5 pb-2.5 pt-1">
+      <div className="grid grid-cols-[2rem_1fr] items-center gap-1.5 px-2 pb-2 pt-1 sm:grid-cols-[2.5rem_1fr] sm:px-2.5 sm:pb-2.5">
         <button
           type="button"
           onClick={handleCartToggle}
           aria-label={inCart ? "কার্ট থেকে সরান" : "কার্টে যোগ করুন"}
           title={inCart ? "কার্ট থেকে সরান" : "কার্টে যোগ করুন"}
-          className={`inline-flex h-8 items-center justify-center rounded-md transition-colors ${
+          className={`flex h-8 w-full items-center justify-center rounded-md transition-colors sm:h-9 ${
             inCart
               ? "border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700"
               : "border border-zinc-200 bg-white text-zinc-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
@@ -116,10 +116,11 @@ export default function StoreProductCard({ product, index = 0 }) {
         <button
           type="button"
           onClick={handleBuy}
-          className="inline-flex items-center justify-center gap-1 rounded-md bg-indigo-600 px-2 py-2 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 sm:text-sm"
+          className="flex h-8 min-w-0 items-center justify-center gap-1 rounded-md bg-indigo-600 px-2 text-[11px] font-semibold text-white transition-colors hover:bg-indigo-700 sm:h-9 sm:text-xs"
         >
-          <Zap className="h-3 w-3" />
-          এখনই কিনুন
+          <Zap className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate sm:hidden">কিনুন</span>
+          <span className="hidden truncate sm:inline">এখনই কিনুন</span>
         </button>
       </div>
     </motion.article>

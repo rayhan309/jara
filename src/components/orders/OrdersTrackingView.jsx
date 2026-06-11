@@ -66,7 +66,7 @@ function OrderProgressStepper({ currentStep }) {
   return (
     <div className="relative mt-6 border-t border-zinc-100 pt-6">
       <div className="absolute top-[calc(1.5rem+0.75rem)] right-[10%] left-[10%] hidden h-0.5 bg-zinc-200 sm:block" />
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-2">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-2">
         {ORDER_TRACKING_STEPS.map((label, index) => {
           const stepNum = index + 1;
           const done = stepNum <= currentStep;
@@ -114,7 +114,7 @@ function OrderTrackingCard({ order, index }) {
       transition={{ delay: index * 0.05 }}
       className="overflow-hidden rounded-md border border-zinc-200 bg-white shadow-sm"
     >
-      <div className="flex flex-col gap-3 border-b border-zinc-100 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5">
+      <div className="flex flex-col gap-3 border-b border-zinc-100 px-3 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-base font-bold text-zinc-900 sm:text-lg">Order {order.id}</h3>
@@ -132,7 +132,7 @@ function OrderTrackingCard({ order, index }) {
         <StatusBadge status={order.status} label={order.statusLabel} />
       </div>
 
-      <div className="grid gap-4 border-b border-zinc-100 px-4 py-4 sm:grid-cols-3 sm:px-5 sm:py-5">
+      <div className="grid gap-4 border-b border-zinc-100 px-3 py-4 sm:grid-cols-3 sm:px-5 sm:py-5">
         <div>
           <p className="text-[10px] font-bold tracking-[0.14em] text-zinc-400 uppercase">Customer</p>
           <p className="mt-1.5 text-sm font-bold text-zinc-900">{order.customer}</p>
@@ -151,7 +151,26 @@ function OrderTrackingCard({ order, index }) {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="divide-y divide-zinc-100 md:hidden">
+        {order.items.map((item, itemIndex) => (
+          <div
+            key={`${item.title}-${itemIndex}`}
+            className="flex items-start justify-between gap-3 px-4 py-3"
+          >
+            <p className="min-w-0 flex-1 line-clamp-2 text-sm font-medium text-zinc-800">
+              {item.title}
+            </p>
+            <div className="shrink-0 text-right">
+              <p className="text-xs text-zinc-500">×{item.quantity}</p>
+              <p className="text-sm font-semibold text-zinc-900">
+                ৳{item.line_total.toLocaleString()}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto md:block">
         <table className="min-w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold tracking-wide text-zinc-500 uppercase">
@@ -166,7 +185,9 @@ function OrderTrackingCard({ order, index }) {
                 key={`${item.title}-${itemIndex}`}
                 className="border-b border-zinc-100 last:border-b-0"
               >
-                <td className="px-4 py-3 font-medium text-zinc-800 sm:px-5">{item.title}</td>
+                <td className="max-w-0 px-4 py-3 font-medium text-zinc-800 sm:px-5">
+                  <span className="line-clamp-2">{item.title}</span>
+                </td>
                 <td className="px-4 py-3 text-center text-zinc-700">{item.quantity}</td>
                 <td className="px-4 py-3 font-semibold text-zinc-900 sm:px-5">
                   ৳ {item.line_total.toLocaleString()}
@@ -196,7 +217,7 @@ function OrdersTrackingFallback() {
   return (
     <StoreShell className="bg-zinc-50">
       <section className="py-6 sm:py-8 lg:py-10">
-        <div className="store-container max-w-4xl">
+        <div className="store-container">
           <div className="overflow-hidden rounded-md border border-zinc-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="h-6 w-40 animate-pulse rounded-md bg-zinc-100" />
             <div className="mt-2 h-4 w-64 animate-pulse rounded-md bg-zinc-100" />
@@ -272,7 +293,7 @@ function OrdersTrackingContent() {
   return (
     <StoreShell className="bg-zinc-50">
       <section className="py-6 sm:py-8 lg:py-10">
-        <div className="store-container max-w-4xl">
+        <div className="store-container">
           <div className="overflow-hidden rounded-md border border-zinc-200 bg-white p-4 shadow-sm sm:p-5">
             <h1 className="text-lg font-bold text-zinc-900 sm:text-xl">Track Your Order</h1>
             <p className="mt-1 text-xs text-zinc-500 sm:text-sm">

@@ -15,7 +15,7 @@ import {
 } from "@/components/categories/CategoryPageCard";
 
 const GRID_CLASS =
-  "grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-2.5 md:grid-cols-5 md:gap-3 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10";
+  "grid min-w-0 grid-cols-2 gap-2 min-[400px]:grid-cols-3 sm:grid-cols-4 sm:gap-2.5 md:grid-cols-5 md:gap-3 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10";
 
 const SKELETON_COUNT = 10;
 
@@ -38,7 +38,7 @@ export default function StoreCategoriesView() {
 
   return (
     <div>
-      <div className="relative overflow-hidden rounded-md border border-indigo-100/80 bg-gradient-to-br from-indigo-50 via-white to-violet-50/60 p-5 sm:p-6 lg:p-7">
+      <div className="relative overflow-hidden rounded-md border border-indigo-100/80 bg-gradient-to-br from-indigo-50 via-white to-violet-50/60 p-4 sm:p-6 lg:p-7">
         <div
           className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-indigo-200/30 blur-3xl"
           aria-hidden

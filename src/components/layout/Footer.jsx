@@ -27,13 +27,14 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-zinc-200 bg-white">
-      <div className="store-container py-12 lg:py-16">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="store-container py-10 sm:py-12 lg:py-16">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-10 lg:grid-cols-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.45 }}
+            className="sm:col-span-2 lg:col-span-1"
           >
             <Link href="/" className="inline-flex items-center gap-3">
               <div className="rounded-md flex h-10 w-10 items-center justify-center bg-indigo-600">

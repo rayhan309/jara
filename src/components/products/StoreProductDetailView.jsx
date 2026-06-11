@@ -178,7 +178,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
   }
 
   return (
-    <div className="store-container min-w-0 py-8 sm:py-10">
+    <div className="store-container py-6 sm:py-10">
       <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-zinc-500 sm:text-sm">
         <Link href="/" className="transition-colors hover:text-indigo-600">
           হোম
@@ -242,7 +242,11 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
             ) : null}
 
             {outOfStock ? (
-              <span className="absolute top-4 right-16 rounded-md bg-zinc-800 px-2.5 py-1 text-xs font-semibold text-white sm:right-[4.5rem]">
+              <span
+                className={`absolute left-4 rounded-md bg-zinc-800 px-2.5 py-1 text-xs font-semibold text-white ${
+                  discount > 0 ? "top-14" : "top-4"
+                }`}
+              >
                 স্টক নেই
               </span>
             ) : null}
@@ -300,7 +304,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
             ) : null}
           </div>
 
-          <h1 className="mt-3 text-2xl font-bold leading-snug text-zinc-900 sm:text-3xl">{title}</h1>
+          <h1 className="mt-3 text-xl font-bold leading-snug text-zinc-900 sm:text-2xl lg:text-3xl">{title}</h1>
 
           {product.ratings?.average_rating > 0 ? (
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -316,11 +320,11 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
           <div className="mt-6 rounded-md border border-zinc-200 bg-white p-4 sm:p-5">
             <div className="flex flex-wrap items-end gap-3">
-              <p className="text-3xl font-bold text-zinc-900 sm:text-4xl">
+              <p className="text-2xl font-bold text-zinc-900 sm:text-3xl lg:text-4xl">
                 ৳{salePrice.toLocaleString()}
               </p>
               {regularPrice > salePrice ? (
-                <p className="pb-1 text-lg text-zinc-400 line-through">
+                <p className="pb-1 text-base text-zinc-400 line-through sm:text-lg">
                   ৳{regularPrice.toLocaleString()}
                 </p>
               ) : null}
@@ -347,7 +351,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
           </div>
 
           {hasAnyInCart ? (
-            <div className="mt-4 rounded-md border border-indigo-200 bg-indigo-50 px-3.5 py-2.5 text-xs font-medium text-indigo-800">
+            <div className="mt-4 break-words rounded-md border border-indigo-200 bg-indigo-50 px-3.5 py-2.5 text-xs font-medium text-indigo-800">
               <span className="font-semibold">কার্টে আছে:</span>{" "}
               {variantConfig.required
                 ? productCartLines
@@ -416,25 +420,34 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
             </div>
           ) : null}
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <div className="mt-6 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
             <button
               type="button"
               onClick={handleAddToCart}
-              className={`inline-flex items-center justify-center gap-2 rounded-md px-5 py-3.5 text-sm font-semibold transition-colors ${
+              className={`inline-flex items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-semibold transition-colors sm:px-5 sm:py-3.5 ${
                 inCart
                   ? "border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700"
                   : "border border-zinc-200 bg-white text-zinc-800 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
               }`}
             >
-              {inCart ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
-              {inCart ? `কার্টে (${cartQty}) — সরান` : "কার্টে যোগ করুন"}
+              {inCart ? <Check className="h-4 w-4 shrink-0" /> : <ShoppingCart className="h-4 w-4 shrink-0" />}
+              <span className="truncate">
+                {inCart ? (
+                  <>
+                    <span className="sm:hidden">কার্টে ({cartQty}) সরান</span>
+                    <span className="hidden sm:inline">কার্টে ({cartQty}) — সরান</span>
+                  </>
+                ) : (
+                  "কার্টে যোগ করুন"
+                )}
+              </span>
             </button>
             <button
               type="button"
               onClick={handleBuy}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-5 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 sm:px-5 sm:py-3.5"
             >
-              <Zap className="h-4 w-4" />
+              <Zap className="h-4 w-4 shrink-0" />
               {inCart ? "চেকআউটে যান" : "এখনই কিনুন"}
             </button>
           </div>
@@ -499,17 +512,17 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
       {product.category ? (
         <section className="mt-14 border-t border-zinc-200 pt-10 sm:mt-16">
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <div>
+          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+            <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold text-indigo-600">একই ক্যাটাগরি</p>
-              <h2 className="mt-1 text-xl font-bold text-zinc-900 sm:text-2xl">
+              <h2 className="mt-1 line-clamp-2 text-lg font-bold text-zinc-900 sm:text-xl lg:text-2xl">
                 {product.category} — আরও পণ্য
               </h2>
             </div>
             {product.category_slug ? (
               <Link
                 href={`/products?category=${product.category_slug}`}
-                className="text-sm font-semibold text-indigo-600 hover:text-indigo-700"
+                className="shrink-0 text-sm font-semibold text-indigo-600 hover:text-indigo-700"
               >
                 সব দেখুন
               </Link>
@@ -524,7 +537,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
           </div>
 
           {relatedProducts.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5">
+            <div className="store-product-grid">
               {relatedProducts.map((item, index) => (
                 <StoreProductCard key={item._id} product={item} index={index} />
               ))}

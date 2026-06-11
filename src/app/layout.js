@@ -8,6 +8,12 @@ export const metadata = {
   description: "Nexa E-Commerce — দ্রুত ডেলিভারি ও অর্ডার ট্র্যাকিং সহ অনলাইন শপিং",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html
