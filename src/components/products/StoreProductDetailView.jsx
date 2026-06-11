@@ -392,7 +392,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
           {!outOfStock ? (
             <div className="mt-5">
               <p className="mb-2 text-sm font-semibold text-zinc-700">
-                পরিমাণ {remainingStock < maxStock ? `(আর ${remainingStock}টি যোগ করতে পারবেন)` : ""}
+                পরিমাণ
               </p>
               <div className="inline-flex items-center rounded-md border border-zinc-200 bg-white">
                 <button
