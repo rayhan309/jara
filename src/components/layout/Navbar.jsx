@@ -142,7 +142,7 @@ function NavbarContent() {
         </div>
 
         <div className="border-b border-zinc-100 bg-white">
-          <div className="store-container py-2.5 sm:py-4">
+          <div className="store-container py-4 sm:py-5">
             <div className="flex items-center justify-between gap-3 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:gap-8">
               <Link href="/" className="group flex shrink-0 items-center gap-2.5 sm:gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-md bg-indigo-600 shadow-md shadow-indigo-200 sm:h-11 sm:w-11">
@@ -215,7 +215,7 @@ function NavbarContent() {
             <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto py-1.5 sm:gap-1 sm:py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <Link
                 href="/"
-                className={`shrink-0 rounded-md px-2.5 py-1.5 text-[12px] font-semibold whitespace-nowrap transition-colors sm:px-3 sm:text-sm ${
+                className={`shrink-0 rounded-md px-2.5 py-1.5 text-[15px] font-semibold whitespace-nowrap transition-colors sm:px-3 sm:text-sm ${
                   pathname === "/"
                     ? navLinkActiveClass
                     : navLinkInactiveClass
@@ -238,7 +238,7 @@ function NavbarContent() {
                       key={category._id}
                       href={`/products?category=${category.slug}`}
                       onClick={() => setSelectedCategoryId(category._id)}
-                      className={`shrink-0 rounded-md px-2.5 py-1.5 text-[12px] font-medium whitespace-nowrap transition-colors sm:px-3 sm:text-sm ${
+                      className={`shrink-0 rounded-md px-2.5 py-1.5 text-[15px] font-medium whitespace-nowrap transition-colors sm:px-3 sm:text-sm ${
                         active ? navLinkActiveClass : navLinkInactiveClass
                       }`}
                     >

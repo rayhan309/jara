@@ -54,7 +54,7 @@ export default function HomeCategoryProductsSection({
     >
       <div className="store-container">
         <div className="mb-4 text-center sm:mb-5">
-          <h2 className="text-base font-bold tracking-tight text-zinc-900 sm:text-lg lg:text-xl">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-zinc-900">
             {category.name}
           </h2>
           <div

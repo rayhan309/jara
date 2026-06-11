@@ -34,7 +34,7 @@ function CategoryCard({ category }) {
           )}
         </div>
       </div>
-      <p className="mt-1.5 line-clamp-2 px-0.5 text-center text-[10px] leading-snug font-semibold text-zinc-800 transition-colors group-hover:text-indigo-700 min-[360px]:mt-2 min-[360px]:text-[11px] sm:mt-2.5 sm:text-xs md:text-sm">
+      <p className="mt-1.5 line-clamp-2 px-0.5 text-center text-[14px] md:text-lg leading-snug font-semibold text-zinc-800 transition-colors group-hover:text-indigo-700 min-[360px]:mt-2 min-[360px]:text-[14px] sm:mt-2.5">
         {category.name}
       </p>
     </Link>
@@ -72,7 +72,7 @@ export default function HomeCategoriesSection() {
     <section className="border-b border-zinc-100 bg-white py-6 sm:py-10 lg:py-12">
       <div className="store-container">
         <div className="mb-6 text-center sm:mb-8">
-          <h2 className="text-lg font-bold tracking-tight text-zinc-900 sm:text-xl lg:text-2xl">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-zinc-900">
             আমাদের সেরা ক্যাটাগরি সমূহ
           </h2>
           <div

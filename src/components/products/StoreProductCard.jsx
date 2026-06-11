@@ -82,7 +82,7 @@ export default function StoreProductCard({ product, index = 0 }) {
         </div>
 
         <div className="px-2 pt-2 sm:px-2.5 sm:pt-2.5">
-          <h3 className="line-clamp-2 text-[12px] leading-4 font-semibold text-zinc-800 min-[360px]:text-[13px] sm:text-sm sm:leading-5">
+          <h3 className="line-clamp-2 text-[16px] md:text-lg leading-4 font-semibold text-zinc-800 sm:leading-5">
             {title}
           </h3>
 
@@ -116,7 +116,7 @@ export default function StoreProductCard({ product, index = 0 }) {
         <button
           type="button"
           onClick={handleBuy}
-          className="flex h-8 min-w-0 items-center justify-center gap-1 rounded-md bg-indigo-600 px-2 text-[11px] font-semibold text-white transition-colors hover:bg-indigo-700 sm:h-9 sm:text-xs"
+          className="flex h-8 min-w-0 items-center justify-center gap-1 rounded-md bg-indigo-600 px-2 text-[16px] cursor-pointer font-semibold text-white transition-colors hover:bg-indigo-800 sm:h-9"
         >
           <Zap className="h-3.5 w-3.5 shrink-0" />
           <span className="truncate sm:hidden">কিনুন</span>

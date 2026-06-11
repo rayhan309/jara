@@ -37,13 +37,13 @@ export default function HeroSwiper() {
               return (
                 <SwiperSlide key={slide.id}>
                   <Link href={slide.href || "/products"} className="block">
-                    <div className="relative aspect-[16/10] w-full sm:aspect-[21/9]">
+                    <div className="relative aspect-[16/8] w-full sm:aspect-[21/9]">
                       <Image
                         src={imageUrl}
                         alt={slide.alt}
                         fill
                         priority
-                        quality={95}
+                        quality={100}
                         unoptimized={imageUrl.includes("ik.imagekit.io")}
                         className="object-fill object-center"
                         sizes="(max-width: 1170px) 100vw, 1170px"
