@@ -4,45 +4,58 @@ import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade } from "swiper/modules";
+import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
+import { getActiveHeroBanners } from "@/lib/heroBanners";
+import { getOptimizedImageUrl } from "@/lib/imageUrl";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
-const HERO_SLIDES = [
-  { src: "/images/banner-1.jpg", alt: "Nexa Commerce ব্যানার ১", href: "/products" },
-  // { src: "/images/banner2.jpg", alt: "Nexa Commerce ব্যানার ২", href: "/products" },
-  // { src: "/images/banner3.jpg", alt: "Nexa Commerce ব্যানার ৩", href: "/products" },
-];
+function getBannerImageUrl(url) {
+  return getOptimizedImageUrl(url, { width: 1600, height: 640, quality: 92 });
+}
 
 export default function HeroSwiper() {
+  const settings = useStoreSettings();
+  const slides = getActiveHeroBanners(settings.heroBanners);
+
   return (
-    <section className="relative overflow-hidden bg-zinc-100">
-      <Swiper
-        modules={[Autoplay, Pagination, EffectFade]}
-        effect="fade"
-        autoplay={{ delay: 5000, disableOnInteraction: false }}
-        pagination={{ clickable: true }}
-        loop
-        className="hero-swiper"
-      >
-        {HERO_SLIDES.map((slide) => (
-          <SwiperSlide key={slide.src}>
-            <Link href={slide.href} className="block">
-              <div className="relative aspect-[4/3] w-full sm:aspect-[16/7] lg:aspect-[21/8]">
-                <Image
-                  src={slide.src}
-                  alt={slide.alt}
-                  fill
-                  priority
-                  quality={95}
-                  className="object-cover object-center"
-                  sizes="100vw"
-                />
-              </div>
-            </Link>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+    <section className="bg-white py-4 sm:py-5 lg:py-6">
+      <div className="store-container">
+        <div className="overflow-hidden rounded-xl border border-zinc-200/90 bg-zinc-100 shadow-sm">
+          <Swiper
+            modules={[Autoplay, Pagination, EffectFade]}
+            effect="fade"
+            autoplay={{ delay: 5000, disableOnInteraction: false }}
+            pagination={{ clickable: true }}
+            loop={slides.length > 1}
+            className="hero-swiper"
+          >
+            {slides.map((slide) => {
+              const imageUrl = getBannerImageUrl(slide.image.url);
+
+              return (
+                <SwiperSlide key={slide.id}>
+                  <Link href={slide.href || "/products"} className="block">
+                    <div className="relative aspect-[16/9] w-full sm:aspect-[21/8]">
+                      <Image
+                        src={imageUrl}
+                        alt={slide.alt}
+                        fill
+                        priority
+                        quality={95}
+                        unoptimized={imageUrl.includes("ik.imagekit.io")}
+                        className="object-cover object-center"
+                        sizes="(max-width: 1280px) 100vw, 1280px"
+                      />
+                    </div>
+                  </Link>
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
+        </div>
+      </div>
     </section>
   );
 }

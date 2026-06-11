@@ -1,3 +1,5 @@
+import { normalizeHeroBanners } from "@/lib/heroBanners";
+
 export const SETTINGS_ID = "global";
 
 export const SOCIAL_PLATFORMS = [
@@ -12,6 +14,7 @@ export const SOCIAL_PLATFORMS = [
 
 export const DEFAULT_SETTINGS = {
   primaryColor: "#4f46e5",
+  heroBanners: [],
   socialLinks: [
     { id: "facebook", platform: "facebook", label: "Facebook", url: "", enabled: false },
     { id: "instagram", platform: "instagram", label: "Instagram", url: "", enabled: false },
@@ -119,6 +122,7 @@ export function normalizeSettings(input = {}) {
     primaryColorDark: theme.primaryColorDark,
     primaryColorSoft: theme.primaryColorSoft,
     primaryColorBorder: theme.primaryColorBorder,
+    heroBanners: normalizeHeroBanners(input.heroBanners),
     socialLinks,
   };
 }

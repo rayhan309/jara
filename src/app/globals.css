@@ -235,7 +235,7 @@ html {
 }
 
 .hero-swiper .swiper-pagination {
-  bottom: 16px !important;
+  bottom: 12px !important;
 }
 
 @media (min-width: 640px) {

@@ -15,6 +15,24 @@ export async function fetchSettings() {
   return data.settings;
 }
 
+export async function uploadHeroBanner(file) {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const response = await fetch("/api/settings/hero-banners", {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to upload banner.");
+  }
+
+  return data.image;
+}
+
 export async function updateSettings(payload) {
   const response = await fetch("/api/settings", {
     method: "PUT",

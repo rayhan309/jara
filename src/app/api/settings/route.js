@@ -32,6 +32,7 @@ export async function PUT(request) {
     const body = await request.json();
     const settings = normalizeSettings({
       primaryColor: body.primaryColor,
+      heroBanners: body.heroBanners,
       socialLinks: body.socialLinks,
     });
 
