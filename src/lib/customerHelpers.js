@@ -1,3 +1,5 @@
+import { isExcludedOrderStatus } from "@/lib/orderHelpers";
+
 export function buildCustomerProfiles(orders = []) {
   const map = new Map();
 
@@ -21,7 +23,7 @@ export function buildCustomerProfiles(orders = []) {
     existing.orderCount += 1;
     existing.orders.push(order);
 
-    if (order.status !== "cancelled") {
+    if (!isExcludedOrderStatus(order.status)) {
       existing.activeOrderCount += 1;
       existing.totalSpent += order.pricing?.total || 0;
     }

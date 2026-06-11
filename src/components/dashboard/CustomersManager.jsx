@@ -43,7 +43,7 @@ function StatCard({ label, value, hint }) {
 function OrderStatusBadge({ status }) {
   return (
     <span
-      className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${getOrderStatusClass(status)}`}
+      className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-semibold ${getOrderStatusClass(status)}`}
     >
       {getOrderStatusLabel(status)}
     </span>

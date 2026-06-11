@@ -21,6 +21,7 @@ import {
   mobileDashModalClass,
 } from "@/components/shared/ResponsiveTable";
 import {
+  DEFAULT_ORDER_STATUS,
   formatOrderDate,
   formatOrderTotal,
   getOrderItemSummary,
@@ -46,7 +47,7 @@ function SectionTitle({ children }) {
 function OrderStatusBadge({ status }) {
   return (
     <span
-      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase ${getOrderStatusClass(status)}`}
+      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[11px] font-semibold ${getOrderStatusClass(status)}`}
     >
       {getOrderStatusLabel(status)}
     </span>
@@ -209,7 +210,7 @@ function OrderEditModal({ open, onClose, order }) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      status: "pending",
+      status: DEFAULT_ORDER_STATUS,
       name: "",
       phone: "",
       address: "",
@@ -221,7 +222,7 @@ function OrderEditModal({ open, onClose, order }) {
     if (!open || !order) return;
 
     reset({
-      status: order.status || "pending",
+      status: order.status || DEFAULT_ORDER_STATUS,
       name: order.customer?.name || "",
       phone: order.customer?.phone || "",
       address: order.customer?.address || "",

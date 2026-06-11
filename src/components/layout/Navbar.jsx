@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
@@ -77,6 +77,33 @@ const navLinkActiveClass = "bg-white/20 text-white shadow-sm";
 const navLinkInactiveClass = "text-indigo-50 hover:bg-white/10";
 
 export default function Navbar() {
+  return (
+    <Suspense fallback={<NavbarFallback />}>
+      <NavbarContent />
+    </Suspense>
+  );
+}
+
+function NavbarFallback() {
+  return (
+    <header className="shadow-sm">
+      <div className="bg-indigo-700 px-4 py-2 text-center text-[11px] font-medium text-white sm:text-xs">
+        বিশ্বস্ত অনলাইন শপিং — দ্রুত ডেলিভারি ও সহজ অর্ডার ট্র্যাকিং
+      </div>
+      <div className="border-b border-zinc-100 bg-white">
+        <div className="container mx-auto px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+          <div className="h-10 animate-pulse rounded-md bg-zinc-100 sm:h-11" />
+          <div className="mt-3 h-10 animate-pulse rounded-xl bg-zinc-100 lg:hidden" />
+        </div>
+      </div>
+      <div className="border-b border-indigo-800/80 bg-indigo-700">
+        <div className="container mx-auto h-11 px-4 sm:px-6 lg:px-8" />
+      </div>
+    </header>
+  );
+}
+
+function NavbarContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeCategorySlug = searchParams.get("category");

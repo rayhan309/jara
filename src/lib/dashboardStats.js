@@ -23,14 +23,20 @@ export function formatCurrency(amount) {
   return `৳${Number(amount || 0).toLocaleString()}`;
 }
 
+import {
+  isDeliveredOrderStatus,
+  isExcludedOrderStatus,
+  isNewOrderStatus,
+} from "@/lib/orderHelpers";
+
 export function buildDashboardStats(orders = [], products = []) {
-  const activeOrders = orders.filter((order) => order.status !== "cancelled");
+  const activeOrders = orders.filter((order) => !isExcludedOrderStatus(order.status));
   const totalRevenue = activeOrders.reduce(
     (sum, order) => sum + (order.pricing?.total || 0),
     0
   );
-  const pendingOrders = orders.filter((order) => order.status === "pending").length;
-  const deliveredOrders = orders.filter((order) => order.status === "delivered").length;
+  const pendingOrders = orders.filter((order) => isNewOrderStatus(order.status)).length;
+  const deliveredOrders = orders.filter((order) => isDeliveredOrderStatus(order.status)).length;
   const lowStockProducts = products.filter((product) => {
     const qty = product.inventory?.quantity ?? 0;
     return qty <= 5 || product.inventory?.stock_status === "low_stock";
@@ -79,7 +85,7 @@ export function buildMonthlyChartData(orders = []) {
   }
 
   orders
-    .filter((order) => order.status !== "cancelled")
+    .filter((order) => !isExcludedOrderStatus(order.status))
     .forEach((order) => {
       const created = new Date(order.createdAt);
       const bucket = buckets.find(

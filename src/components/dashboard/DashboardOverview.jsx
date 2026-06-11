@@ -61,7 +61,7 @@ const quickActions = [
 function OrderStatusPill({ status }) {
   return (
     <span
-      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase ${getOrderStatusClass(status)}`}
+      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[11px] font-semibold ${getOrderStatusClass(status)}`}
     >
       {getOrderStatusLabel(status)}
     </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { Check, Clock3, Copy, Package, Phone, Search, ShieldCheck, Truck } from "lucide-react";
@@ -8,27 +8,16 @@ import toast from "react-hot-toast";
 import StoreShell from "@/components/layout/StoreShell";
 import { fetchOrdersByPhone } from "@/lib/api/orders";
 import { isValidBdPhone, normalizePhone } from "@/lib/orderValidation";
+import {
+  getOrderStatusClass,
+  getOrderTrackingInfo,
+  ORDER_TRACKING_STEPS,
+} from "@/lib/orderHelpers";
 
 const TRACKING_ORDER_LIMIT = 5;
 
-const TRACKING_STEPS = [
-  "অর্ডার গৃহীত",
-  "প্রসেসিং",
-  "প্যাক করা",
-  "প্রেরিত",
-  "ডেলিভার",
-];
-
-const STATUS_MAP = {
-  pending: { step: 1, label: "অর্ডার গৃহীত হয়েছে" },
-  processing: { step: 3, label: "প্রসেসিং চলছে" },
-  shipped: { step: 4, label: "প্রেরণ করা হয়েছে" },
-  delivered: { step: 5, label: "ডেলিভার সম্পন্ন" },
-  cancelled: { step: 0, label: "বাতিল" },
-};
-
 function mapOrderToView(order) {
-  const statusInfo = STATUS_MAP[order.status] || STATUS_MAP.pending;
+  const statusInfo = getOrderTrackingInfo(order.status);
   const items = order.items || [];
 
   return {
@@ -64,17 +53,7 @@ function mapOrderToView(order) {
 function StatusBadge({ status, label }) {
   return (
     <span
-      className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold sm:text-xs ${
-        status === "delivered"
-          ? "bg-emerald-50 text-emerald-700"
-          : status === "cancelled"
-            ? "bg-rose-50 text-rose-700"
-            : status === "shipped"
-              ? "bg-violet-50 text-violet-700"
-              : status === "processing"
-                ? "bg-amber-50 text-amber-700"
-                : "bg-indigo-50 text-indigo-700"
-      }`}
+      className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold sm:text-xs ${getOrderStatusClass(status)}`}
     >
       {label}
     </span>
@@ -87,8 +66,8 @@ function OrderProgressStepper({ currentStep }) {
   return (
     <div className="relative mt-6 border-t border-zinc-100 pt-6">
       <div className="absolute top-[calc(1.5rem+0.75rem)] right-[10%] left-[10%] hidden h-0.5 bg-zinc-200 sm:block" />
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5 sm:gap-2">
-        {TRACKING_STEPS.map((label, index) => {
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-2">
+        {ORDER_TRACKING_STEPS.map((label, index) => {
           const stepNum = index + 1;
           const done = stepNum <= currentStep;
 
@@ -206,6 +185,30 @@ function OrderTrackingCard({ order, index }) {
 }
 
 export default function OrdersTrackingView() {
+  return (
+    <Suspense fallback={<OrdersTrackingFallback />}>
+      <OrdersTrackingContent />
+    </Suspense>
+  );
+}
+
+function OrdersTrackingFallback() {
+  return (
+    <StoreShell className="bg-zinc-50">
+      <section className="py-6 sm:py-8 lg:py-10">
+        <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <div className="overflow-hidden rounded-md border border-zinc-200 bg-white p-4 shadow-sm sm:p-5">
+            <div className="h-6 w-40 animate-pulse rounded-md bg-zinc-100" />
+            <div className="mt-2 h-4 w-64 animate-pulse rounded-md bg-zinc-100" />
+            <div className="mt-4 h-11 animate-pulse rounded-md bg-zinc-100" />
+          </div>
+        </div>
+      </section>
+    </StoreShell>
+  );
+}
+
+function OrdersTrackingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const phoneParam = normalizePhone(searchParams.get("phone") || "");

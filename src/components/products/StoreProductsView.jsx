@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { Package } from "lucide-react";
 import { filterProductsByCategory } from "@/lib/categoryFilter";
 import { useCategoryFilter } from "@/hooks/useCategoryFilter";
@@ -21,6 +21,30 @@ function ProductSkeleton() {
 }
 
 export default function StoreProductsView() {
+  return (
+    <Suspense fallback={<StoreProductsFallback />}>
+      <StoreProductsContent />
+    </Suspense>
+  );
+}
+
+function StoreProductsFallback() {
+  return (
+    <div>
+      <div className="text-center">
+        <div className="mx-auto h-7 w-32 animate-pulse rounded-md bg-zinc-100 sm:h-8 sm:w-40" />
+        <div className="mx-auto mt-2.5 h-0.5 w-12 animate-pulse rounded-full bg-zinc-100" />
+      </div>
+      <div className="mt-6 grid grid-cols-2 gap-2.5 sm:mt-8 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5">
+        {Array.from({ length: 12 }).map((_, index) => (
+          <ProductSkeleton key={index} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StoreProductsContent() {
   const {
     isLoading: categoriesLoading,
     selectedCategory,

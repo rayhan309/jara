@@ -2,11 +2,10 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/dbConnect";
 import { DELIVERY_OPTIONS, validateCustomerDetails } from "@/lib/orderValidation";
 import { parseObjectId } from "@/lib/mongodbHelpers";
+import { ALL_VALID_ORDER_STATUSES } from "@/lib/orderHelpers";
 
 const ORDERS_COLLECTION = "orders";
 const PRODUCTS_COLLECTION = "products";
-
-const VALID_STATUSES = ["pending", "processing", "shipped", "delivered", "cancelled"];
 
 function serializeOrder(order) {
   return {
@@ -58,7 +57,7 @@ export async function PUT(request, { params }) {
     const updates = { updatedAt: new Date() };
 
     if (status !== undefined) {
-      if (!VALID_STATUSES.includes(status)) {
+      if (!ALL_VALID_ORDER_STATUSES.includes(status)) {
         return NextResponse.json({ error: "Invalid order status." }, { status: 400 });
       }
       updates.status = status;

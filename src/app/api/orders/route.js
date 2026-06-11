@@ -227,7 +227,7 @@ export async function POST(request) {
         total,
         currency: "BDT",
       },
-      status: "pending",
+      status: "new",
       createdAt: now,
       updatedAt: now,
     };
