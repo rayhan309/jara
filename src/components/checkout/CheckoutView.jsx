@@ -299,16 +299,19 @@ export default function CheckoutView() {
 
   return (
     <div className="mx-auto max-w-6xl min-w-0">
-      <div className="grid gap-6 lg:grid-cols-2 lg:gap-10">
+      <div className="mx-auto max-w-2xl text-center lg:max-w-3xl">
+        <p className="text-sm leading-relaxed text-zinc-600 sm:text-base">
+          অর্ডারটি কনফার্ম করতে আপনার নাম, ঠিকানা, এবং ফোন নাম্বার দিন।
+        </p>
+        <p className="mt-2 text-xs font-medium text-amber-700 sm:text-sm">
+          অনলাইন পেমেন্ট এখনো চালু নয় — শুধু COD
+        </p>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-2 lg:gap-10">
         {/* Left — customer form */}
         <div>
-          <p className="text-sm leading-relaxed text-zinc-600">
-            অর্ডারটি কনফার্ম করতে আপনার নাম, ঠিকানা, এবং ফোন নাম্বার দিন।
-            পণ্য হাতে পেয়ে তারপরই টাকা দিন —{" "}
-            <span className="font-semibold text-zinc-800">Cash on Delivery</span>।
-          </p>
-
-          <form onSubmit={handleConfirm} className="mt-6 space-y-4">
+          <form onSubmit={handleConfirm} className="space-y-4">
             <div>
               <label htmlFor="checkout-name" className="mb-1.5 block text-sm font-semibold text-zinc-800">
                 আপনার নাম
@@ -333,34 +336,21 @@ export default function CheckoutView() {
               <label htmlFor="checkout-phone" className="mb-1.5 block text-sm font-semibold text-zinc-800">
                 ফোন নাম্বার
               </label>
-              <div
-                className={`flex overflow-hidden rounded-md border bg-white focus-within:ring-2 ${
-                  fieldErrors.phone
-                    ? "border-rose-300 focus-within:border-rose-400 focus-within:ring-rose-100"
-                    : "border-zinc-200 focus-within:border-indigo-400 focus-within:ring-indigo-100"
-                }`}
-              >
-                <span className="flex items-center border-r border-zinc-200 bg-zinc-50 px-3 text-xs font-semibold text-zinc-500">
-                  (BD) +88
-                </span>
-                <input
-                  id="checkout-phone"
-                  type="tel"
-                  inputMode="numeric"
-                  value={phone}
-                  onChange={(event) => {
-                    setPhone(normalizePhone(event.target.value));
-                    clearFieldError("phone");
-                  }}
-                  placeholder="01XXXXXXXXX"
-                  className="min-w-0 flex-1 px-3.5 py-3 text-sm outline-none placeholder:text-zinc-400"
-                />
-              </div>
+              <input
+                id="checkout-phone"
+                type="tel"
+                inputMode="numeric"
+                value={phone}
+                onChange={(event) => {
+                  setPhone(normalizePhone(event.target.value));
+                  clearFieldError("phone");
+                }}
+                placeholder="01XXXXXXXXX"
+                className={fieldClass(fieldErrors.phone)}
+              />
               {fieldErrors.phone ? (
                 <p className="mt-1 text-xs text-rose-500">{fieldErrors.phone}</p>
-              ) : (
-                <p className="mt-1 text-[11px] text-zinc-400"></p>
-              )}
+              ) : null}
             </div>
 
             <div>
@@ -383,8 +373,8 @@ export default function CheckoutView() {
               ) : null}
             </div>
 
-            <div className="rounded-md border border-zinc-200 bg-white p-4">
-              <p className="mb-3 text-sm font-semibold text-zinc-800">ডেলিভারি মেথড নির্বাচন করুন</p>
+            <div>
+              <p className="mb-2 text-sm font-semibold text-zinc-800">ডেলিভারি এরিয়া</p>
               <div className="space-y-2">
                 {DELIVERY_LIST.map((option) => (
                   <label
@@ -412,7 +402,7 @@ export default function CheckoutView() {
             </div>
 
             <div>
-              <p className="mb-2 text-sm font-semibold text-zinc-800">আপনি কিভাবে পরিশোধ করতে চান</p>
+              <p className="mb-2 text-sm font-semibold text-zinc-800">পেমেন্ট পদ্বতি</p>
               <div
                 aria-disabled="true"
                 className="flex cursor-not-allowed items-center gap-3 rounded-md border-2 border-indigo-200 bg-indigo-50/80 px-4 py-3.5 opacity-90"
@@ -421,13 +411,10 @@ export default function CheckoutView() {
                 <Banknote className="h-5 w-5 text-indigo-600" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-bold text-zinc-900">Cash On Delivery</p>
-                  <p className="text-xs text-zinc-500">ডেলিভারির সময় নগদ পরিশোধ</p>
+                  <p className="text-xs text-zinc-500">প্রডাক্ট হাতে পেয়ে টাকা পরিশোধ করুন</p>
                 </div>
                 <Lock className="h-4 w-4 shrink-0 text-zinc-400" title="একমাত্র পেমেন্ট অপশন" />
               </div>
-              <p className="mt-1.5 text-[11px] text-zinc-400">
-                অনলাইন পেমেন্ট এখনো চালু নয় — শুধু COD
-              </p>
             </div>
 
             <button
