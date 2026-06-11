@@ -122,3 +122,107 @@ export function getOrderItemSummary(order) {
   if (items.length === 1) return items[0].title;
   return `${items[0].title} +${items.length - 1} more`;
 }
+
+/** Short display ID — numeric orders as-is; legacy NEXA-* shows trailing digits only */
+export function formatDisplayOrderNumber(orderNumber) {
+  if (!orderNumber) return "—";
+  const str = String(orderNumber).trim();
+  if (/^\d+$/.test(str)) return str;
+  const trailing = str.match(/(\d+)$/);
+  if (trailing) return trailing[1];
+  const digits = str.replace(/\D/g, "");
+  return digits.slice(-6) || str;
+}
+
+export function buildCourierClipboardText(order) {
+  const items = (order.items || [])
+    .map((item) => `${item.title}${item.selected_variant ? ` (${item.selected_variant})` : ""} x${item.quantity}`)
+    .join(", ");
+
+  return [
+    `অর্ডার: ${formatDisplayOrderNumber(order.order_number)}`,
+    `নাম: ${order.customer?.name || ""}`,
+    `ফোন: ${order.customer?.phone || ""}`,
+    `ঠিকানা: ${order.customer?.address || ""}`,
+    `এলাকা: ${order.delivery?.label || order.customer?.delivery_area || ""}`,
+    `ক্যাশ কালেক্ট: ৳${Number(order.pricing?.total || 0).toLocaleString()}`,
+    `পণ্য: ${items}`,
+  ].join("\n");
+}
+
+export function getWhatsAppPhoneUrl(phone) {
+  const digits = String(phone || "").replace(/\D/g, "");
+  if (!digits) return "";
+  const normalized = digits.startsWith("880") ? digits : `88${digits.replace(/^0/, "")}`;
+  return `https://wa.me/${normalized}`;
+}
+
+export const ORDER_DATE_FILTERS = [
+  { id: "today", label: "Today" },
+  { id: "yesterday", label: "Yesterday" },
+  { id: "7d", label: "7 Days" },
+  { id: "15d", label: "15 Days" },
+  { id: "30d", label: "30 Days" },
+  { id: "lifetime", label: "Lifetime" },
+  { id: "custom", label: "Custom" },
+];
+
+function startOfDay(date) {
+  const value = new Date(date);
+  value.setHours(0, 0, 0, 0);
+  return value;
+}
+
+function endOfDay(date) {
+  const value = new Date(date);
+  value.setHours(23, 59, 59, 999);
+  return value;
+}
+
+export function getOrderDateRange(filter, customFrom = "", customTo = "") {
+  const now = new Date();
+  const todayStart = startOfDay(now);
+  const todayEnd = endOfDay(now);
+
+  switch (filter) {
+    case "today":
+      return { start: todayStart, end: todayEnd };
+    case "yesterday": {
+      const day = new Date(todayStart);
+      day.setDate(day.getDate() - 1);
+      return { start: startOfDay(day), end: endOfDay(day) };
+    }
+    case "7d": {
+      const start = new Date(todayStart);
+      start.setDate(start.getDate() - 6);
+      return { start, end: todayEnd };
+    }
+    case "15d": {
+      const start = new Date(todayStart);
+      start.setDate(start.getDate() - 14);
+      return { start, end: todayEnd };
+    }
+    case "30d": {
+      const start = new Date(todayStart);
+      start.setDate(start.getDate() - 29);
+      return { start, end: todayEnd };
+    }
+    case "custom": {
+      if (!customFrom && !customTo) return null;
+      return {
+        start: customFrom ? startOfDay(customFrom) : new Date(0),
+        end: customTo ? endOfDay(customTo) : todayEnd,
+      };
+    }
+    case "lifetime":
+    default:
+      return null;
+  }
+}
+
+export function isOrderInDateRange(order, range) {
+  if (!range) return true;
+  const created = new Date(order?.createdAt);
+  if (Number.isNaN(created.getTime())) return false;
+  return created >= range.start && created <= range.end;
+}

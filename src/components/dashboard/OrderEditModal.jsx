@@ -13,7 +13,7 @@ import {
   getOrderItemKey,
   normalizeAdminOrderItem,
 } from "@/lib/adminOrderHelpers";
-import { DEFAULT_ORDER_STATUS, ORDER_STATUSES } from "@/lib/orderHelpers";
+import { DEFAULT_ORDER_STATUS, formatDisplayOrderNumber, ORDER_STATUSES } from "@/lib/orderHelpers";
 import { getDefaultProductVariant, getProductVariantConfig } from "@/lib/productVariants";
 import { DELIVERY_OPTIONS } from "@/lib/orderValidation";
 import { mobileDashModalClass } from "@/components/shared/ResponsiveTable";
@@ -220,7 +220,11 @@ export default function OrderEditModal({ open, onClose, order }) {
   if (!order) return null;
 
   return (
-    <ModalShell open={open} title={`Edit Order ${order.order_number}`} onClose={handleClose}>
+    <ModalShell
+      open={open}
+      title={`Edit Order ${formatDisplayOrderNumber(order.order_number)}`}
+      onClose={handleClose}
+    >
       <form onSubmit={handleSubmit} className="flex flex-col">
         <div className="space-y-6 p-5 sm:p-6">
           <div className="grid gap-4 sm:grid-cols-2">

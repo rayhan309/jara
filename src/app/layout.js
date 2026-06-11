@@ -1,4 +1,4 @@
-import { hindSiliguri, poppins } from "@/lib/fonts";
+import { hindSiliguri } from "@/lib/fonts";
 import QueryProvider from "@/components/providers/QueryProvider";
 import ToastProvider from "@/components/providers/ToastProvider";
 import SiteSettingsProvider from "@/components/providers/SiteSettingsProvider";
@@ -25,13 +25,13 @@ export default async function RootLayout({ children }) {
   return (
     <html
       lang="bn"
-      className={`${hindSiliguri.variable} ${poppins.variable} h-full antialiased`}
+      className={`${hindSiliguri.variable} h-full antialiased`}
       style={themeStyle}
     >
       <head>
         <SiteSettingsHead settings={settings} />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className={`${hindSiliguri.className} min-h-full flex flex-col`}>
         <QueryProvider>
           <SiteSettingsProvider initialSettings={settings}>
             {children}

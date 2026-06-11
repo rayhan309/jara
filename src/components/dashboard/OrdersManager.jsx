@@ -3,9 +3,11 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
-import { Eye, Loader2, Pencil, ShoppingBag, Trash2, X } from "lucide-react";
+import toast from "react-hot-toast";
+import { Copy, Eye, Loader2, Pencil, Phone, ShoppingBag, Trash2, Truck, X } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import OrderEditModal from "@/components/dashboard/OrderEditModal";
-import { useAdminOrders, useDeleteAdminOrder } from "@/hooks/useAdminOrders";
+import { useAdminOrders, useDeleteAdminOrder, useUpdateAdminOrder } from "@/hooks/useAdminOrders";
 import { usePagination } from "@/hooks/usePagination";
 import TablePagination from "@/components/dashboard/TablePagination";
 import {
@@ -16,11 +18,18 @@ import {
   mobileDashModalClass,
 } from "@/components/shared/ResponsiveTable";
 import {
+  buildCourierClipboardText,
+  formatDisplayOrderNumber,
   formatOrderDate,
   formatOrderTotal,
+  getOrderDateRange,
   getOrderItemSummary,
   getOrderStatusClass,
   getOrderStatusLabel,
+  getWhatsAppPhoneUrl,
+  isOrderInDateRange,
+  normalizeOrderStatus,
+  ORDER_DATE_FILTERS,
   ORDER_STATUSES,
 } from "@/lib/orderHelpers";
 
@@ -32,6 +41,63 @@ function SectionTitle({ children }) {
     <h3 className="border-b border-dash-border pb-2 text-xs font-bold tracking-[0.14em] text-dash-muted uppercase">
       {children}
     </h3>
+  );
+}
+
+function CustomerPhoneActions({ phone }) {
+  if (!phone) {
+    return <span className="text-xs text-dash-muted">—</span>;
+  }
+
+  const iconBtn =
+    "inline-flex h-7 w-7 items-center justify-center rounded-md border transition-colors";
+
+  async function copyPhone() {
+    try {
+      await navigator.clipboard.writeText(phone);
+      toast.success("নম্বর কপি হয়েছে");
+    } catch {
+      toast.error("কপি করা যায়নি");
+    }
+  }
+
+  const whatsappUrl = getWhatsAppPhoneUrl(phone);
+
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="text-xs font-medium text-dash-muted">{phone}</span>
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={copyPhone}
+          title="কপি"
+          aria-label="ফোন নম্বর কপি করুন"
+          className={`${iconBtn} border-slate-200 bg-white text-dash-muted hover:border-indigo-200 hover:text-indigo-700`}
+        >
+          <Copy className="h-3.5 w-3.5" />
+        </button>
+        <a
+          href={`tel:${phone}`}
+          title="কল"
+          aria-label="কল করুন"
+          className={`${iconBtn} border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100`}
+        >
+          <Phone className="h-3.5 w-3.5" />
+        </a>
+        {whatsappUrl ? (
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="WhatsApp"
+            aria-label="WhatsApp"
+            className={`${iconBtn} border-green-200 bg-green-50 text-green-700 hover:bg-green-100`}
+          >
+            <FaWhatsapp className="h-3.5 w-3.5" />
+          </a>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
@@ -87,12 +153,19 @@ function OrderViewModal({ open, onClose, order }) {
   if (!order) return null;
 
   return (
-    <ModalShell open={open} title={`Order ${order.order_number}`} onClose={onClose} wide>
+    <ModalShell
+      open={open}
+      title={`Order ${formatDisplayOrderNumber(order.order_number)}`}
+      onClose={onClose}
+      wide
+    >
       <div className="space-y-6 p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold text-dash-muted">Order ID</p>
-            <p className="mt-1 text-lg font-bold text-indigo-600">{order.order_number}</p>
+            <p className="mt-1 text-lg font-bold text-indigo-600">
+              {formatDisplayOrderNumber(order.order_number)}
+            </p>
             <p className="mt-1 text-xs text-dash-muted">{formatOrderDate(order.createdAt)}</p>
           </div>
           <OrderStatusBadge status={order.status} />
@@ -108,7 +181,9 @@ function OrderViewModal({ open, onClose, order }) {
               </div>
               <div>
                 <dt className="text-xs text-dash-muted">Phone</dt>
-                <dd className="font-semibold text-dash-text">{order.customer?.phone}</dd>
+                <dd className="mt-1">
+                  <CustomerPhoneActions phone={order.customer?.phone} />
+                </dd>
               </div>
               <div>
                 <dt className="text-xs text-dash-muted">Address</dt>
@@ -197,12 +272,34 @@ function OrderViewModal({ open, onClose, order }) {
   );
 }
 
-function OrderRowActions({ order, onView, onEdit, onDelete, isDeleting }) {
+function OrderRowActions({
+  order,
+  onView,
+  onEdit,
+  onDelete,
+  onCourier,
+  isDeleting,
+  isSendingCourier,
+}) {
   const iconBtn =
     "inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors";
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-1.5">
+      <button
+        type="button"
+        onClick={() => onCourier(order)}
+        disabled={isSendingCourier}
+        title="কুরিয়ারে পাঠান"
+        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50 px-2.5 text-[11px] font-semibold text-violet-700 transition-colors hover:bg-violet-100 disabled:opacity-60"
+      >
+        {isSendingCourier ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <Truck className="h-3.5 w-3.5" />
+        )}
+        <span className="hidden xl:inline">কুরিয়ারে পাঠান</span>
+      </button>
       <button
         type="button"
         aria-label="View order"
@@ -242,33 +339,139 @@ function OrderRowActions({ order, onView, onEdit, onDelete, isDeleting }) {
 export default function OrdersManager() {
   const { data: orders = [], isLoading, isError, error, refetch } = useAdminOrders();
   const { mutate: deleteOrder, isPending: isDeleting, variables: deletingId } = useDeleteAdminOrder();
+  const { mutateAsync: updateOrder } = useUpdateAdminOrder();
 
   const [viewOrder, setViewOrder] = useState(null);
   const [editOrder, setEditOrder] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("lifetime");
+  const [customDateFrom, setCustomDateFrom] = useState("");
+  const [customDateTo, setCustomDateTo] = useState("");
   const [search, setSearch] = useState("");
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [courierOrderId, setCourierOrderId] = useState(null);
+  const [bulkCourierLoading, setBulkCourierLoading] = useState(false);
+
+  const dateRange = useMemo(
+    () => getOrderDateRange(dateFilter, customDateFrom, customDateTo),
+    [dateFilter, customDateFrom, customDateTo]
+  );
 
   const filteredOrders = useMemo(() => {
     const term = search.trim().toLowerCase();
 
     return orders.filter((order) => {
-      if (statusFilter !== "all" && order.status !== statusFilter) return false;
+      if (statusFilter !== "all" && normalizeOrderStatus(order.status) !== statusFilter) {
+        return false;
+      }
+      if (!isOrderInDateRange(order, dateRange)) return false;
       if (!term) return true;
+
+      const displayId = formatDisplayOrderNumber(order.order_number);
 
       return (
         order.order_number?.toLowerCase().includes(term) ||
+        displayId.includes(term) ||
         order.customer?.name?.toLowerCase().includes(term) ||
         order.customer?.phone?.includes(term)
       );
     });
-  }, [orders, search, statusFilter]);
+  }, [orders, search, statusFilter, dateRange]);
 
   const { page, setPage, totalPages, totalItems, pageSize, paginatedItems } =
     usePagination(filteredOrders);
 
+  const pageIds = useMemo(() => paginatedItems.map((order) => order._id), [paginatedItems]);
+  const allPageSelected =
+    pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
+  const selectedCount = selectedIds.size;
+
+  function toggleSelect(orderId) {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(orderId)) next.delete(orderId);
+      else next.add(orderId);
+      return next;
+    });
+  }
+
+  function toggleSelectAllOnPage() {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (allPageSelected) {
+        pageIds.forEach((id) => next.delete(id));
+      } else {
+        pageIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  }
+
+  function clearSelection() {
+    setSelectedIds(new Set());
+  }
+
+  async function handleSendToCourier(order, { silent = false } = {}) {
+    setCourierOrderId(order._id);
+    try {
+      await navigator.clipboard.writeText(buildCourierClipboardText(order));
+      if (order.status !== "steadfast_entered") {
+        await updateOrder({ id: order._id, payload: { status: "steadfast_entered" } });
+      }
+      if (!silent) {
+        toast.success("কুরিয়ার তথ্য কপি হয়েছে — স্টিডফাস্টে পেস্ট করুন");
+      }
+      return true;
+    } catch (err) {
+      if (!silent) {
+        toast.error(err.message || "কুরিয়ারে পাঠানো যায়নি");
+      }
+      return false;
+    } finally {
+      setCourierOrderId(null);
+    }
+  }
+
+  async function handleBulkCourier() {
+    const selectedOrders = orders.filter((order) => selectedIds.has(order._id));
+    if (!selectedOrders.length) return;
+
+    setBulkCourierLoading(true);
+    try {
+      const texts = [];
+      let successCount = 0;
+
+      for (const order of selectedOrders) {
+        const ok = await handleSendToCourier(order, { silent: true });
+        if (ok) {
+          successCount += 1;
+          texts.push(buildCourierClipboardText(order));
+        }
+      }
+
+      if (texts.length) {
+        await navigator.clipboard.writeText(texts.join("\n\n---\n\n"));
+      }
+
+      toast.success(`${successCount}টি অর্ডার কুরিয়ারের জন্য প্রস্তুত`);
+      clearSelection();
+    } catch (err) {
+      toast.error(err.message || "বাল্ক কুরিয়ার ব্যর্থ হয়েছে");
+    } finally {
+      setBulkCourierLoading(false);
+    }
+  }
+
   function handleDelete(order) {
-    if (!window.confirm(`Delete order "${order.order_number}"? Stock will be restored.`)) return;
+    const displayId = formatDisplayOrderNumber(order.order_number);
+    if (!window.confirm(`Delete order "${displayId}"? Stock will be restored.`)) return;
     deleteOrder(order._id);
+    setSelectedIds((current) => {
+      if (!current.has(order._id)) return current;
+      const next = new Set(current);
+      next.delete(order._id);
+      return next;
+    });
   }
 
   return (
@@ -287,30 +490,141 @@ export default function OrdersManager() {
             View, update status, and manage customer orders.
           </p>
         </div>
-        <p className="text-sm font-semibold text-dash-muted">{orders.length} total orders</p>
+        <div className="flex flex-col items-stretch gap-2 sm:items-end">
+          <label htmlFor="order-date-filter" className="sr-only">
+            Filter by date
+          </label>
+          <select
+            id="order-date-filter"
+            value={dateFilter}
+            onChange={(event) => setDateFilter(event.target.value)}
+            className={`${inputClass} w-full min-w-[180px] sm:w-52`}
+          >
+            {ORDER_DATE_FILTERS.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <p className="text-sm font-semibold text-dash-muted">
+            {filteredOrders.length === orders.length
+              ? `${orders.length} total orders`
+              : `${filteredOrders.length} of ${orders.length} orders`}
+          </p>
+        </div>
       </motion.div>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
+      {dateFilter === "custom" ? (
+        <div className="flex flex-col gap-3 rounded-md border border-dash-border bg-white p-3 sm:flex-row sm:items-end sm:p-4">
+          <div className="flex-1">
+            <label htmlFor="order-date-from" className="mb-1.5 block text-xs font-semibold text-dash-muted">
+              From
+            </label>
+            <input
+              id="order-date-from"
+              type="date"
+              value={customDateFrom}
+              onChange={(event) => setCustomDateFrom(event.target.value)}
+              className={inputClass}
+            />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="order-date-to" className="mb-1.5 block text-xs font-semibold text-dash-muted">
+              To
+            </label>
+            <input
+              id="order-date-to"
+              type="date"
+              value={customDateTo}
+              min={customDateFrom || undefined}
+              onChange={(event) => setCustomDateTo(event.target.value)}
+              className={inputClass}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setCustomDateFrom("");
+              setCustomDateTo("");
+            }}
+            className="rounded-md border border-dash-border px-4 py-2.5 text-sm font-semibold text-dash-muted transition-colors hover:border-indigo-200 hover:text-indigo-700"
+          >
+            Clear
+          </button>
+        </div>
+      ) : null}
+
+      <div className="space-y-3">
         <input
           type="search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search by order ID, name, or phone..."
-          className={`${inputClass} w-full sm:max-w-sm`}
+          className={`${inputClass} w-full`}
         />
-        <select
-          value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value)}
-          className={`${inputClass} w-full sm:w-44`}
-        >
-          <option value="all">All statuses</option>
-          {ORDER_STATUSES.map((entry) => (
-            <option key={entry.value} value={entry.value}>
-              {entry.label}
-            </option>
-          ))}
-        </select>
+
+        <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <button
+            type="button"
+            onClick={() => setStatusFilter("all")}
+            className={`shrink-0 rounded-md border px-3.5 py-2 text-sm font-semibold transition-colors sm:px-4 ${
+              statusFilter === "all"
+                ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                : "border-dash-border bg-white text-dash-muted hover:border-indigo-200 hover:text-indigo-700"
+            }`}
+          >
+            All
+          </button>
+          {ORDER_STATUSES.map((entry) => {
+            const active = statusFilter === entry.value;
+
+            return (
+              <button
+                key={entry.value}
+                type="button"
+                onClick={() => setStatusFilter(entry.value)}
+                className={`shrink-0 rounded-md border px-3.5 py-2 text-sm font-semibold transition-colors sm:px-4 ${
+                  active
+                    ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                    : "border-dash-border bg-white text-dash-muted hover:border-indigo-200 hover:text-indigo-700"
+                }`}
+              >
+                {entry.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
+
+      {selectedCount > 0 ? (
+        <div className="flex flex-col gap-3 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-semibold text-violet-900">
+            {selectedCount}টি অর্ডার নির্বাচিত
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={handleBulkCourier}
+              disabled={bulkCourierLoading}
+              className="inline-flex items-center gap-2 rounded-md bg-violet-600 px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-700 disabled:opacity-60"
+            >
+              {bulkCourierLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Truck className="h-4 w-4" />
+              )}
+              কুরিয়ারে পাঠান
+            </button>
+            <button
+              type="button"
+              onClick={clearSelection}
+              className="rounded-md border border-violet-200 bg-white px-3.5 py-2 text-sm font-semibold text-violet-700 transition-colors hover:bg-violet-100"
+            >
+              বাতিল
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {isLoading ? (
         <div className="dash-card flex min-h-[280px] items-center justify-center">
@@ -346,27 +660,51 @@ export default function OrdersManager() {
                 transition={{ delay: index * 0.02 }}
               >
                 <MobileDashCard>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="break-all text-sm font-bold text-indigo-600">{order.order_number}</p>
-                      <p className="mt-1 text-xs text-dash-muted">{formatOrderDate(order.createdAt)}</p>
-                    </div>
-                    <OrderStatusBadge status={order.status} />
-                  </div>
-                  <div className="mt-3 space-y-2">
-                    <MobileDashRow label="Customer" value={order.customer?.name} />
-                    <MobileDashRow label="Phone" value={order.customer?.phone} />
-                    <MobileDashRow label="Total" value={formatOrderTotal(order)} />
-                    <MobileDashRow label="Items" value={getOrderItemSummary(order)} />
-                  </div>
-                  <div className="mt-3 flex justify-end">
-                    <OrderRowActions
-                      order={order}
-                      onView={setViewOrder}
-                      onEdit={setEditOrder}
-                      onDelete={handleDelete}
-                      isDeleting={isDeleting && deletingId === order._id}
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(order._id)}
+                      onChange={() => toggleSelect(order._id)}
+                      aria-label={`Select order ${formatDisplayOrderNumber(order.order_number)}`}
+                      className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 accent-indigo-600"
                     />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-base font-bold text-indigo-600">
+                            #{formatDisplayOrderNumber(order.order_number)}
+                          </p>
+                          <p className="mt-1 text-xs text-dash-muted">
+                            {formatOrderDate(order.createdAt)}
+                          </p>
+                        </div>
+                        <OrderStatusBadge status={order.status} />
+                      </div>
+                      <div className="mt-3 space-y-2">
+                        <MobileDashRow label="Customer" value={order.customer?.name} />
+                        <div>
+                          <p className="text-[10px] font-semibold tracking-wide text-dash-muted uppercase">
+                            Phone
+                          </p>
+                          <div className="mt-1">
+                            <CustomerPhoneActions phone={order.customer?.phone} />
+                          </div>
+                        </div>
+                        <MobileDashRow label="Total" value={formatOrderTotal(order)} />
+                        <MobileDashRow label="Items" value={getOrderItemSummary(order)} />
+                      </div>
+                      <div className="mt-3 flex justify-end">
+                        <OrderRowActions
+                          order={order}
+                          onView={setViewOrder}
+                          onEdit={setEditOrder}
+                          onDelete={handleDelete}
+                          onCourier={handleSendToCourier}
+                          isDeleting={isDeleting && deletingId === order._id}
+                          isSendingCourier={courierOrderId === order._id}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </MobileDashCard>
               </motion.div>
@@ -377,6 +715,15 @@ export default function OrdersManager() {
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-dash-border bg-slate-50 text-[11px] font-semibold tracking-wide text-dash-muted uppercase">
+                  <th className="w-10 px-3 py-3">
+                    <input
+                      type="checkbox"
+                      checked={allPageSelected}
+                      onChange={toggleSelectAllOnPage}
+                      aria-label="Select all orders on this page"
+                      className="h-4 w-4 rounded border-slate-300 accent-indigo-600"
+                    />
+                  </th>
                   <th className="px-4 py-3">Order</th>
                   <th className="px-4 py-3">Customer</th>
                   <th className="px-4 py-3">Items</th>
@@ -393,12 +740,27 @@ export default function OrdersManager() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.02 }}
-                    className="border-b border-dash-border last:border-b-0 hover:bg-slate-50/80"
+                    className={`border-b border-dash-border last:border-b-0 hover:bg-slate-50/80 ${
+                      selectedIds.has(order._id) ? "bg-indigo-50/40" : ""
+                    }`}
                   >
-                    <td className="px-4 py-3 font-semibold text-indigo-600">{order?.order_number}</td>
+                    <td className="px-3 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(order._id)}
+                        onChange={() => toggleSelect(order._id)}
+                        aria-label={`Select order ${formatDisplayOrderNumber(order.order_number)}`}
+                        className="h-4 w-4 rounded border-slate-300 accent-indigo-600"
+                      />
+                    </td>
+                    <td className="px-4 py-3 font-bold text-indigo-600">
+                      #{formatDisplayOrderNumber(order.order_number)}
+                    </td>
                     <td className="px-4 py-3">
                       <p className="font-semibold text-dash-text">{order.customer?.name}</p>
-                      <p className="text-xs text-dash-muted">{order.customer?.phone}</p>
+                      <div className="mt-1">
+                        <CustomerPhoneActions phone={order.customer?.phone} />
+                      </div>
                     </td>
                     <td className="max-w-[180px] truncate px-4 py-3 text-dash-muted">
                       {getOrderItemSummary(order)}
@@ -416,7 +778,9 @@ export default function OrdersManager() {
                         onView={setViewOrder}
                         onEdit={setEditOrder}
                         onDelete={handleDelete}
+                        onCourier={handleSendToCourier}
                         isDeleting={isDeleting && deletingId === order._id}
+                        isSendingCourier={courierOrderId === order._id}
                       />
                     </td>
                   </motion.tr>

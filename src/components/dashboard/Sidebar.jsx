@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
+  ChevronDown,
+  Layers,
   LayoutDashboard,
   LogOut,
   Package,
@@ -19,19 +21,40 @@ import { clearAdminAuth, getAdminAuth } from "@/lib/auth";
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
-  { href: "/dashboard/products", label: "Products", icon: Package },
+  {
+    label: "Products",
+    icon: Package,
+    children: [
+      { href: "/dashboard/products", label: "Products", icon: Package },
+      { href: "/dashboard/categories", label: "Categories", icon: Layers },
+    ],
+  },
   { href: "/dashboard/customers", label: "Customers", icon: Users },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
+
+function isCatalogPath(pathname) {
+  return (
+    pathname.startsWith("/dashboard/products") ||
+    pathname.startsWith("/dashboard/categories")
+  );
+}
 
 export default function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname();
   const router = useRouter();
   const auth = getAdminAuth();
+  const [productsOpen, setProductsOpen] = useState(() => isCatalogPath(pathname));
 
   useEffect(() => {
     onClose();
   }, [pathname, onClose]);
+
+  useEffect(() => {
+    if (isCatalogPath(pathname)) {
+      setProductsOpen(true);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -114,11 +137,91 @@ export default function Sidebar({ isOpen, onClose }) {
           </p>
           <nav className="space-y-1">
             {navItems.map((item, index) => {
+              if (item.children) {
+                const groupActive = isCatalogPath(pathname);
+                const Icon = item.icon;
+
+                return (
+                  <motion.div
+                    key={item.label}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setProductsOpen((open) => !open)}
+                      className={`group relative flex w-full items-center gap-3 px-3 py-3 text-sm font-medium transition-all duration-200 ${
+                        groupActive
+                          ? "bg-white/10 text-white"
+                          : "text-slate-400 hover:bg-dash-sidebar-hover hover:text-white"
+                      }`}
+                    >
+                      {groupActive ? (
+                        <motion.span
+                          layoutId="sidebar-active"
+                          className="absolute inset-y-2 left-0 w-1 bg-gradient-to-b from-indigo-400 to-violet-400"
+                        />
+                      ) : null}
+                      <span
+                        className={`rounded-md flex h-9 w-9 shrink-0 items-center justify-center border transition-colors ${
+                          groupActive
+                            ? "border-indigo-400/40 bg-indigo-500/20 text-indigo-200"
+                            : "border-slate-700 bg-slate-800/50 text-slate-400 group-hover:border-slate-600 group-hover:text-white"
+                        }`}
+                      >
+                        <Icon className="h-[18px] w-[18px]" />
+                      </span>
+                      <span className="flex-1 text-left">{item.label}</span>
+                      <ChevronDown
+                        className={`h-4 w-4 shrink-0 transition-transform duration-200 ${
+                          productsOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {productsOpen ? (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-1 space-y-1 border-l border-slate-700/80 pl-3 ml-6">
+                            {item.children.map((child) => {
+                              const childActive =
+                                pathname === child.href ||
+                                pathname.startsWith(`${child.href}/`);
+                              const ChildIcon = child.icon;
+
+                              return (
+                                <Link
+                                  key={child.href}
+                                  href={child.href}
+                                  onClick={onClose}
+                                  className={`flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm transition-colors ${
+                                    childActive
+                                      ? "bg-indigo-500/15 font-semibold text-indigo-100"
+                                      : "text-slate-400 hover:bg-white/5 hover:text-white"
+                                  }`}
+                                >
+                                  <ChildIcon className="h-4 w-4 shrink-0 opacity-80" />
+                                  {child.label}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              }
+
               const active =
                 pathname === item.href ||
-                (item.href === "/dashboard/products" &&
-                  (pathname.startsWith("/dashboard/products") ||
-                    pathname.startsWith("/dashboard/categories"))) ||
                 (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
               const Icon = item.icon;
 

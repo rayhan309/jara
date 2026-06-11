@@ -14,11 +14,14 @@ import { parseObjectId } from "@/lib/mongodbHelpers";
 const ORDERS_COLLECTION = "orders";
 const PRODUCTS_COLLECTION = "products";
 
-function generateOrderNumber() {
-  const now = new Date();
-  const date = now.toISOString().slice(0, 10).replace(/-/g, "");
-  const random = Math.floor(1000 + Math.random() * 9000);
-  return `NEXA-${date}-${random}`;
+async function generateOrderNumber(ordersCol) {
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const candidate = String(Math.floor(100000 + Math.random() * 900000));
+    const exists = await ordersCol.findOne({ order_number: candidate });
+    if (!exists) return candidate;
+  }
+
+  return String(Date.now()).slice(-8);
 }
 
 function serializeOrder(order) {
@@ -207,8 +210,9 @@ export async function POST(request) {
     const total = subtotal + deliveryCharge;
 
     const now = new Date();
+    const ordersCol = dbConnect(ORDERS_COLLECTION);
     const orderDoc = {
-      order_number: generateOrderNumber(),
+      order_number: await generateOrderNumber(ordersCol),
       customer: customerResult.values,
       items: orderLines,
       delivery: {
@@ -232,7 +236,6 @@ export async function POST(request) {
       updatedAt: now,
     };
 
-    const ordersCol = dbConnect(ORDERS_COLLECTION);
     const result = await ordersCol.insertOne(orderDoc);
 
     for (const [productId, orderedQty] of stockUpdates.entries()) {
