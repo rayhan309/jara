@@ -32,8 +32,11 @@ const DELIVERY_LIST = [
   { id: "outside_dhaka", ...DELIVERY_OPTIONS.outside_dhaka },
 ];
 
+const fieldLabelClass =
+  "mb-2 block text-base font-bold text-zinc-900 sm:mb-1.5 sm:text-sm sm:font-semibold sm:text-zinc-800";
+
 const inputClass =
-  "w-full rounded-md border bg-white px-3.5 py-3 text-sm text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:ring-2";
+  "w-full rounded-lg border bg-white px-4 py-3.5 text-base text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:ring-2 sm:rounded-md sm:px-3.5 sm:py-3 sm:text-sm";
 
 function fieldClass(hasError) {
   return hasError
@@ -299,21 +302,21 @@ export default function CheckoutView() {
 
   return (
     <div className="mx-auto max-w-6xl min-w-0">
-      <div className="mx-auto max-w-2xl text-center lg:max-w-3xl">
-        <p className="text-sm leading-relaxed text-zinc-600 sm:text-base">
-          অর্ডারটি কনফার্ম করতে আপনার নাম, ঠিকানা, এবং ফোন নাম্বার দিন।
+      <header className="mx-auto max-w-2xl text-center lg:max-w-3xl">
+        <h1 className="text-2xl font-bold leading-snug text-zinc-900 sm:text-3xl">
+          অর্ডারটি কনফার্ম করুন
+        </h1>
+        <p className="mt-2.5 text-base leading-relaxed text-zinc-500 sm:mt-3 sm:text-lg">
+          আপনার নাম, ঠিকানা এবং ফোন নাম্বার দিন
         </p>
-        <p className="mt-2 text-xs font-medium text-amber-700 sm:text-sm">
-          অনলাইন পেমেন্ট এখনো চালু নয় — শুধু COD
-        </p>
-      </div>
+      </header>
 
-      <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-2 lg:gap-10">
+      <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:gap-10">
         {/* Left — customer form */}
-        <div>
-          <form onSubmit={handleConfirm} className="space-y-4">
+        <div className="rounded-xl border border-zinc-200/80 bg-white p-4 shadow-sm sm:p-5 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+          <form onSubmit={handleConfirm} className="space-y-5 sm:space-y-4">
             <div>
-              <label htmlFor="checkout-name" className="mb-1.5 block text-sm font-semibold text-zinc-800">
+              <label htmlFor="checkout-name" className={fieldLabelClass}>
                 আপনার নাম
               </label>
               <input
@@ -333,7 +336,7 @@ export default function CheckoutView() {
             </div>
 
             <div>
-              <label htmlFor="checkout-phone" className="mb-1.5 block text-sm font-semibold text-zinc-800">
+              <label htmlFor="checkout-phone" className={fieldLabelClass}>
                 ফোন নাম্বার
               </label>
               <input
@@ -354,7 +357,7 @@ export default function CheckoutView() {
             </div>
 
             <div>
-              <label htmlFor="checkout-address" className="mb-1.5 block text-sm font-semibold text-zinc-800">
+              <label htmlFor="checkout-address" className={fieldLabelClass}>
                 আপনার ঠিকানা
               </label>
               <textarea
@@ -373,16 +376,16 @@ export default function CheckoutView() {
               ) : null}
             </div>
 
-            <div>
-              <p className="mb-2 text-sm font-semibold text-zinc-800">ডেলিভারি এরিয়া</p>
-              <div className="space-y-2">
+            <div className="border-t border-zinc-100 pt-5 sm:pt-4">
+              <p className={fieldLabelClass}>ডেলিভারি এরিয়া</p>
+              <div className="space-y-2.5">
                 {DELIVERY_LIST.map((option) => (
                   <label
                     key={option.id}
-                    className={`flex cursor-pointer items-center gap-3 rounded-md border px-3.5 py-3 transition-colors ${
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3.5 transition-colors sm:rounded-md sm:px-3.5 sm:py-3 ${
                       delivery === option.id
-                        ? "border-indigo-300 bg-indigo-50/60"
-                        : "border-zinc-200 hover:border-zinc-300"
+                        ? "border-indigo-400 bg-indigo-50 ring-1 ring-indigo-100"
+                        : "border-zinc-200 bg-zinc-50/50 hover:border-zinc-300"
                     }`}
                   >
                     <input
@@ -391,9 +394,9 @@ export default function CheckoutView() {
                       value={option.id}
                       checked={delivery === option.id}
                       onChange={() => setDelivery(option.id)}
-                      className="h-4 w-4 accent-indigo-600"
+                      className="h-4 w-4 shrink-0 accent-indigo-600 sm:h-4 sm:w-4"
                     />
-                    <span className="min-w-0 text-sm font-medium text-zinc-800">
+                    <span className="min-w-0 text-base font-medium text-zinc-800 sm:text-sm">
                       {option.label} — ৳{option.charge}
                     </span>
                   </label>
@@ -401,17 +404,19 @@ export default function CheckoutView() {
               </div>
             </div>
 
-            <div>
-              <p className="mb-2 text-sm font-semibold text-zinc-800">পেমেন্ট পদ্বতি</p>
+            <div className="border-t border-zinc-100 pt-5 sm:pt-4">
+              <p className={fieldLabelClass}>পেমেন্ট পদ্বতি</p>
               <div
                 aria-disabled="true"
-                className="flex cursor-not-allowed items-center gap-3 rounded-md border-2 border-indigo-200 bg-indigo-50/80 px-4 py-3.5 opacity-90"
+                className="flex cursor-not-allowed items-center gap-3 rounded-lg border-2 border-indigo-200 bg-indigo-50/80 px-4 py-4 opacity-95 sm:rounded-md sm:py-3.5"
               >
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-[5px] border-indigo-600 bg-white" />
                 <Banknote className="h-5 w-5 text-indigo-600" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-zinc-900">Cash On Delivery</p>
-                  <p className="text-xs text-zinc-500">প্রডাক্ট হাতে পেয়ে টাকা পরিশোধ করুন</p>
+                  <p className="text-base font-bold text-zinc-900 sm:text-sm">Cash On Delivery</p>
+                  <p className="mt-0.5 text-sm text-zinc-500 sm:text-xs">
+                    প্রডাক্ট হাতে পেয়ে টাকা পরিশোধ করুন
+                  </p>
                 </div>
                 <Lock className="h-4 w-4 shrink-0 text-zinc-400" title="একমাত্র পেমেন্ট অপশন" />
               </div>
@@ -420,7 +425,7 @@ export default function CheckoutView() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-md bg-indigo-600 py-3.5 text-sm font-bold text-white transition-colors hover:bg-indigo-700 disabled:opacity-60 lg:hidden"
+              className="animate-checkout-confirm-shake w-full rounded-lg bg-rose-600 py-5 text-lg font-extrabold tracking-wide text-white shadow-[0_8px_24px_-6px_rgba(225,29,72,0.55)] transition-colors hover:bg-rose-700 active:scale-[0.98] disabled:animate-none disabled:opacity-60 lg:hidden"
             >
               {submitting ? "প্রসেস হচ্ছে..." : "অর্ডার কনফার্ম করুন"}
             </button>
@@ -429,7 +434,7 @@ export default function CheckoutView() {
 
         {/* Right — order summary */}
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <h2 className="text-lg font-bold text-zinc-900">আপনার অর্ডার</h2>
+          <h2 className="text-xl font-bold text-zinc-900 sm:text-lg">আপনার অর্ডার</h2>
 
           <div className="mt-4 space-y-3">
             {items.map((item) => (
