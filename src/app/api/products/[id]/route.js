@@ -100,8 +100,8 @@ export async function PUT(request, { params }) {
     }
 
     const formData = await request.formData();
-    const titleEn = String(formData.get("title_en") || "").trim();
     const titleBn = String(formData.get("title_bn") || "").trim();
+    const titleEn = titleBn;
     const slugInput = String(formData.get("slug") || "").trim();
     const brandOrVendor = String(formData.get("brand_or_vendor") || "").trim();
     const category = String(formData.get("category") || "").trim();
@@ -121,8 +121,8 @@ export async function PUT(request, { params }) {
     const keptImages = parseExistingImages(formData.get("existing_images"));
     const imageFiles = formData.getAll("images").filter((file) => typeof file !== "string");
 
-    if (!titleEn) {
-      return NextResponse.json({ error: "English title is required." }, { status: 400 });
+    if (!titleBn) {
+      return NextResponse.json({ error: "পণ্যের নাম প্রয়োজন।" }, { status: 400 });
     }
 
     if (!category) {
@@ -146,7 +146,7 @@ export async function PUT(request, { params }) {
       }
     }
 
-    const baseSlug = slugify(slugInput || titleEn);
+    const baseSlug = slugify(slugInput || titleBn);
     if (!baseSlug) {
       return NextResponse.json({ error: "A valid slug could not be generated." }, { status: 400 });
     }

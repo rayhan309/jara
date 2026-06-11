@@ -42,7 +42,7 @@ export default function ThankYou() {
 
   return (
     <StoreShell className="bg-zinc-50">
-      <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+      <div className="store-container py-16 lg:py-24">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}

@@ -30,7 +30,6 @@ const inputClass =
 const labelClass = "mb-1.5 block text-sm font-semibold text-dash-text";
 
 const emptyValues = {
-  title_en: "",
   title_bn: "",
   slug: "",
   brand_or_vendor: "",
@@ -86,7 +85,8 @@ function ProductFormModal({ open, onClose, product }) {
     [regularPrice, salePrice]
   );
 
-  const titleEnField = register("title_en", { required: "English title is required." });
+  const titleBnValue = watch("title_bn");
+  const titleBnField = register("title_bn", { required: "পণ্যের নাম লিখুন।" });
   const categoryField = register("category", { required: "Please select a category." });
   const regularPriceField = register("regular_price", {
     required: "Regular price is required.",
@@ -166,8 +166,9 @@ function ProductFormModal({ open, onClose, product }) {
     }
 
     const formData = new FormData();
-    formData.append("title_en", values.title_en.trim());
-    formData.append("title_bn", values.title_bn.trim());
+    const titleBn = values.title_bn.trim();
+    formData.append("title_bn", titleBn);
+    formData.append("title_en", titleBn);
     formData.append("slug", values.slug.trim());
     formData.append("brand_or_vendor", values.brand_or_vendor.trim());
     formData.append("category", values.category);
@@ -216,8 +217,7 @@ function ProductFormModal({ open, onClose, product }) {
 
     if (product) {
       reset({
-        title_en: product.title_en || "",
-        title_bn: product.title_bn || "",
+        title_bn: product.title_bn || product.title_en || "",
         slug: product.slug || "",
         brand_or_vendor: product.brand_or_vendor || "",
         category: product.category || "",
@@ -242,6 +242,11 @@ function ProductFormModal({ open, onClose, product }) {
       resetAll();
     }
   }, [open, product, reset]);
+
+  useEffect(() => {
+    if (!open || slugEdited) return;
+    setValue("slug", slugify(titleBnValue || ""));
+  }, [titleBnValue, slugEdited, open, setValue]);
 
   useEffect(() => {
     if (!open) return;
@@ -305,28 +310,24 @@ function ProductFormModal({ open, onClose, product }) {
                 <section className="space-y-4">
                   <SectionTitle>Basic Information</SectionTitle>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label htmlFor="title-en" className={labelClass}>
-                        Title (English) <span className="text-red-500">*</span>
+                    <div className="sm:col-span-2">
+                      <label htmlFor="title-bn" className={labelClass}>
+                        পণ্যের নাম <span className="text-red-500">*</span>
                       </label>
                       <input
-                        id="title-en"
-                        {...titleEnField}
+                        id="title-bn"
+                        {...titleBnField}
                         onChange={(event) => {
-                          titleEnField.onChange(event);
+                          titleBnField.onChange(event);
                           if (!slugEdited) setValue("slug", slugify(event.target.value));
                         }}
-                        placeholder="5 Panel wall Canvas | CNVS-423"
+                        placeholder="প্রিমিয়াম ম্যাজিক মশারি"
                         className={inputClass}
                       />
-                      <FieldError message={errors.title_en?.message} />
+                      <FieldError message={errors.title_bn?.message} />
                     </div>
                     <div>
-                      <label htmlFor="title-bn" className={labelClass}>Title (Bangla)</label>
-                      <input id="title-bn" {...register("title_bn")} className={inputClass} />
-                    </div>
-                    <div>
-                      <label htmlFor="slug" className={labelClass}>Slug</label>
+                      <label htmlFor="slug" className={labelClass}>Slug (অটো)</label>
                       <input
                         id="slug"
                         {...register("slug")}
@@ -605,7 +606,7 @@ export default function ProductsManager() {
   }
 
   function handleDelete(product) {
-    if (!window.confirm(`Delete "${product.title_en}"?`)) return;
+    if (!window.confirm(`Delete "${product.title_bn || product.title_en}"?`)) return;
     deleteProduct(product._id);
   }
 
@@ -692,7 +693,7 @@ export default function ProductsManager() {
                     <div className="flex gap-3">
                       <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border border-dash-border bg-slate-100">
                         {mainImage ? (
-                          <Image src={mainImage} alt={product.title_en} fill unoptimized className="object-cover" />
+                          <Image src={mainImage} alt={product.title_bn || product.title_en} fill unoptimized className="object-cover" />
                         ) : (
                           <div className="flex h-full items-center justify-center text-dash-muted">
                             <Package className="h-4 w-4 opacity-40" />
@@ -700,10 +701,9 @@ export default function ProductsManager() {
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="line-clamp-2 font-semibold text-dash-text">{product.title_en}</p>
-                        {product.title_bn ? (
-                          <p className="line-clamp-1 text-xs text-dash-muted">{product.title_bn}</p>
-                        ) : null}
+                        <p className="line-clamp-2 font-semibold text-dash-text">
+                          {product.title_bn || product.title_en}
+                        </p>
                         <span className="mt-2 inline-block rounded-md border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
                           {product.category}
                         </span>
@@ -761,7 +761,7 @@ export default function ProductsManager() {
                           {mainImage ? (
                             <Image
                               src={mainImage}
-                              alt={product.title_en}
+                              alt={product.title_bn || product.title_en}
                               fill
                               unoptimized
                               className="object-cover"
@@ -774,10 +774,9 @@ export default function ProductsManager() {
                         </div>
                       </td>
                       <td className="max-w-[220px] px-4 py-3">
-                        <p className="line-clamp-1 font-semibold text-dash-text">{product.title_en}</p>
-                        {product.title_bn ? (
-                          <p className="line-clamp-1 text-xs text-dash-muted">{product.title_bn}</p>
-                        ) : null}
+                        <p className="line-clamp-1 font-semibold text-dash-text">
+                          {product.title_bn || product.title_en}
+                        </p>
                         {product.brand_or_vendor ? (
                           <p className="mt-0.5 text-xs text-dash-muted">{product.brand_or_vendor}</p>
                         ) : null}

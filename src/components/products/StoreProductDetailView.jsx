@@ -56,7 +56,6 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
   );
   const images = product.images?.length ? product.images : [];
   const title = product.title_bn || product.title_en;
-  const titleEn = product.title_en;
   const salePrice = product.pricing?.sale_price || 0;
   const regularPrice = product.pricing?.regular_price || 0;
   const discount = product.pricing?.discount_percentage || 0;
@@ -179,7 +178,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
   }
 
   return (
-    <div className="container mx-auto min-w-0 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+    <div className="store-container min-w-0 py-8 sm:py-10">
       <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-zinc-500 sm:text-sm">
         <Link href="/" className="transition-colors hover:text-indigo-600">
           হোম
@@ -302,9 +301,6 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
           </div>
 
           <h1 className="mt-3 text-2xl font-bold leading-snug text-zinc-900 sm:text-3xl">{title}</h1>
-          {titleEn && titleEn !== title ? (
-            <p className="mt-1 text-sm text-zinc-500">{titleEn}</p>
-          ) : null}
 
           {product.ratings?.average_rating > 0 ? (
             <div className="mt-4 flex flex-wrap items-center gap-2">

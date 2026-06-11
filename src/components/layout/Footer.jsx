@@ -27,7 +27,7 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-zinc-200 bg-white">
-      <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+      <div className="store-container py-12 lg:py-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -140,7 +140,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-zinc-100 bg-zinc-50">
-        <div className="container mx-auto flex flex-col items-center justify-between gap-3 px-4 py-5 text-center sm:flex-row sm:px-6 lg:px-8 sm:text-left">
+        <div className="store-container flex flex-col items-center justify-between gap-3 py-5 text-center sm:flex-row sm:text-left">
           <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}

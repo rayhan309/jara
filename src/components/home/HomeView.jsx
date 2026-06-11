@@ -18,7 +18,7 @@ export default function HomeView() {
       <HeroSwiper />
       <HomeCategoriesSection />
       <HomeCategoryProductsView />
-      <HomeBrandsSection brands={brands} />
+      {/* <HomeBrandsSection brands={brands} /> */}
     </>
   );
 }

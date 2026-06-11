@@ -52,7 +52,7 @@ export default function HomeCategoryProductsSection({
       transition={{ duration: 0.4, delay: index * 0.05 }}
       className={`py-6 sm:py-8 ${index % 2 === 1 ? "bg-zinc-50/80" : "bg-white"}`}
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="store-container">
         <div className="mb-4 text-center sm:mb-5">
           <h2 className="text-base font-bold tracking-tight text-zinc-900 sm:text-lg lg:text-xl">
             {category.name}

@@ -1,16 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
-import { useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "motion/react";
 import { Eye, Loader2, Pencil, ShoppingBag, Trash2, X } from "lucide-react";
-import { FieldError } from "@/components/dashboard/DashboardFormUi";
-import {
-  useAdminOrders,
-  useDeleteAdminOrder,
-  useUpdateAdminOrder,
-} from "@/hooks/useAdminOrders";
+import OrderEditModal from "@/components/dashboard/OrderEditModal";
+import { useAdminOrders, useDeleteAdminOrder } from "@/hooks/useAdminOrders";
 import { usePagination } from "@/hooks/usePagination";
 import TablePagination from "@/components/dashboard/TablePagination";
 import {
@@ -21,7 +16,6 @@ import {
   mobileDashModalClass,
 } from "@/components/shared/ResponsiveTable";
 import {
-  DEFAULT_ORDER_STATUS,
   formatOrderDate,
   formatOrderTotal,
   getOrderItemSummary,
@@ -29,12 +23,9 @@ import {
   getOrderStatusLabel,
   ORDER_STATUSES,
 } from "@/lib/orderHelpers";
-import { DELIVERY_OPTIONS } from "@/lib/orderValidation";
 
 const inputClass =
   "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
-
-const labelClass = "mb-1.5 block text-sm font-semibold text-dash-text";
 
 function SectionTitle({ children }) {
   return (
@@ -123,6 +114,12 @@ function OrderViewModal({ open, onClose, order }) {
                 <dt className="text-xs text-dash-muted">Address</dt>
                 <dd className="text-dash-text">{order.customer?.address}</dd>
               </div>
+              {order.customer?.delivery_area ? (
+                <div>
+                  <dt className="text-xs text-dash-muted">Delivery Area</dt>
+                  <dd className="text-dash-text">{order.customer.delivery_area}</dd>
+                </div>
+              ) : null}
             </dl>
           </div>
           <div className="rounded-md border border-dash-border p-4">
@@ -165,7 +162,8 @@ function OrderViewModal({ open, onClose, order }) {
                     <p className="text-xs text-dash-muted">Variant: {item.selected_variant}</p>
                   ) : null}
                   <p className="mt-1 text-sm text-dash-muted">
-                    ৳{item.price?.toLocaleString()} × {item.quantity} ={" "}
+                    ৳{item.price?.toLocaleString()} × {item.quantity}
+                    {item.discount > 0 ? ` − ৳${item.discount.toLocaleString()} disc.` : ""} ={" "}
                     <span className="font-semibold text-dash-text">৳{item.line_total?.toLocaleString()}</span>
                   </p>
                 </div>
@@ -195,160 +193,6 @@ function OrderViewModal({ open, onClose, order }) {
           </div>
         </div>
       </div>
-    </ModalShell>
-  );
-}
-
-function OrderEditModal({ open, onClose, order }) {
-  const { mutate: updateOrder, isPending } = useUpdateAdminOrder();
-  const [submitError, setSubmitError] = useState("");
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      status: DEFAULT_ORDER_STATUS,
-      name: "",
-      phone: "",
-      address: "",
-      delivery_method: "outside_dhaka",
-    },
-  });
-
-  useEffect(() => {
-    if (!open || !order) return;
-
-    reset({
-      status: order.status || DEFAULT_ORDER_STATUS,
-      name: order.customer?.name || "",
-      phone: order.customer?.phone || "",
-      address: order.customer?.address || "",
-      delivery_method: order.delivery?.method || "outside_dhaka",
-    });
-    setSubmitError("");
-  }, [open, order, reset]);
-
-  function handleClose() {
-    if (isPending) return;
-    onClose();
-  }
-
-  function onSubmit(values) {
-    setSubmitError("");
-
-    updateOrder(
-      {
-        id: order._id,
-        payload: {
-          status: values.status,
-          customer: {
-            name: values.name,
-            phone: values.phone,
-            address: values.address,
-          },
-          delivery: { method: values.delivery_method },
-        },
-      },
-      {
-        onSuccess: () => onClose(),
-        onError: (error) => setSubmitError(error.message || "Update failed."),
-      }
-    );
-  }
-
-  if (!order) return null;
-
-  return (
-    <ModalShell open={open} title={`Edit Order ${order.order_number}`} onClose={handleClose}>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
-        <div className="space-y-4 p-5 sm:p-6">
-          <div>
-            <label className={labelClass}>Status</label>
-            <select {...register("status")} className={inputClass}>
-              {ORDER_STATUSES.map((entry) => (
-                <option key={entry.value} value={entry.value}>
-                  {entry.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <SectionTitle>Customer</SectionTitle>
-
-          <div>
-            <label className={labelClass}>Name</label>
-            <input
-              {...register("name", { required: "Name is required." })}
-              className={inputClass}
-            />
-            <FieldError message={errors.name?.message} />
-          </div>
-
-          <div>
-            <label className={labelClass}>Phone</label>
-            <input
-              {...register("phone", { required: "Phone is required." })}
-              className={inputClass}
-            />
-            <FieldError message={errors.phone?.message} />
-          </div>
-
-          <div>
-            <label className={labelClass}>Address</label>
-            <textarea
-              rows={3}
-              {...register("address", { required: "Address is required." })}
-              className={`${inputClass} resize-none`}
-            />
-            <FieldError message={errors.address?.message} />
-          </div>
-
-          <div>
-            <label className={labelClass}>Delivery Method</label>
-            <select {...register("delivery_method")} className={inputClass}>
-              {Object.entries(DELIVERY_OPTIONS).map(([key, option]) => (
-                <option key={key} value={key}>
-                  {option.label} — ৳{option.charge}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {submitError ? (
-            <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
-              {submitError}
-            </p>
-          ) : null}
-        </div>
-
-        <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-dash-border bg-white p-5 sm:flex-row sm:justify-end">
-          <button
-            type="button"
-            onClick={handleClose}
-            disabled={isPending}
-            className="rounded-md border border-dash-border px-4 py-2.5 text-sm font-semibold text-dash-muted"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
-          >
-            {isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              "Save Changes"
-            )}
-          </button>
-        </div>
-      </form>
     </ModalShell>
   );
 }

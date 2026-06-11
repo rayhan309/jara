@@ -1,8 +1,10 @@
 "use client";
 
 import { Suspense, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Package } from "lucide-react";
 import { filterProductsByCategory } from "@/lib/categoryFilter";
+import { filterProductsBySearch } from "@/lib/productSearch";
 import { useCategoryFilter } from "@/hooks/useCategoryFilter";
 import { useProducts } from "@/hooks/useProducts";
 import StoreProductCard from "@/components/products/StoreProductCard";
@@ -45,6 +47,10 @@ function StoreProductsFallback() {
 }
 
 function StoreProductsContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get("q")?.trim() || "";
+
   const {
     isLoading: categoriesLoading,
     selectedCategory,
@@ -53,13 +59,22 @@ function StoreProductsContent() {
 
   const { data: products = [], isLoading, isError, error, refetch } = useProducts();
 
-  const filteredProducts = useMemo(
-    () => filterProductsByCategory(products, selectedCategory),
-    [products, selectedCategory]
-  );
+  const filteredProducts = useMemo(() => {
+    const byCategory = filterProductsByCategory(products, selectedCategory);
+    return filterProductsBySearch(byCategory, searchQuery);
+  }, [products, selectedCategory, searchQuery]);
 
-  const pageTitle = selectedCategory ? selectedCategory.name : "সব পণ্য";
+  const pageTitle = searchQuery
+    ? `"${searchQuery}" — অনুসন্ধান`
+    : selectedCategory
+      ? selectedCategory.name
+      : "সব পণ্য";
   const isLoadingContent = isLoading || categoriesLoading;
+
+  function handleShowAllProducts() {
+    selectCategory(null);
+    router.push("/products");
+  }
 
   return (
     <div>
@@ -95,14 +110,16 @@ function StoreProductsContent() {
           <div className="rounded-md border border-dashed border-zinc-200 bg-white px-6 py-16 text-center">
             <Package className="mx-auto h-10 w-10 text-zinc-300" />
             <p className="mt-4 text-sm text-zinc-500">
-              {selectedCategory
-                ? `"${selectedCategory.name}" ক্যাটাগরিতে এখনও কোনো পণ্য নেই।`
-                : "এখনও কোনো পণ্য যোগ করা হয়নি।"}
+              {searchQuery
+                ? `"${searchQuery}" খুঁজে কোনো পণ্য পাওয়া যায়নি।`
+                : selectedCategory
+                  ? `"${selectedCategory.name}" ক্যাটাগরিতে এখনও কোনো পণ্য নেই।`
+                  : "এখনও কোনো পণ্য যোগ করা হয়নি।"}
             </p>
-            {selectedCategory ? (
+            {searchQuery || selectedCategory ? (
               <button
                 type="button"
-                onClick={() => selectCategory(null)}
+                onClick={handleShowAllProducts}
                 className="mt-4 text-sm font-semibold text-indigo-600"
               >
                 সব পণ্য দেখুন

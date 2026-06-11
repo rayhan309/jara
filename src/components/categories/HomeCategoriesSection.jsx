@@ -21,8 +21,8 @@ function CategoryCard({ category, index }) {
         onClick={() => setSelectedCategoryId(category._id)}
         className="group block"
       >
-        <div className="overflow-hidden rounded-xl border border-zinc-200/90 bg-white p-2 shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-indigo-200 group-hover:shadow-[0_8px_24px_-8px_rgba(79,70,229,0.28)] sm:p-2.5">
-          <div className="relative aspect-square overflow-hidden rounded-lg bg-zinc-50">
+        <div className="aspect-square overflow-hidden rounded-full border border-zinc-200/90 bg-white p-1.5 shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-indigo-200 group-hover:shadow-[0_8px_24px_-8px_rgba(79,70,229,0.28)] sm:p-2">
+          <div className="relative h-full w-full overflow-hidden rounded-full bg-zinc-50">
             {category.image?.url ? (
               <Image
                 src={category.image.url}
@@ -49,8 +49,8 @@ function CategoryCard({ category, index }) {
 function CategoryCardSkeleton() {
   return (
     <div className="min-w-0">
-      <div className="rounded-xl border border-zinc-100 bg-white p-2.5">
-        <div className="aspect-square animate-pulse rounded-lg bg-zinc-100" />
+      <div className="aspect-square rounded-full border border-zinc-100 bg-white p-2">
+        <div className="h-full w-full animate-pulse rounded-full bg-zinc-100" />
       </div>
       <div className="mx-auto mt-3 h-3.5 w-3/4 animate-pulse rounded-md bg-zinc-100" />
     </div>
@@ -66,7 +66,7 @@ export default function HomeCategoriesSection() {
 
   return (
     <section className="border-b border-zinc-100 bg-white py-8 sm:py-10 lg:py-12">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="store-container">
         <div className="mb-7 text-center sm:mb-8">
           <h2 className="text-lg font-bold tracking-tight text-zinc-900 sm:text-xl lg:text-2xl">
             আমাদের সেরা ক্যাটাগরি সমূহ
@@ -78,13 +78,13 @@ export default function HomeCategoriesSection() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7">
             {Array.from({ length: 6 }).map((_, index) => (
               <CategoryCardSkeleton key={index} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7">
             {categories.map((category, index) => (
               <CategoryCard key={category._id} category={category} index={index} />
             ))}

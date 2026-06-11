@@ -27,7 +27,7 @@ function PolicySection({ id, title, children }) {
 
 export default function SupportPageView() {
   return (
-    <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+    <div className="store-container py-8 sm:py-10 lg:py-12">
       <div className="mx-auto max-w-3xl">
         <div className="text-center">
           <p className="text-[11px] font-bold tracking-[0.18em] text-indigo-600 uppercase">

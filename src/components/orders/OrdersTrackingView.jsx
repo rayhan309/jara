@@ -196,7 +196,7 @@ function OrdersTrackingFallback() {
   return (
     <StoreShell className="bg-zinc-50">
       <section className="py-6 sm:py-8 lg:py-10">
-        <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div className="store-container max-w-4xl">
           <div className="overflow-hidden rounded-md border border-zinc-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="h-6 w-40 animate-pulse rounded-md bg-zinc-100" />
             <div className="mt-2 h-4 w-64 animate-pulse rounded-md bg-zinc-100" />
@@ -272,7 +272,7 @@ function OrdersTrackingContent() {
   return (
     <StoreShell className="bg-zinc-50">
       <section className="py-6 sm:py-8 lg:py-10">
-        <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div className="store-container max-w-4xl">
           <div className="overflow-hidden rounded-md border border-zinc-200 bg-white p-4 shadow-sm sm:p-5">
             <h1 className="text-lg font-bold text-zinc-900 sm:text-xl">Track Your Order</h1>
             <p className="mt-1 text-xs text-zinc-500 sm:text-sm">

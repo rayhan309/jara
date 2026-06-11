@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Check, Package, ShoppingCart, Star, Zap } from "lucide-react";
+import { Check, Package, ShoppingCart, Zap } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
 import { resolveProductVariant } from "@/lib/productVariants";
@@ -81,25 +81,17 @@ export default function StoreProductCard({ product, index = 0 }) {
           ) : null}
         </div>
 
-        <div className="flex flex-1 flex-col px-2.5 pt-2">
-          <h3 className="line-clamp-2 min-h-[2.25rem] text-[12px] leading-4 font-semibold text-zinc-800 sm:text-[13px] sm:leading-[18px]">
+        <div className="px-2.5 pt-2.5">
+          <h3 className="line-clamp-2 text-sm leading-5 font-semibold text-zinc-800 sm:text-base sm:leading-6">
             {title}
           </h3>
 
-          {product.ratings?.average_rating > 0 ? (
-            <div className="mt-1 flex items-center gap-0.5 text-[10px] text-amber-600">
-              <Star className="h-3 w-3 fill-current" />
-              <span className="font-semibold">{product.ratings.average_rating}</span>
-              <span className="text-zinc-400">({product.ratings.total_reviews})</span>
-            </div>
-          ) : null}
-
-          <div className="mt-auto flex flex-wrap items-baseline gap-1.5 pt-1.5">
-            <span className="text-sm font-bold text-zinc-900 sm:text-[15px]">
+          <div className="mt-1 flex flex-wrap items-baseline gap-2 sm:mt-1.5">
+            <span className="text-base font-bold text-zinc-900 sm:text-lg">
               ৳{salePrice?.toLocaleString()}
             </span>
             {regularPrice > salePrice ? (
-              <span className="text-[10px] text-zinc-400 line-through sm:text-[11px]">
+              <span className="text-xs text-zinc-400 line-through sm:text-sm">
                 ৳{regularPrice.toLocaleString()}
               </span>
             ) : null}
@@ -124,7 +116,7 @@ export default function StoreProductCard({ product, index = 0 }) {
         <button
           type="button"
           onClick={handleBuy}
-          className="inline-flex items-center justify-center gap-1 rounded-md bg-indigo-600 px-2 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-indigo-700 sm:text-xs"
+          className="inline-flex items-center justify-center gap-1 rounded-md bg-indigo-600 px-2 py-2 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 sm:text-sm"
         >
           <Zap className="h-3 w-3" />
           এখনই কিনুন

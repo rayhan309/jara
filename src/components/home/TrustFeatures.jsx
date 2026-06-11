@@ -22,7 +22,7 @@ const FEATURES = [
 export default function TrustFeatures() {
   return (
     <section className="bg-white py-4 sm:py-5">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="store-container">
         <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white sm:rounded-full">
           <div className="flex snap-x snap-mandatory divide-x divide-zinc-200 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
             {FEATURES.map((feature) => {

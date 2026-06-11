@@ -93,7 +93,7 @@ export default function HomeBrandsSection({ brands = [] }) {
         aria-hidden
       />
 
-      <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="store-container relative">
         <SectionHeader />
 
         {useGrid ? (

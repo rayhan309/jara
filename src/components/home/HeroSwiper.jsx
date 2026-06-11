@@ -10,8 +10,8 @@ import "swiper/css/effect-fade";
 
 const HERO_SLIDES = [
   { src: "/images/banner-1.jpg", alt: "Nexa Commerce ব্যানার ১", href: "/products" },
-  { src: "/images/banner2.jpg", alt: "Nexa Commerce ব্যানার ২", href: "/products" },
-  { src: "/images/banner3.jpg", alt: "Nexa Commerce ব্যানার ৩", href: "/products" },
+  // { src: "/images/banner2.jpg", alt: "Nexa Commerce ব্যানার ২", href: "/products" },
+  // { src: "/images/banner3.jpg", alt: "Nexa Commerce ব্যানার ৩", href: "/products" },
 ];
 
 export default function HeroSwiper() {
