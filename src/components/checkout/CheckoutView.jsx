@@ -359,7 +359,7 @@ export default function CheckoutView() {
               {fieldErrors.phone ? (
                 <p className="mt-1 text-xs text-rose-500">{fieldErrors.phone}</p>
               ) : (
-                <p className="mt-1 text-[11px] text-zinc-400">১১ ডিজিটের বাংলাদেশি নাম্বার (01XXXXXXXXX)</p>
+                <p className="mt-1 text-[11px] text-zinc-400"></p>
               )}
             </div>
 
@@ -381,6 +381,34 @@ export default function CheckoutView() {
               {fieldErrors.address ? (
                 <p className="mt-1 text-xs text-rose-500">{fieldErrors.address}</p>
               ) : null}
+            </div>
+
+            <div className="rounded-md border border-zinc-200 bg-white p-4">
+              <p className="mb-3 text-sm font-semibold text-zinc-800">ডেলিভারি মেথড নির্বাচন করুন</p>
+              <div className="space-y-2">
+                {DELIVERY_LIST.map((option) => (
+                  <label
+                    key={option.id}
+                    className={`flex cursor-pointer items-center gap-3 rounded-md border px-3.5 py-3 transition-colors ${
+                      delivery === option.id
+                        ? "border-indigo-300 bg-indigo-50/60"
+                        : "border-zinc-200 hover:border-zinc-300"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="delivery"
+                      value={option.id}
+                      checked={delivery === option.id}
+                      onChange={() => setDelivery(option.id)}
+                      className="h-4 w-4 accent-indigo-600"
+                    />
+                    <span className="min-w-0 text-sm font-medium text-zinc-800">
+                      {option.label} — ৳{option.charge}
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
 
             <div>
@@ -430,35 +458,7 @@ export default function CheckoutView() {
             ))}
           </div>
 
-          <div className="mt-5 rounded-md border border-zinc-200 bg-white p-4">
-            <p className="mb-3 text-sm font-semibold text-zinc-800">ডেলিভারি মেথড নির্বাচন করুন</p>
-            <div className="space-y-2">
-              {DELIVERY_LIST.map((option) => (
-                <label
-                  key={option.id}
-                  className={`flex cursor-pointer items-center gap-3 rounded-md border px-3.5 py-3 transition-colors ${
-                    delivery === option.id
-                      ? "border-indigo-300 bg-indigo-50/60"
-                      : "border-zinc-200 hover:border-zinc-300"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="delivery"
-                    value={option.id}
-                    checked={delivery === option.id}
-                    onChange={() => setDelivery(option.id)}
-                    className="h-4 w-4 accent-indigo-600"
-                  />
-                  <span className="min-w-0 text-sm font-medium text-zinc-800">
-                    {option.label} — ৳{option.charge}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-4 rounded-md border border-zinc-200 bg-white p-4 text-sm">
+          <div className="mt-5 rounded-md border border-zinc-200 bg-white p-4 text-sm">
             <div className="space-y-2 border-b border-zinc-100 pb-3">
               <div className="flex justify-between text-zinc-600">
                 <span>সর্বমোট</span>
