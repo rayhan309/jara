@@ -40,7 +40,7 @@ export default function Footer() {
               <div className="rounded-md flex h-10 w-10 items-center justify-center bg-indigo-600">
                 <RiStore2Fill className="h-5 w-5 text-white" />
               </div>
-              <span className="text-lg font-bold text-zinc-900">Nexa Commerce</span>
+              <span className="text-lg font-bold text-zinc-900">Nexa</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-zinc-500">
               আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। মানসম্মত পণ্য, দ্রুত ডেলিভারি

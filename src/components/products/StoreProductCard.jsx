@@ -88,7 +88,7 @@ export default function StoreProductCard({ product, index = 0 }) {
 
           <div className="mt-1 flex flex-wrap items-baseline gap-1.5 pb-2 sm:mt-1.5 sm:gap-2 sm:pb-2.5">
             <span className="text-[16px] md:text-xl font-bold text-red-600 min-[360px]:text-sm sm:text-base">
-              ৳{salePrice?.toLocaleString()}
+              ৳<span className="font-sans">{salePrice?.toLocaleString()}</span>
             </span>
             {regularPrice > salePrice ? (
               <span className="text-[11px] text-zinc-400 line-through sm:text-xs md:text-sm">
