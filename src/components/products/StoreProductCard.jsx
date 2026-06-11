@@ -81,13 +81,13 @@ export default function StoreProductCard({ product, index = 0 }) {
           ) : null}
         </div>
 
-        <div className="px-2 pt-2 sm:px-2.5 sm:pt-2.5">
-          <h3 className="line-clamp-2 text-[16px] md:text-lg leading-4 font-semibold text-zinc-800 sm:leading-5">
+        <div className="px-2 pt-2 sm:px-2.5 sm:pt-3.5">
+          <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-800 sm:text-base md:text-lg">
             {title}
           </h3>
 
-          <div className="mt-1 flex flex-wrap items-baseline gap-1.5 sm:mt-1.5 sm:gap-2">
-            <span className="text-[13px] font-bold text-zinc-900 min-[360px]:text-sm sm:text-base">
+          <div className="mt-1 flex flex-wrap items-baseline gap-1.5 pb-2 sm:mt-1.5 sm:gap-2 sm:pb-2.5">
+            <span className="text-[16px] md:text-xl font-bold text-red-600 min-[360px]:text-sm sm:text-base">
               ৳{salePrice?.toLocaleString()}
             </span>
             {regularPrice > salePrice ? (
@@ -99,13 +99,13 @@ export default function StoreProductCard({ product, index = 0 }) {
         </div>
       </Link>
 
-      <div className="grid grid-cols-[2rem_1fr] items-center gap-1.5 px-2 pb-2 pt-1 sm:grid-cols-[2.5rem_1fr] sm:px-2.5 sm:pb-2.5">
+      <div className="mt-1 grid grid-cols-[2rem_1fr] items-center gap-1.5 px-2 pb-2 pt-0 sm:mt-1.5 sm:grid-cols-[2.5rem_1fr] sm:px-2.5 sm:pb-2.5">
         <button
           type="button"
           onClick={handleCartToggle}
           aria-label={inCart ? "কার্ট থেকে সরান" : "কার্টে যোগ করুন"}
           title={inCart ? "কার্ট থেকে সরান" : "কার্টে যোগ করুন"}
-          className={`flex h-8 w-full items-center justify-center rounded-md transition-colors sm:h-9 ${
+          className={`flex h-8 w-full items-center justify-center rounded-md transition-colors cursor-pointer sm:h-9 ${
             inCart
               ? "border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700"
               : "border border-zinc-200 bg-white text-zinc-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
