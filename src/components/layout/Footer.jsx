@@ -148,7 +148,7 @@ export default function Footer() {
             viewport={{ once: true }}
             className="text-xs text-zinc-400"
           >
-            © {new Date().getFullYear()} Nexa Commerce. সর্বস্বত্ব সংরক্ষিত।
+            © {new Date().getFullYear()} Nexa. সর্বস্বত্ব সংরক্ষিত।
           </motion.p>
           <motion.p
             initial={{ opacity: 0 }}

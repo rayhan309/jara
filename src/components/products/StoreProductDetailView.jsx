@@ -316,7 +316,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
             </div>
           ) : null}
 
-          <div className="mt-6 rounded-md p-4 sm:p-5">
+          <div className="mt-4.5 rounded-md">
             <div className="flex flex-wrap items-end gap-3">
               <p className="text-2xl font-bold text-zinc-900 sm:text-3xl lg:text-4xl">
                 ৳{salePrice.toLocaleString()}
@@ -348,8 +348,8 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
             ) : null}
           </div>
 
-          {hasAnyInCart ? (
-            <div className="mt-4 break-words rounded-md border border-indigo-200 bg-indigo-50 px-3.5 py-2.5 text-xs font-medium text-indigo-800">
+          {/* {hasAnyInCart ? (
+            <div className="mt-4 break-words rounded-md border border-indigo-200 bg-indigo-50  text-xs font-medium text-indigo-800">
               <span className="font-semibold">কার্টে আছে:</span>{" "}
               {variantConfig.required
                 ? productCartLines
@@ -361,7 +361,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                     .join(" · ")
                 : `${totalCartQty}টি`}
             </div>
-          ) : null}
+          ) : null} */}
 
           {variantConfig.required ? (
             <div className="mt-5">
