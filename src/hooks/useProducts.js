@@ -18,11 +18,14 @@ export {
 } from "@/lib/api/products";
 
 export function useProducts(options = {}) {
+  const { search = "", category = "all", ...queryOptions } = options;
+  const filters = { search, category };
+
   return useQuery({
-    queryKey: productKeys.list(),
-    queryFn: fetchProducts,
+    queryKey: productKeys.list(filters),
+    queryFn: () => fetchProducts(filters),
     staleTime: 60 * 1000,
-    ...options,
+    ...queryOptions,
   });
 }
 
@@ -31,8 +34,8 @@ export function useCreateProduct() {
 
   return useMutation({
     mutationFn: createProduct,
-    onSuccess: (product) => {
-      queryClient.setQueryData(productKeys.list(), (current = []) => [product, ...current]);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.all });
     },
   });
 }
@@ -42,10 +45,8 @@ export function useUpdateProduct() {
 
   return useMutation({
     mutationFn: ({ id, formData }) => updateProduct(id, formData),
-    onSuccess: (product) => {
-      queryClient.setQueryData(productKeys.list(), (current = []) =>
-        current.map((item) => (item._id === product._id ? product : item))
-      );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.all });
     },
   });
 }
@@ -55,10 +56,8 @@ export function useDeleteProduct() {
 
   return useMutation({
     mutationFn: deleteProduct,
-    onSuccess: (id) => {
-      queryClient.setQueryData(productKeys.list(), (current = []) =>
-        current.filter((item) => item._id !== id)
-      );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.all });
     },
   });
 }

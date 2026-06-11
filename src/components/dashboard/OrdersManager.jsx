@@ -7,7 +7,12 @@ import toast from "react-hot-toast";
 import { Copy, Eye, Loader2, Pencil, Phone, ShoppingBag, Trash2, Truck, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import OrderEditModal from "@/components/dashboard/OrderEditModal";
-import { useAdminOrders, useDeleteAdminOrder, useUpdateAdminOrder } from "@/hooks/useAdminOrders";
+import {
+  useAdminOrders,
+  useDeleteAdminOrder,
+  useSendBulkOrdersToSteadfast,
+  useSendOrderToSteadfast,
+} from "@/hooks/useAdminOrders";
 import { usePagination } from "@/hooks/usePagination";
 import TablePagination from "@/components/dashboard/TablePagination";
 import {
@@ -18,7 +23,6 @@ import {
   mobileDashModalClass,
 } from "@/components/shared/ResponsiveTable";
 import {
-  buildCourierClipboardText,
   formatDisplayOrderNumber,
   formatOrderDate,
   formatOrderTotal,
@@ -210,6 +214,19 @@ function OrderViewModal({ open, onClose, order }) {
                 <dt className="text-xs text-dash-muted">Payment</dt>
                 <dd className="font-semibold text-dash-text">{order.payment?.label || "Cash On Delivery"}</dd>
               </div>
+              {order.steadfast?.tracking_code || order.steadfast?.consignment_id ? (
+                <div>
+                  <dt className="text-xs text-dash-muted">Steadfast</dt>
+                  <dd className="space-y-1 font-semibold text-dash-text">
+                    {order.steadfast.tracking_code ? (
+                      <p>Tracking: {order.steadfast.tracking_code}</p>
+                    ) : null}
+                    {order.steadfast.consignment_id ? (
+                      <p>Consignment ID: {order.steadfast.consignment_id}</p>
+                    ) : null}
+                  </dd>
+                </div>
+              ) : null}
             </dl>
           </div>
         </div>
@@ -283,22 +300,29 @@ function OrderRowActions({
 }) {
   const iconBtn =
     "inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors";
+  const alreadySent = Boolean(order.steadfast?.tracking_code || order.steadfast?.consignment_id);
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <button
         type="button"
         onClick={() => onCourier(order)}
-        disabled={isSendingCourier}
-        title="কুরিয়ারে পাঠান"
-        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50 px-2.5 text-[11px] font-semibold text-violet-700 transition-colors hover:bg-violet-100 disabled:opacity-60"
+        disabled={isSendingCourier || alreadySent}
+        title={alreadySent ? "Steadfast-এ পাঠানো হয়েছে" : "Steadfast-এ পাঠান"}
+        className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-[11px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+          alreadySent
+            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+            : "border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100"
+        }`}
       >
         {isSendingCourier ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
         ) : (
           <Truck className="h-3.5 w-3.5" />
         )}
-        <span className="hidden xl:inline">কুরিয়ারে পাঠান</span>
+        <span className="hidden xl:inline">
+          {alreadySent ? "পাঠানো হয়েছে" : "কুরিয়ারে পাঠান"}
+        </span>
       </button>
       <button
         type="button"
@@ -339,7 +363,8 @@ function OrderRowActions({
 export default function OrdersManager() {
   const { data: orders = [], isLoading, isError, error, refetch } = useAdminOrders();
   const { mutate: deleteOrder, isPending: isDeleting, variables: deletingId } = useDeleteAdminOrder();
-  const { mutateAsync: updateOrder } = useUpdateAdminOrder();
+  const { mutateAsync: sendToSteadfast } = useSendOrderToSteadfast();
+  const { mutateAsync: sendBulkToSteadfast } = useSendBulkOrdersToSteadfast();
 
   const [viewOrder, setViewOrder] = useState(null);
   const [editOrder, setEditOrder] = useState(null);
@@ -411,22 +436,23 @@ export default function OrdersManager() {
     setSelectedIds(new Set());
   }
 
-  async function handleSendToCourier(order, { silent = false } = {}) {
+  async function handleSendToCourier(order) {
+    if (order.steadfast?.tracking_code || order.steadfast?.consignment_id) {
+      toast.error("এই অর্ডার আগেই Steadfast-এ পাঠানো হয়েছে");
+      return;
+    }
+
     setCourierOrderId(order._id);
     try {
-      await navigator.clipboard.writeText(buildCourierClipboardText(order));
-      if (order.status !== "steadfast_entered") {
-        await updateOrder({ id: order._id, payload: { status: "steadfast_entered" } });
-      }
-      if (!silent) {
-        toast.success("কুরিয়ার তথ্য কপি হয়েছে — স্টিডফাস্টে পেস্ট করুন");
-      }
-      return true;
+      const updated = await sendToSteadfast(order._id);
+      const tracking = updated?.steadfast?.tracking_code;
+      toast.success(
+        tracking
+          ? `Steadfast-এ পাঠানো হয়েছে — Tracking: ${tracking}`
+          : "Steadfast-এ সফলভাবে পাঠানো হয়েছে"
+      );
     } catch (err) {
-      if (!silent) {
-        toast.error(err.message || "কুরিয়ারে পাঠানো যায়নি");
-      }
-      return false;
+      toast.error(err.message || "Steadfast-এ পাঠানো যায়নি");
     } finally {
       setCourierOrderId(null);
     }
@@ -438,25 +464,17 @@ export default function OrdersManager() {
 
     setBulkCourierLoading(true);
     try {
-      const texts = [];
-      let successCount = 0;
+      const data = await sendBulkToSteadfast(selectedOrders.map((order) => order._id));
 
-      for (const order of selectedOrders) {
-        const ok = await handleSendToCourier(order, { silent: true });
-        if (ok) {
-          successCount += 1;
-          texts.push(buildCourierClipboardText(order));
-        }
+      if (data.failedCount > 0) {
+        toast.error(`${data.successCount}টি সফল, ${data.failedCount}টি ব্যর্থ`);
+      } else {
+        toast.success(`${data.successCount}টি অর্ডার Steadfast-এ পাঠানো হয়েছে`);
       }
 
-      if (texts.length) {
-        await navigator.clipboard.writeText(texts.join("\n\n---\n\n"));
-      }
-
-      toast.success(`${successCount}টি অর্ডার কুরিয়ারের জন্য প্রস্তুত`);
       clearSelection();
     } catch (err) {
-      toast.error(err.message || "বাল্ক কুরিয়ার ব্যর্থ হয়েছে");
+      toast.error(err.message || "বাল্ক Steadfast ব্যর্থ হয়েছে");
     } finally {
       setBulkCourierLoading(false);
     }
@@ -613,7 +631,7 @@ export default function OrdersManager() {
               ) : (
                 <Truck className="h-4 w-4" />
               )}
-              কুরিয়ারে পাঠান
+              Steadfast-এ পাঠান
             </button>
             <button
               type="button"

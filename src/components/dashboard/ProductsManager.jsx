@@ -9,6 +9,7 @@ import { FieldError } from "@/components/dashboard/DashboardFormUi";
 import { calculateDiscountPercentage } from "@/lib/productHelpers";
 import { slugify } from "@/lib/slugify";
 import { useCategories } from "@/hooks/useCategories";
+import { useDebouncedValue } from "@/hooks/useDebounce";
 import {
   useCreateProduct,
   useDeleteProduct,
@@ -26,7 +27,14 @@ import {
 } from "@/components/shared/ResponsiveTable";
 
 const inputClass =
-  "w-full border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
+  "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
+
+const categoryTabClass = (active) =>
+  `shrink-0 rounded-md border px-3.5 py-2 text-sm font-semibold transition-colors sm:px-4 ${
+    active
+      ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+      : "border-dash-border bg-white text-dash-muted hover:border-indigo-200 hover:text-indigo-700"
+  }`;
 
 const labelClass = "mb-1.5 block text-sm font-semibold text-dash-text";
 
@@ -536,18 +544,18 @@ function ProductFormModal({ open, onClose, product }) {
 
 function ProductRowActions({ product, onEdit, onDelete, isDeleting }) {
   const iconBtn =
-    "inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors";
+    "inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors";
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center justify-end gap-0.5">
       <button
         type="button"
         aria-label="Edit product"
         title="Edit"
         onClick={() => onEdit(product)}
-        className={`${iconBtn} border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100`}
+        className={`${iconBtn} text-slate-400 hover:bg-slate-100 hover:text-indigo-600`}
       >
-        <Pencil className="h-4 w-4" />
+        <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
       </button>
       <button
         type="button"
@@ -555,57 +563,73 @@ function ProductRowActions({ product, onEdit, onDelete, isDeleting }) {
         title="Delete"
         onClick={() => onDelete(product)}
         disabled={isDeleting}
-        className={`${iconBtn} border-red-200 bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-60`}
+        className={`${iconBtn} text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50`}
       >
         {isDeleting ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
         ) : (
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
         )}
       </button>
     </div>
   );
 }
 
+function ProductPriceCell({ pricing }) {
+  const salePrice = pricing?.sale_price ?? 0;
+  const regularPrice = pricing?.regular_price ?? 0;
+  const discount = pricing?.discount_percentage || 0;
+  const hasDiscount = regularPrice > salePrice;
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <span className="text-sm font-semibold tabular-nums text-dash-text">
+        ৳{salePrice.toLocaleString()}
+      </span>
+      {hasDiscount ? (
+        <span className="text-xs tabular-nums text-slate-400 line-through">
+          ৳{regularPrice.toLocaleString()}
+        </span>
+      ) : null}
+      {discount > 0 ? (
+        <span className="rounded px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-50">
+          -{discount}%
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function ProductStockCell({ inventory }) {
+  const quantity = inventory?.quantity ?? 0;
+
+  return (
+    <span className="text-sm font-medium tabular-nums text-dash-text">{quantity}</span>
+  );
+}
+
 export default function ProductsManager({ embedded = false }) {
-  const { data: products = [], isLoading, isError, error, refetch } = useProducts();
   const { data: categories = [] } = useCategories();
   const { mutate: deleteProduct, isPending: isDeleting, variables: deletingId } = useDeleteProduct();
   const [formOpen, setFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const debouncedSearch = useDebouncedValue(searchInput, 500);
 
-  const filteredProducts = useMemo(() => {
-    const term = search.trim().toLowerCase();
-
-    return products.filter((product) => {
-      if (categoryFilter !== "all") {
-        const selectedCategory = categories.find((entry) => entry._id === categoryFilter);
-        const matchesId = product.category_id === categoryFilter;
-        const matchesName =
-          selectedCategory && product.category === selectedCategory.name;
-        const matchesSlug =
-          selectedCategory &&
-          product.category_slug === selectedCategory.slug;
-
-        if (!matchesId && !matchesName && !matchesSlug) return false;
-      }
-
-      if (!term) return true;
-
-      return (
-        product.title_en?.toLowerCase().includes(term) ||
-        product.title_bn?.toLowerCase().includes(term) ||
-        product.category?.toLowerCase().includes(term) ||
-        product.brand_or_vendor?.toLowerCase().includes(term) ||
-        product.slug?.toLowerCase().includes(term)
-      );
-    });
-  }, [products, search, categoryFilter, categories]);
+  const {
+    data: products = [],
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useProducts({ search: debouncedSearch, category: categoryFilter });
 
   const { page, setPage, totalPages, totalItems, pageSize, paginatedItems } =
-    usePagination(filteredProducts);
+    usePagination(products);
+
+  const isSearching = searchInput !== debouncedSearch || (isFetching && !isLoading);
 
   function openCreateForm() {
     setEditingProduct(null);
@@ -668,29 +692,40 @@ export default function ProductsManager({ embedded = false }) {
         </motion.div>
       )}
 
-      {products.length > 0 ? (
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <div className="space-y-3">
+        <div className="relative">
           <input
             type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
             placeholder="Search by name, brand, or slug..."
-            className={`${inputClass} w-full sm:max-w-sm sm:flex-1`}
+            className={`${inputClass} w-full ${isSearching ? "pr-10" : ""}`}
           />
-          <select
-            value={categoryFilter}
-            onChange={(event) => setCategoryFilter(event.target.value)}
-            className={`${inputClass} sm:w-52`}
-          >
-            <option value="all">All categories</option>
-            {categories.map((category) => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
+          {isSearching ? (
+            <Loader2 className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 animate-spin text-indigo-500" />
+          ) : null}
         </div>
-      ) : null}
+
+        <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <button
+            type="button"
+            onClick={() => setCategoryFilter("all")}
+            className={categoryTabClass(categoryFilter === "all")}
+          >
+            All
+          </button>
+          {categories.map((category) => (
+            <button
+              key={category._id}
+              type="button"
+              onClick={() => setCategoryFilter(category._id)}
+              className={categoryTabClass(categoryFilter === category._id)}
+            >
+              {category.name}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {isLoading ? (
         <div className="dash-card flex min-h-[280px] items-center justify-center">
@@ -701,13 +736,15 @@ export default function ProductsManager({ embedded = false }) {
           <p className="text-sm text-red-600">{error?.message || "Failed to load products."}</p>
           <button type="button" onClick={() => refetch()} className="mt-3 text-sm font-semibold text-indigo-600">Try again</button>
         </div>
-      ) : filteredProducts.length === 0 ? (
+      ) : products.length === 0 ? (
         <div className="dash-card flex min-h-[280px] flex-col items-center justify-center p-10 text-center">
           <Package className="mb-4 h-10 w-10 text-indigo-600" />
           <h2 className="text-lg font-bold text-dash-text">
-            {products.length === 0 ? "No products yet" : "No matching products"}
+            {!debouncedSearch && categoryFilter === "all"
+              ? "No products yet"
+              : "No matching products"}
           </h2>
-          {products.length === 0 ? (
+          {!debouncedSearch && categoryFilter === "all" ? (
             <button type="button" onClick={openCreateForm} className="mt-5 inline-flex items-center gap-2 bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white">
               <Plus className="h-4 w-4" />
               Add Product
@@ -720,22 +757,15 @@ export default function ProductsManager({ embedded = false }) {
         </div>
       ) : (
         <div className="dash-card overflow-hidden">
-          <MobileCardList className="p-3">
-            {paginatedItems.map((product, index) => {
+          <MobileCardList className="space-y-0 divide-y divide-dash-border p-0">
+            {paginatedItems.map((product) => {
               const mainImage = product.images?.[0]?.url;
-              const discount = product.pricing?.discount_percentage || 0;
-              const stockStatus = product.inventory?.stock_status?.replace(/_/g, " ") || "—";
 
               return (
-                <motion.div
-                  key={product._id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.02 }}
-                >
-                  <MobileDashCard>
+                <div key={product._id} className="p-3.5">
+                  <MobileDashCard className="border-0 p-0 shadow-none">
                     <div className="flex gap-3">
-                      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border border-dash-border bg-slate-100">
+                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-slate-200/80 bg-slate-50 shadow-sm">
                         {mainImage ? (
                           <Image src={mainImage} alt={product.title_bn || product.title_en} fill unoptimized className="object-cover" />
                         ) : (
@@ -745,22 +775,22 @@ export default function ProductsManager({ embedded = false }) {
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="line-clamp-2 font-semibold text-dash-text">
+                        <p className="line-clamp-2 text-sm font-semibold leading-snug text-dash-text">
                           {product.title_bn || product.title_en}
                         </p>
-                        <span className="mt-2 inline-block rounded-md border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
+                        <span className="mt-1.5 inline-block max-w-full truncate rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
                           {product.category}
                         </span>
                       </div>
                     </div>
-                    <div className="mt-3 space-y-2">
+                    <div className="mt-3 space-y-2 border-t border-dash-border pt-3">
+                      <MobileDashRow label="Price" value={<ProductPriceCell pricing={product.pricing} />} />
                       <MobileDashRow
-                        label="Price"
-                        value={`৳${product.pricing?.sale_price?.toLocaleString()}${discount > 0 ? ` (-${discount}%)` : ""}`}
+                        label="Qty"
+                        value={product.inventory?.quantity ?? 0}
                       />
-                      <MobileDashRow label="Stock" value={`${stockStatus} · Qty ${product.inventory?.quantity ?? 0}`} />
                     </div>
-                    <div className="mt-3 flex justify-end">
+                    <div className="mt-3 flex justify-end border-t border-dash-border pt-3">
                       <ProductRowActions
                         product={product}
                         onEdit={openEditForm}
@@ -769,39 +799,46 @@ export default function ProductsManager({ embedded = false }) {
                       />
                     </div>
                   </MobileDashCard>
-                </motion.div>
+                </div>
               );
             })}
           </MobileCardList>
 
           <DesktopTable>
-            <table className="min-w-full text-left text-sm">
+            <table className="min-w-full border-collapse text-left text-sm">
               <thead>
-                <tr className="border-b border-dash-border bg-slate-50 text-[11px] font-semibold tracking-wide text-dash-muted uppercase">
-                  <th className="px-4 py-3">Image</th>
-                  <th className="px-4 py-3">Product</th>
-                  <th className="px-4 py-3">Category</th>
-                  <th className="px-4 py-3">Price</th>
-                  <th className="px-4 py-3">Stock</th>
-                  <th className="px-4 py-3">Actions</th>
+                <tr className="border-b border-dash-border bg-slate-50/90">
+                  <th className="w-[68px] px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                    Image
+                  </th>
+                  <th className="min-w-[180px] px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                    Product
+                  </th>
+                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                    Category
+                  </th>
+                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                    Price
+                  </th>
+                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                    Qty
+                  </th>
+                  <th className="w-[88px] px-4 py-2.5 text-right text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                    Actions
+                  </th>
                 </tr>
               </thead>
-              <tbody>
-                {paginatedItems.map((product, index) => {
+              <tbody className="divide-y divide-slate-100">
+                {paginatedItems.map((product) => {
                   const mainImage = product.images?.[0]?.url;
-                  const discount = product.pricing?.discount_percentage || 0;
-                  const stockStatus = product.inventory?.stock_status?.replace(/_/g, " ") || "—";
 
                   return (
-                    <motion.tr
+                    <tr
                       key={product._id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.02 }}
-                      className="border-b border-dash-border last:border-b-0 hover:bg-slate-50/80"
+                      className="group transition-colors hover:bg-slate-50/70"
                     >
-                      <td className="px-4 py-3">
-                        <div className="relative h-12 w-12 overflow-hidden rounded-md border border-dash-border bg-slate-100">
+                      <td className="px-4 py-2.5">
+                        <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-slate-200/80 bg-slate-50 shadow-sm">
                           {mainImage ? (
                             <Image
                               src={mainImage}
@@ -812,52 +849,38 @@ export default function ProductsManager({ embedded = false }) {
                             />
                           ) : (
                             <div className="flex h-full items-center justify-center text-dash-muted">
-                              <Package className="h-4 w-4 opacity-40" />
+                              <Package className="h-3.5 w-3.5 opacity-40" />
                             </div>
                           )}
                         </div>
                       </td>
-                      <td className="max-w-[220px] px-4 py-3">
-                        <p className="line-clamp-1 font-semibold text-dash-text">
+                      <td className="max-w-[240px] px-4 py-2.5">
+                        <p className="line-clamp-2 text-[13px] font-medium leading-snug text-dash-text">
                           {product.title_bn || product.title_en}
                         </p>
-                        {product.brand_or_vendor ? (
-                          <p className="mt-0.5 text-xs text-dash-muted">{product.brand_or_vendor}</p>
-                        ) : null}
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="rounded-md border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
+                      <td className="px-4 py-2.5">
+                        <span className="inline-block max-w-[160px] truncate rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600">
                           {product.category}
                         </span>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <p className="font-semibold text-dash-text">
-                          ৳{product.pricing?.sale_price?.toLocaleString()}
-                        </p>
-                        {product.pricing?.regular_price > product.pricing?.sale_price ? (
-                          <p className="text-xs text-dash-muted line-through">
-                            ৳{product.pricing.regular_price.toLocaleString()}
-                          </p>
-                        ) : null}
-                        {discount > 0 ? (
-                          <span className="mt-1 inline-block rounded-md bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                            -{discount}%
-                          </span>
-                        ) : null}
+                      <td className="px-4 py-2.5 whitespace-nowrap">
+                        <ProductPriceCell pricing={product.pricing} />
                       </td>
-                      <td className="px-4 py-3">
-                        <p className="font-semibold capitalize text-dash-text">{stockStatus}</p>
-                        <p className="text-xs text-dash-muted">Qty: {product.inventory?.quantity ?? 0}</p>
+                      <td className="px-4 py-2.5">
+                        <ProductStockCell inventory={product.inventory} />
                       </td>
-                      <td className="px-4 py-3">
-                        <ProductRowActions
-                          product={product}
-                          onEdit={openEditForm}
-                          onDelete={handleDelete}
-                          isDeleting={isDeleting && deletingId === product._id}
-                        />
+                      <td className="px-4 py-2.5">
+                        <div className="opacity-80 transition-opacity group-hover:opacity-100">
+                          <ProductRowActions
+                            product={product}
+                            onEdit={openEditForm}
+                            onDelete={handleDelete}
+                            isDeleting={isDeleting && deletingId === product._id}
+                          />
+                        </div>
                       </td>
-                    </motion.tr>
+                    </tr>
                   );
                 })}
               </tbody>

@@ -62,7 +62,7 @@ function parseExistingImages(value) {
 export async function GET(_request, { params }) {
   try {
     const { id } = await params;
-    const products = dbConnect(COLLECTION);
+    const products = await dbConnect(COLLECTION);
     const objectId = parseObjectId(id);
 
     const product = objectId
@@ -92,7 +92,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: "Invalid product id." }, { status: 400 });
     }
 
-    const products = dbConnect(COLLECTION);
+    const products = await dbConnect(COLLECTION);
     const existing = await products.findOne({ _id: objectId });
 
     if (!existing) {
@@ -230,7 +230,7 @@ export async function DELETE(_request, { params }) {
       return NextResponse.json({ error: "Invalid product id." }, { status: 400 });
     }
 
-    const products = dbConnect(COLLECTION);
+    const products = await dbConnect(COLLECTION);
     const result = await products.deleteOne({ _id: objectId });
 
     if (result.deletedCount === 0) {

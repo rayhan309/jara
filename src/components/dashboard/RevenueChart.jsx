@@ -48,8 +48,8 @@ export default function RevenueChart({ data = [] }) {
   return (
     <div className="h-40 w-full min-w-0 pt-2 sm:h-52 lg:h-56">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} barSize={24}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+        <BarChart data={chartData} barSize={20} barCategoryGap="18%">
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
           <XAxis
             dataKey="month"
             axisLine={false}
@@ -67,11 +67,11 @@ export default function RevenueChart({ data = [] }) {
             }
           />
           <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(99, 102, 241, 0.06)" }} />
-          <Bar dataKey="revenue" radius={[0, 0, 0, 0]}>
+          <Bar dataKey="revenue" radius={[4, 4, 0, 0]}>
             {chartData.map((entry, index) => (
               <Cell
                 key={`${entry.month}-${index}`}
-                fill={entry.revenue === maxRevenue && entry.revenue > 0 ? "#4f46e5" : "#a5b4fc"}
+                fill={entry.revenue === maxRevenue && entry.revenue > 0 ? "#4f46e5" : "#c7d2fe"}
               />
             ))}
           </Bar>

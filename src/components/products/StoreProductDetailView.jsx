@@ -26,6 +26,7 @@ import { useCart } from "@/hooks/useCart";
 import { getProductMaxStock } from "@/lib/cart";
 import { getProductVariantConfig } from "@/lib/productVariants";
 import StoreProductCard from "@/components/products/StoreProductCard";
+import { buildProductPixelPayload, trackMetaEvent } from "@/lib/metaPixel";
 
 const CONTACT_PHONE = "+8801815131040";
 const WHATSAPP_URL = "https://wa.me/8801815131040";
@@ -104,6 +105,10 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
     }
   }, [selectedVariant, inCart, cartQty, variantConfig.required, productCartLines.length]);
 
+  useEffect(() => {
+    trackMetaEvent("ViewContent", buildProductPixelPayload(product, 1));
+  }, [product._id]);
+
   function clampQty(value) {
     const limit = Math.max(1, remainingStock || 1);
     return Math.min(limit, Math.max(1, value));
@@ -127,6 +132,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
       return;
     }
     addToCart(product, quantity, selectedVariant);
+    trackMetaEvent("AddToCart", buildProductPixelPayload(product, quantity));
   }
 
   function handleBuy() {
@@ -147,6 +153,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
       return;
     }
     buyNow(product, quantity, selectedVariant);
+    trackMetaEvent("AddToCart", buildProductPixelPayload(product, quantity));
   }
 
   function increaseQuantity() {

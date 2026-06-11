@@ -5,6 +5,8 @@ import {
   adminOrderKeys,
   deleteAdminOrder,
   fetchAdminOrders,
+  sendBulkOrdersToSteadfast,
+  sendOrderToSteadfast,
   updateAdminOrder,
 } from "@/lib/api/adminOrders";
 
@@ -38,6 +40,43 @@ export function useDeleteAdminOrder() {
     onSuccess: (id) => {
       queryClient.setQueryData(adminOrderKeys.list(), (current = []) =>
         current.filter((item) => item._id !== id)
+      );
+    },
+  });
+}
+
+function mergeOrdersIntoList(current = [], orders = []) {
+  const map = new Map(orders.map((order) => [order._id, order]));
+  return current.map((item) => map.get(item._id) || item);
+}
+
+export function useSendOrderToSteadfast() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: sendOrderToSteadfast,
+    onSuccess: (order) => {
+      queryClient.setQueryData(adminOrderKeys.list(), (current = []) =>
+        current.map((item) => (item._id === order._id ? order : item))
+      );
+    },
+  });
+}
+
+export function useSendBulkOrdersToSteadfast() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: sendBulkOrdersToSteadfast,
+    onSuccess: (data) => {
+      const updatedOrders = (data.results || [])
+        .filter((entry) => entry.success && entry.order)
+        .map((entry) => entry.order);
+
+      if (!updatedOrders.length) return;
+
+      queryClient.setQueryData(adminOrderKeys.list(), (current = []) =>
+        mergeOrdersIntoList(current, updatedOrders)
       );
     },
   });

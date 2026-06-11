@@ -33,7 +33,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: "Invalid category id." }, { status: 400 });
     }
 
-    const categories = dbConnect(COLLECTION);
+    const categories = await dbConnect(COLLECTION);
     const existing = await categories.findOne({ _id: objectId });
 
     if (!existing) {
@@ -123,7 +123,7 @@ export async function DELETE(_request, { params }) {
       return NextResponse.json({ error: "Invalid category id." }, { status: 400 });
     }
 
-    const categories = dbConnect(COLLECTION);
+    const categories = await dbConnect(COLLECTION);
     const result = await categories.deleteOne({ _id: objectId });
 
     if (result.deletedCount === 0) {

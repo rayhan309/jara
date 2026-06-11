@@ -1,3 +1,5 @@
+import { formatDisplayOrderNumber } from "@/lib/orderHelpers";
+
 export function formatRelativeTime(value) {
   if (!value) return "—";
 
@@ -112,7 +114,7 @@ export function buildRecentActivities(orders = [], products = []) {
   orders.slice(0, 4).forEach((order) => {
     activities.push({
       id: `order-${order._id}`,
-      text: `Order ${order.order_number} placed`,
+      text: `Order ${formatDisplayOrderNumber(order.order_number)} placed`,
       time: order.createdAt,
       icon: "order",
     });

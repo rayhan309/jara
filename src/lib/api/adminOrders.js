@@ -54,3 +54,31 @@ export async function deleteAdminOrder(id) {
 
   return id;
 }
+
+export async function sendOrderToSteadfast(id) {
+  const response = await fetch(`/api/admin/orders/${id}/steadfast`, {
+    method: "POST",
+  });
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to send order to Steadfast.");
+  }
+
+  return data.order;
+}
+
+export async function sendBulkOrdersToSteadfast(orderIds) {
+  const response = await fetch("/api/admin/orders/steadfast/bulk", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderIds }),
+  });
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to send orders to Steadfast.");
+  }
+
+  return data;
+}

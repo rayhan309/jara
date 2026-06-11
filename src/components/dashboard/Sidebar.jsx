@@ -33,10 +33,40 @@ const navItems = [
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
+const iconProps = { className: "h-4 w-4 shrink-0", strokeWidth: 1.75 };
+
 function isCatalogPath(pathname) {
   return (
     pathname.startsWith("/dashboard/products") ||
     pathname.startsWith("/dashboard/categories")
+  );
+}
+
+function NavLink({ href, active, icon: Icon, label, onClose }) {
+  return (
+    <Link
+      href={href}
+      onClick={onClose}
+      className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors ${
+        active
+          ? "bg-white/[0.08] text-white"
+          : "text-slate-400 hover:bg-white/[0.04] hover:text-slate-200"
+      }`}
+    >
+      {active ? (
+        <motion.span
+          layoutId="sidebar-active"
+          className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-indigo-400"
+        />
+      ) : null}
+      <Icon
+        {...iconProps}
+        className={`${iconProps.className} ${
+          active ? "text-indigo-300" : "text-slate-500 group-hover:text-slate-300"
+        }`}
+      />
+      {label}
+    </Link>
   );
 }
 
@@ -95,26 +125,26 @@ export default function Sidebar({ isOpen, onClose }) {
       </AnimatePresence>
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-[260px] max-w-[85vw] shrink-0 flex-col overflow-y-auto bg-dash-sidebar text-white transition-transform duration-300 ease-out lg:relative lg:sticky lg:top-0 lg:z-30 lg:max-w-none lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-[232px] max-w-[82vw] shrink-0 flex-col overflow-y-auto bg-dash-sidebar text-white transition-transform duration-300 ease-out lg:relative lg:sticky lg:top-0 lg:z-30 lg:max-w-none lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         <div className="absolute inset-y-0 right-0 w-px bg-dash-sidebar-border" />
 
-        <div className="rounded-md relative border-b border-dash-sidebar-border border-gray-700 px-5 py-5 sm:px-6">
-          <div className="flex items-center justify-between gap-3">
+        <div className="relative border-b border-dash-sidebar-border border-gray-700 px-4 py-3.5">
+          <div className="flex items-center justify-between gap-2">
             <motion.div
               initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex min-w-0 items-center gap-3"
+              className="flex min-w-0 items-center gap-2.5"
             >
-              <div className="relative flex h-11 w-11 shrink-0 items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600">
-                <RiStore2Fill className="h-5 w-5 text-white" />
-                <span className="absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 border-2 border-dash-sidebar bg-emerald-400" />
+              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600">
+                <RiStore2Fill className="h-3.5 w-3.5 text-white" />
+                <span className="absolute -right-0.5 -bottom-0.5 h-1.5 w-1.5 rounded-full border border-dash-sidebar bg-emerald-400" />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-[15px] font-bold tracking-tight">Nexa Commerce</p>
-                <p className="text-[11px] font-medium tracking-[0.12em] text-indigo-300/80 uppercase">
+                <p className="truncate text-[13px] font-semibold tracking-tight">Nexa</p>
+                <p className="text-[10px] font-medium tracking-[0.1em] text-slate-500 uppercase">
                   Admin Console
                 </p>
               </div>
@@ -124,18 +154,18 @@ export default function Sidebar({ isOpen, onClose }) {
               type="button"
               aria-label="Close sidebar"
               onClick={onClose}
-              className="rounded-md flex h-9 w-9 shrink-0 items-center justify-center border border-slate-700 text-slate-300 transition-colors hover:border-slate-500 hover:bg-white/10 hover:text-white lg:hidden"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-slate-700/80 text-slate-400 transition-colors hover:bg-white/5 hover:text-white lg:hidden"
             >
-              <X className="h-5 w-5" />
+              <X className="h-3.5 w-3.5" strokeWidth={2} />
             </button>
           </div>
         </div>
 
-        <div className="px-3 pt-5 sm:px-4 sm:pt-6">
-          <p className="mb-3 px-3 text-[10px] font-semibold tracking-[0.2em] text-slate-500 uppercase">
+        <div className="px-2.5 pt-4">
+          <p className="mb-2 px-2.5 text-[10px] font-medium tracking-[0.14em] text-slate-600 uppercase">
             Main Menu
           </p>
-          <nav className="space-y-1">
+          <nav className="space-y-0.5">
             {navItems.map((item, index) => {
               if (item.children) {
                 const groupActive = isCatalogPath(pathname);
@@ -146,37 +176,37 @@ export default function Sidebar({ isOpen, onClose }) {
                     key={item.label}
                     initial={{ opacity: 0, x: -16 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    transition={{ delay: index * 0.04 }}
                   >
                     <button
                       type="button"
                       onClick={() => setProductsOpen((open) => !open)}
-                      className={`group relative flex w-full items-center gap-3 px-3 py-3 text-sm font-medium transition-all duration-200 ${
+                      className={`group relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors ${
                         groupActive
-                          ? "bg-white/10 text-white"
-                          : "text-slate-400 hover:bg-dash-sidebar-hover hover:text-white"
+                          ? "bg-white/[0.08] text-white"
+                          : "text-slate-400 hover:bg-white/[0.04] hover:text-slate-200"
                       }`}
                     >
                       {groupActive ? (
                         <motion.span
                           layoutId="sidebar-active"
-                          className="absolute inset-y-2 left-0 w-1 bg-gradient-to-b from-indigo-400 to-violet-400"
+                          className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-indigo-400"
                         />
                       ) : null}
-                      <span
-                        className={`rounded-md flex h-9 w-9 shrink-0 items-center justify-center border transition-colors ${
+                      <Icon
+                        {...iconProps}
+                        className={`${iconProps.className} ${
                           groupActive
-                            ? "border-indigo-400/40 bg-indigo-500/20 text-indigo-200"
-                            : "border-slate-700 bg-slate-800/50 text-slate-400 group-hover:border-slate-600 group-hover:text-white"
+                            ? "text-indigo-300"
+                            : "text-slate-500 group-hover:text-slate-300"
                         }`}
-                      >
-                        <Icon className="h-[18px] w-[18px]" />
-                      </span>
+                      />
                       <span className="flex-1 text-left">{item.label}</span>
                       <ChevronDown
-                        className={`h-4 w-4 shrink-0 transition-transform duration-200 ${
+                        className={`h-3.5 w-3.5 shrink-0 text-slate-500 transition-transform duration-200 ${
                           productsOpen ? "rotate-180" : ""
                         }`}
+                        strokeWidth={2}
                       />
                     </button>
 
@@ -186,10 +216,10 @@ export default function Sidebar({ isOpen, onClose }) {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
+                          transition={{ duration: 0.18 }}
                           className="overflow-hidden"
                         >
-                          <div className="mt-1 space-y-1 border-l border-slate-700/80 pl-3 ml-6">
+                          <div className="mt-0.5 ml-4 space-y-0.5 border-l border-slate-700/60 pl-2">
                             {item.children.map((child) => {
                               const childActive =
                                 pathname === child.href ||
@@ -201,13 +231,13 @@ export default function Sidebar({ isOpen, onClose }) {
                                   key={child.href}
                                   href={child.href}
                                   onClick={onClose}
-                                  className={`flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm transition-colors ${
+                                  className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[12px] transition-colors ${
                                     childActive
-                                      ? "bg-indigo-500/15 font-semibold text-indigo-100"
-                                      : "text-slate-400 hover:bg-white/5 hover:text-white"
+                                      ? "bg-indigo-500/15 font-medium text-indigo-200"
+                                      : "text-slate-500 hover:bg-white/[0.04] hover:text-slate-300"
                                   }`}
                                 >
-                                  <ChildIcon className="h-4 w-4 shrink-0 opacity-80" />
+                                  <ChildIcon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                                   {child.label}
                                 </Link>
                               );
@@ -223,69 +253,47 @@ export default function Sidebar({ isOpen, onClose }) {
               const active =
                 pathname === item.href ||
                 (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
-              const Icon = item.icon;
 
               return (
                 <motion.div
                   key={item.href}
                   initial={{ opacity: 0, x: -16 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  transition={{ delay: index * 0.04 }}
                 >
-                  <Link
+                  <NavLink
                     href={item.href}
-                    onClick={onClose}
-                    className={`group relative flex items-center gap-3 px-3 py-3 text-sm font-medium transition-all duration-200 ${
-                      active
-                        ? "bg-white/10 text-white"
-                        : "text-slate-400 hover:bg-dash-sidebar-hover hover:text-white"
-                    }`}
-                  >
-                    {active ? (
-                      <motion.span
-                        layoutId="sidebar-active"
-                        className="absolute inset-y-2 left-0 w-1 bg-gradient-to-b from-indigo-400 to-violet-400"
-                      />
-                    ) : null}
-                    <span
-                      className={`rounded-md flex h-9 w-9 shrink-0 items-center justify-center border transition-colors ${
-                        active
-                          ? "border-indigo-400/40 bg-indigo-500/20 text-indigo-200"
-                          : "border-slate-700 bg-slate-800/50 text-slate-400 group-hover:border-slate-600 group-hover:text-white"
-                      }`}
-                    >
-                      <Icon className="h-[18px] w-[18px]" />
-                    </span>
-                    {item.label}
-                  </Link>
+                    active={active}
+                    icon={item.icon}
+                    label={item.label}
+                    onClose={onClose}
+                  />
                 </motion.div>
               );
             })}
           </nav>
         </div>
 
-        <div className="rounded-md mt-auto border-t border-dash-sidebar-border border-gray-700 p-3 sm:p-4">
-          <div className="mb-3 flex items-center gap-3 bg-white/5 p-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-gradient-to-br from-slate-600 to-slate-700 text-sm font-bold uppercase">
+        <div className="mt-auto border-t border-dash-sidebar-border border-gray-700 p-2.5">
+          <div className="mb-2 flex items-center gap-2.5 rounded-lg bg-white/[0.04] px-2.5 py-2">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-700/80 text-[11px] font-semibold uppercase text-slate-200">
               {(auth?.username || "A").charAt(0)}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-white">
+              <p className="truncate text-[12px] font-medium text-slate-200">
                 {auth?.username || "Admin"}
               </p>
-              <p className="text-[11px] text-slate-400">Store Administrator</p>
+              <p className="truncate text-[10px] text-slate-500">Store Administrator</p>
             </div>
           </div>
-          <motion.button
+          <button
             type="button"
             onClick={handleLogout}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
-            className="rounded-md flex w-full items-center justify-center gap-2 border border-slate-700 py-2.5 text-xs font-semibold tracking-wide text-slate-300 uppercase transition-colors hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-300"
+            className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-700/80 py-1.5 text-[11px] font-medium text-slate-400 transition-colors hover:border-red-500/40 hover:bg-red-500/[0.08] hover:text-red-300"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-3.5 w-3.5" strokeWidth={1.75} />
             Sign Out
-          </motion.button>
+          </button>
         </div>
       </aside>
     </>

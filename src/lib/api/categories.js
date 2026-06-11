@@ -55,3 +55,19 @@ export async function deleteCategory(id) {
 
   return id;
 }
+
+export async function reorderCategories(orderedIds) {
+  const response = await fetch("/api/categories/reorder", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderedIds }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to reorder categories.");
+  }
+
+  return data.categories || [];
+}

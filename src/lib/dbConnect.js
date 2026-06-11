@@ -1,40 +1,80 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion } = require("mongodb");
+
 const uri = process.env.MONGODB_URI;
 const dbname = process.env.BDNAME || process.env.DBNAME;
 
 if (!uri) {
-    throw new Error('Please add your Mongo URI to .env');
+  throw new Error("Please add your Mongo URI to .env");
 }
 
-// 1. Set optimized connection options
 const options = {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    },
-    maxPoolSize: 10,
-    minPoolSize: 5,
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+  maxPoolSize: 10,
 };
 
-let client;
+let clientPromise;
 
-// 2. Connection Caching in Development
-// This prevents creating infinite db connection pools on hot reloads
-if (process.env.NODE_ENV === 'development') {
-    if (!global._mongoClient) {
-        global._mongoClient = new MongoClient(uri, options);
-    }
-    client = global._mongoClient;
-} else {
-    // In production, keep creating the standard client (cached naturally by Node container lifetime)
-    client = new MongoClient(uri, options);
+function createClientPromise() {
+  const client = new MongoClient(uri, options);
+  return client.connect();
 }
 
-// Ensure the client attempts to connect behind the scenes
-// Next.js handles the async queueing automatically for .db() calls.
-client.connect().catch((error) => console.error("Global MongoDB Connection Error: ", error));
+if (process.env.NODE_ENV === "development") {
+  if (!global._mongoClientPromise) {
+    global._mongoClientPromise = createClientPromise();
+  }
+  clientPromise = global._mongoClientPromise;
+} else {
+  clientPromise = createClientPromise();
+}
 
-export const dbConnect = (cname) => {
-    return client.db(dbname).collection(cname);
-};
+function isTopologyClosedError(error) {
+  return (
+    error?.name === "MongoTopologyClosedError" ||
+    String(error?.message || "").includes("Topology is closed")
+  );
+}
+
+function resetClientPromise() {
+  clientPromise = createClientPromise();
+
+  if (process.env.NODE_ENV === "development") {
+    global._mongoClientPromise = clientPromise;
+  }
+
+  return clientPromise;
+}
+
+async function getClient() {
+  try {
+    const client = await clientPromise;
+
+    if (process.env.NODE_ENV === "development") {
+      try {
+        await client.db(dbname).command({ ping: 1 });
+      } catch (error) {
+        if (isTopologyClosedError(error)) {
+          return resetClientPromise();
+        }
+        throw error;
+      }
+    }
+
+    return client;
+  } catch (error) {
+    if (process.env.NODE_ENV !== "development") {
+      throw error;
+    }
+
+    return resetClientPromise();
+  }
+}
+
+export async function dbConnect(collectionName) {
+  const client = await getClient();
+  return client.db(dbname).collection(collectionName);
+}

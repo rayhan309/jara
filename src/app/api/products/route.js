@@ -1,10 +1,58 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/dbConnect";
 import imagekit from "@/lib/imagekit";
+import { parseObjectId } from "@/lib/mongodbHelpers";
 import { calculateDiscountPercentage, parseNumber } from "@/lib/productHelpers";
 import { slugify } from "@/lib/slugify";
 
 const COLLECTION = "products";
+const CATEGORIES_COLLECTION = "categories";
+
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function buildProductFilter(search, categoryId) {
+  const conditions = [];
+
+  if (categoryId && categoryId !== "all") {
+    const categoryConditions = [{ category_id: categoryId }];
+    const objectId = parseObjectId(categoryId);
+
+    if (objectId) {
+      const categories = await dbConnect(CATEGORIES_COLLECTION);
+      const category = await categories.findOne({ _id: objectId });
+
+      if (category?.name) {
+        categoryConditions.push({ category: category.name });
+      }
+
+      if (category?.slug) {
+        categoryConditions.push({ category_slug: category.slug });
+      }
+    }
+
+    conditions.push({ $or: categoryConditions });
+  }
+
+  const term = search?.trim();
+  if (term) {
+    const regex = new RegExp(escapeRegex(term), "i");
+    conditions.push({
+      $or: [
+        { title_en: regex },
+        { title_bn: regex },
+        { brand_or_vendor: regex },
+        { slug: regex },
+        { category: regex },
+      ],
+    });
+  }
+
+  if (!conditions.length) return {};
+  if (conditions.length === 1) return conditions[0];
+  return { $and: conditions };
+}
 
 function getImageKitConfigError() {
   if (
@@ -59,10 +107,15 @@ function serializeProduct(product) {
   };
 }
 
-export async function GET() {
+export async function GET(request) {
   try {
-    const products = dbConnect(COLLECTION);
-    const list = await products.find({}).sort({ createdAt: -1 }).toArray();
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search") || "";
+    const category = searchParams.get("category") || "all";
+    const filter = await buildProductFilter(search, category);
+
+    const products = await dbConnect(COLLECTION);
+    const list = await products.find(filter).sort({ createdAt: -1 }).toArray();
 
     return NextResponse.json({
       success: true,
@@ -141,7 +194,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "A valid slug could not be generated." }, { status: 400 });
     }
 
-    const products = dbConnect(COLLECTION);
+    const products = await dbConnect(COLLECTION);
     const slug = await ensureUniqueSlug(products, baseSlug);
     const uploadedImages = await uploadProductImages(imageFiles, slug);
     const now = new Date();

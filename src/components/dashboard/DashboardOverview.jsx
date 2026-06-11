@@ -5,18 +5,20 @@ import Link from "next/link";
 import {
   ArrowRight,
   ClipboardList,
+  Layers,
   Loader2,
   PackagePlus,
   Warehouse,
 } from "lucide-react";
-import { motion } from "motion/react";
 import {
-  HiOutlineClipboardDocumentList,
+  HiOutlineCurrencyBangladeshi,
+  HiOutlineCube,
   HiOutlineShoppingCart,
+  HiOutlineUsers,
 } from "react-icons/hi2";
 import StatCard from "@/components/dashboard/StatCard";
 import RevenueChart from "@/components/dashboard/RevenueChart";
-import { MotionFadeIn, MotionHoverCard } from "@/components/dashboard/MotionFade";
+import { MotionFadeIn } from "@/components/dashboard/MotionFade";
 import {
   DesktopTable,
   MobileCardList,
@@ -32,39 +34,52 @@ import {
   formatCurrency,
   formatRelativeTime,
 } from "@/lib/dashboardStats";
-import { getOrderStatusClass, getOrderStatusLabel } from "@/lib/orderHelpers";
+import {
+  formatDisplayOrderNumber,
+  getOrderStatusClass,
+  getOrderStatusLabel,
+} from "@/lib/orderHelpers";
 
 const quickActions = [
   {
     label: "Add Product",
-    desc: "Create new listing",
+    desc: "Create a new listing",
     href: "/dashboard/products",
     icon: PackagePlus,
-    accent: "bg-indigo-500",
   },
   {
     label: "View Orders",
-    desc: "Manage all orders",
+    desc: "Manage fulfillment",
     href: "/dashboard/orders",
     icon: ClipboardList,
-    accent: "bg-violet-500",
   },
   {
-    label: "Products",
-    desc: "Products & categories",
-    href: "/dashboard/products",
-    icon: Warehouse,
-    accent: "bg-emerald-500",
+    label: "Categories",
+    desc: "Organize catalog",
+    href: "/dashboard/categories",
+    icon: Layers,
   },
 ];
 
 function OrderStatusPill({ status }) {
   return (
     <span
-      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[11px] font-semibold ${getOrderStatusClass(status)}`}
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${getOrderStatusClass(status)}`}
     >
       {getOrderStatusLabel(status)}
     </span>
+  );
+}
+
+function SectionHeader({ title, subtitle, action }) {
+  return (
+    <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+      <div className="min-w-0">
+        <h2 className="text-sm font-bold text-dash-text sm:text-base">{title}</h2>
+        {subtitle ? <p className="mt-0.5 text-xs text-slate-500">{subtitle}</p> : null}
+      </div>
+      {action}
+    </div>
   );
 }
 
@@ -81,286 +96,289 @@ export default function DashboardOverview() {
 
   if (isLoading) {
     return (
-      <div className="dash-card flex min-h-[420px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+      <div className="dash-card flex min-h-[360px] items-center justify-center">
+        <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-5 sm:space-y-6">
       <MotionFadeIn>
-        <div>
-          <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">
-            Overview
-          </p>
-          <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Dashboard</h1>
-          <p className="mt-1 text-sm text-dash-muted">
-            Live store performance from your orders and products.
-          </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[10px] font-semibold tracking-[0.14em] text-indigo-600 uppercase">
+              Overview
+            </p>
+            <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Dashboard</h1>
+            <p className="mt-1 text-sm text-slate-500">
+              Store performance from orders and products.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+              {stats.totalOrders} orders
+            </span>
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+              {formatCurrency(stats.totalRevenue)} revenue
+            </span>
+          </div>
         </div>
       </MotionFadeIn>
 
-      <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Total Revenue"
           value={formatCurrency(stats.totalRevenue)}
-          subtitle={`${stats.deliveredOrders} delivered orders`}
+          subtitle={`${stats.deliveredOrders} delivered`}
           accent="indigo"
           delay={0}
-          showCurrencyIcon
+          icon={HiOutlineCurrencyBangladeshi}
         />
         <StatCard
           title="Total Orders"
           value={String(stats.totalOrders)}
           subtitle={`${stats.pendingOrders} pending`}
           accent="emerald"
-          delay={80}
+          delay={40}
+          icon={HiOutlineShoppingCart}
         />
         <StatCard
           title="Products"
           value={String(stats.totalProducts)}
           subtitle={`${stats.lowStockProducts} low stock`}
           accent="amber"
-          delay={160}
+          delay={80}
+          icon={HiOutlineCube}
         />
         <StatCard
           title="Customers"
           value={String(stats.uniqueCustomers)}
           subtitle="Unique phone numbers"
           accent="rose"
-          delay={240}
+          delay={120}
+          icon={HiOutlineUsers}
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-3">
-        <MotionFadeIn delay={320} className="xl:col-span-2">
-          <MotionHoverCard>
-            <div className="dash-card p-4 sm:p-6">
-              <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <h2 className="text-lg font-bold text-dash-text">Revenue Overview</h2>
-                  <p className="mt-1 text-sm text-dash-muted">Last 6 months (COD orders)</p>
-                </div>
-                <span className="rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-                  {stats.totalOrders} orders
-                </span>
-              </div>
+      <section className="grid items-start gap-4 xl:grid-cols-3">
+        <div className="space-y-4 xl:col-span-2">
+          <MotionFadeIn delay={160}>
+            <div className="dash-card p-4 sm:p-5">
+              <SectionHeader
+                title="Revenue Overview"
+                subtitle="Last 6 months · COD orders"
+                action={
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600">
+                    {stats.totalOrders} total
+                  </span>
+                }
+              />
               <RevenueChart data={chartData} />
             </div>
-          </MotionHoverCard>
-        </MotionFadeIn>
+          </MotionFadeIn>
 
-        <MotionFadeIn delay={400}>
-          <div className="dash-card p-4 sm:p-6">
-            <div className="mb-5 flex items-center gap-2">
-              <HiOutlineClipboardDocumentList className="h-5 w-5 text-indigo-600" />
-              <div>
-                <h2 className="text-lg font-bold text-dash-text">Live Activity</h2>
-                <p className="text-sm text-dash-muted">Recent store events</p>
-              </div>
+          <MotionFadeIn delay={240}>
+          <div className="dash-card overflow-hidden">
+            <div className="border-b border-dash-border px-4 py-4 sm:px-5">
+              <SectionHeader
+                title="Recent Orders"
+                subtitle="Latest transactions"
+                action={
+                  <Link
+                    href="/dashboard/orders"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 transition-colors hover:text-indigo-700"
+                  >
+                    View all
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                }
+              />
             </div>
-            {activities.length === 0 ? (
-              <p className="text-sm text-dash-muted">No recent activity yet.</p>
+
+            {recentOrders.length === 0 ? (
+              <p className="px-4 py-10 text-center text-sm text-slate-500 sm:px-5">
+                No orders yet. They will appear here after checkout.
+              </p>
             ) : (
-              <div className="space-y-4">
-                {activities.map((item, index) => {
-                  const Icon =
-                    item.icon === "stock" ? Warehouse : HiOutlineShoppingCart;
+              <>
+                <MobileCardList className="space-y-0 divide-y divide-dash-border p-0 lg:hidden">
+                  {recentOrders.map((order) => (
+                    <div key={order._id} className="p-3.5">
+                      <MobileDashCard className="border-0 p-0 shadow-none">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="text-sm font-bold tabular-nums text-indigo-600">
+                            #{formatDisplayOrderNumber(order.order_number)}
+                          </p>
+                          <OrderStatusPill status={order.status} />
+                        </div>
+                        <div className="mt-2.5 space-y-1.5">
+                          <MobileDashRow label="Customer" value={order.customer?.name || "—"} />
+                          <MobileDashRow label="Amount" value={formatCurrency(order.pricing?.total)} />
+                          <MobileDashRow label="Time" value={formatRelativeTime(order.createdAt)} />
+                        </div>
+                      </MobileDashCard>
+                    </div>
+                  ))}
+                </MobileCardList>
+
+                <DesktopTable>
+                  <table className="min-w-full border-collapse text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-dash-border bg-slate-50/90">
+                        <th className="px-5 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                          Order
+                        </th>
+                        <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                          Customer
+                        </th>
+                        <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                          Amount
+                        </th>
+                        <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                          Status
+                        </th>
+                        <th className="px-5 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                          Time
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {recentOrders.map((order) => (
+                        <tr
+                          key={order._id}
+                          className="transition-colors hover:bg-slate-50/70"
+                        >
+                          <td className="px-5 py-2.5 text-[13px] font-semibold tabular-nums text-indigo-600">
+                            #{formatDisplayOrderNumber(order.order_number)}
+                          </td>
+                          <td className="px-4 py-2.5 text-[13px] text-dash-text">
+                            {order.customer?.name || "—"}
+                          </td>
+                          <td className="px-4 py-2.5 text-[13px] font-semibold tabular-nums text-dash-text">
+                            {formatCurrency(order.pricing?.total)}
+                          </td>
+                          <td className="px-4 py-2.5">
+                            <OrderStatusPill status={order.status} />
+                          </td>
+                          <td className="px-5 py-2.5 text-[11px] text-slate-400">
+                            {formatRelativeTime(order.createdAt)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </DesktopTable>
+              </>
+            )}
+          </div>
+          </MotionFadeIn>
+        </div>
+
+        <div className="space-y-4">
+          <MotionFadeIn delay={200}>
+            <div className="dash-card p-4 sm:p-5">
+              <SectionHeader
+                title="Recent Activity"
+                subtitle="Latest store events"
+              />
+              {activities.length === 0 ? (
+                <p className="text-sm text-slate-500">No recent activity yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {activities.map((item) => {
+                    const Icon = item.icon === "stock" ? Warehouse : HiOutlineShoppingCart;
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex gap-2.5 rounded-lg border border-slate-100 bg-slate-50/50 px-3 py-2.5"
+                      >
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white text-indigo-600 shadow-sm">
+                          <Icon className="h-3.5 w-3.5" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium leading-snug text-dash-text">
+                            {item.text}
+                          </p>
+                          <p className="mt-0.5 text-[10px] text-slate-400">
+                            {formatRelativeTime(item.time)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </MotionFadeIn>
+
+          <MotionFadeIn delay={280}>
+            <div className="dash-card p-4 sm:p-5">
+              <SectionHeader title="Quick Actions" subtitle="Common admin tasks" />
+              <div className="space-y-2">
+                {quickActions.map((action) => {
+                  const Icon = action.icon;
 
                   return (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.5 + index * 0.08 }}
-                      className="flex gap-3"
+                    <Link
+                      key={action.label}
+                      href={action.href}
+                      className="group flex items-center gap-3 rounded-lg border border-slate-200/80 bg-white px-3 py-2.5 transition-colors hover:border-indigo-200 hover:bg-indigo-50/40"
                     >
-                      <div className="relative flex flex-col items-center">
-                        <span className="rounded-md flex h-8 w-8 items-center justify-center border border-indigo-200 bg-indigo-50 text-indigo-600">
-                          <Icon className="h-4 w-4" />
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-slate-100 text-slate-600 transition-colors group-hover:bg-indigo-100 group-hover:text-indigo-600">
+                        <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[13px] font-semibold text-dash-text group-hover:text-indigo-700">
+                          {action.label}
                         </span>
-                        {index < activities.length - 1 ? (
-                          <span className="mt-1 w-px flex-1 bg-dash-border" />
-                        ) : null}
-                      </div>
-                      <div className="pb-4">
-                        <p className="text-sm font-medium text-dash-text">{item.text}</p>
-                        <p className="mt-0.5 text-xs text-dash-muted">
-                          {formatRelativeTime(item.time)}
-                        </p>
-                      </div>
-                    </motion.div>
+                        <span className="text-[11px] text-slate-500">{action.desc}</span>
+                      </span>
+                      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-slate-300 transition-colors group-hover:text-indigo-500" />
+                    </Link>
                   );
                 })}
               </div>
-            )}
-          </div>
-        </MotionFadeIn>
+            </div>
+          </MotionFadeIn>
+        </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
-        <MotionFadeIn delay={480} className="lg:col-span-2">
-          <MotionHoverCard>
-            <div className="dash-card p-4 sm:p-6">
-              <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h2 className="text-lg font-bold text-dash-text">Recent Orders</h2>
-                  <p className="mt-1 text-sm text-dash-muted">Latest transactions</p>
-                </div>
-                <Link href="/dashboard/orders" className="shrink-0">
-                  <motion.span
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="rounded-md inline-block border border-dash-border px-3 py-1.5 text-xs font-semibold tracking-wide text-dash-muted uppercase transition-colors hover:border-indigo-300 hover:text-indigo-600"
-                  >
-                    View All
-                  </motion.span>
-                </Link>
-              </div>
-
-              {recentOrders.length === 0 ? (
-                <p className="py-8 text-center text-sm text-dash-muted">
-                  No orders yet. They will appear here after checkout.
-                </p>
-              ) : (
-                <>
-                  <MobileCardList>
-                    {recentOrders.map((order, index) => (
-                      <motion.div
-                        key={order._id}
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.55 + index * 0.05 }}
-                      >
-                        <MobileDashCard>
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="break-all text-sm font-bold text-indigo-600">
-                              {order.order_number}
-                            </p>
-                            <OrderStatusPill status={order.status} />
-                          </div>
-                          <div className="mt-3 space-y-2">
-                            <MobileDashRow label="Customer" value={order.customer?.name || "—"} />
-                            <MobileDashRow label="Amount" value={formatCurrency(order.pricing?.total)} />
-                            <MobileDashRow label="Time" value={formatRelativeTime(order.createdAt)} />
-                          </div>
-                        </MobileDashCard>
-                      </motion.div>
-                    ))}
-                  </MobileCardList>
-
-                  <DesktopTable>
-                    <table className="w-full text-left text-sm">
-                      <thead>
-                        <tr className="border-b border-dash-border text-[11px] tracking-widest text-dash-muted uppercase">
-                          <th className="pb-3 pr-4 font-semibold">Order ID</th>
-                          <th className="pb-3 pr-4 font-semibold">Customer</th>
-                          <th className="pb-3 pr-4 font-semibold">Amount</th>
-                          <th className="pb-3 pr-4 font-semibold">Status</th>
-                          <th className="pb-3 font-semibold">Time</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {recentOrders.map((order, index) => (
-                          <motion.tr
-                            key={order._id}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.55 + index * 0.05 }}
-                            className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/80"
-                          >
-                            <td className="py-3.5 pr-4 font-semibold text-indigo-600">
-                              {order.order_number}
-                            </td>
-                            <td className="py-3.5 pr-4 text-dash-text">
-                              {order.customer?.name || "—"}
-                            </td>
-                            <td className="py-3.5 pr-4 font-semibold text-dash-text">
-                              {formatCurrency(order.pricing?.total)}
-                            </td>
-                            <td className="py-3.5 pr-4">
-                              <OrderStatusPill status={order.status} />
-                            </td>
-                            <td className="py-3.5 text-xs text-dash-muted">
-                              {formatRelativeTime(order.createdAt)}
-                            </td>
-                          </motion.tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </DesktopTable>
-                </>
-              )}
-            </div>
-          </MotionHoverCard>
-        </MotionFadeIn>
-
-        <MotionFadeIn delay={560}>
-          <div className="dash-card p-4 sm:p-6">
-            <h2 className="text-lg font-bold text-dash-text">Quick Actions</h2>
-            <p className="mt-1 mb-5 text-sm text-dash-muted">Common admin tasks</p>
-            <div className="space-y-2">
-              {quickActions.map((action, index) => {
-                const Icon = action.icon;
-                return (
-                  <Link key={action.label} href={action.href}>
-                    <motion.span
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.6 + index * 0.07 }}
-                      whileHover={{ x: 4 }}
-                      className="rounded-md group flex w-full items-center gap-3 border border-dash-border p-3 text-left transition-colors hover:border-indigo-300 hover:bg-indigo-50/50"
-                    >
-                      <span
-                        className={`flex h-10 w-10 items-center justify-center text-white ${action.accent}`}
-                      >
-                        <Icon className="h-4 w-4" />
-                      </span>
-                      <span className="flex-1">
-                        <span className="block text-sm font-semibold text-dash-text group-hover:text-indigo-700">
-                          {action.label}
-                        </span>
-                        <span className="text-xs text-dash-muted">{action.desc}</span>
-                      </span>
-                      <ArrowRight className="h-4 w-4 text-dash-muted group-hover:text-indigo-600" />
-                    </motion.span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </MotionFadeIn>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-3 sm:grid-cols-3">
         {[
           {
             label: "Pending Orders",
             value: String(stats.pendingOrders),
             hint: "Awaiting processing",
+            valueClass: "text-amber-600",
+            cardClass: "bg-amber-50/60 border-amber-100",
           },
           {
             label: "Avg. Order Value",
             value: formatCurrency(stats.avgOrderValue),
             hint: "Excludes cancelled",
+            valueClass: "text-indigo-600",
+            cardClass: "bg-indigo-50/60 border-indigo-100",
           },
           {
             label: "Out of Stock",
             value: String(stats.outOfStock),
-            hint: "Products unavailable",
+            hint: "Unavailable products",
+            valueClass: "text-rose-600",
+            cardClass: "bg-rose-50/60 border-rose-100",
           },
         ].map((metric, index) => (
-          <MotionFadeIn key={metric.label} delay={640 + index * 60}>
-            <MotionHoverCard>
-              <div className="dash-card border-dashed p-5 text-center">
-                <p className="text-[11px] font-semibold tracking-[0.14em] text-dash-muted uppercase">
-                  {metric.label}
-                </p>
-                <p className="mt-2 text-2xl font-bold text-dash-text">{metric.value}</p>
-                <p className="mt-1 text-xs text-emerald-600">{metric.hint}</p>
-              </div>
-            </MotionHoverCard>
+          <MotionFadeIn key={metric.label} delay={320 + index * 40}>
+            <div className={`dash-card border px-4 py-3.5 ${metric.cardClass}`}>
+              <p className="text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                {metric.label}
+              </p>
+              <p className={`mt-1 text-lg font-bold tabular-nums ${metric.valueClass}`}>
+                {metric.value}
+              </p>
+              <p className="mt-0.5 text-[11px] text-slate-500">{metric.hint}</p>
+            </div>
           </MotionFadeIn>
         ))}
       </section>

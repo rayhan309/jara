@@ -10,18 +10,34 @@ import {
 } from "@/lib/orderValidation";
 import { getProductVariantConfig } from "@/lib/productVariants";
 import { parseObjectId } from "@/lib/mongodbHelpers";
+import { buildOrderNumberLookupFilter } from "@/lib/orderHelpers";
 
 const ORDERS_COLLECTION = "orders";
 const PRODUCTS_COLLECTION = "products";
 
 async function generateOrderNumber(ordersCol) {
-  for (let attempt = 0; attempt < 12; attempt += 1) {
-    const candidate = String(Math.floor(100000 + Math.random() * 900000));
+  const [latest] = await ordersCol
+    .find({ order_number: { $regex: /^NX-\d+$/i } })
+    .sort({ createdAt: -1 })
+    .limit(1)
+    .toArray();
+
+  let nextSerial = 1;
+  if (latest) {
+    const match = String(latest.order_number).match(/^NX-(\d+)$/i);
+    if (match) nextSerial = parseInt(match[1], 10) + 1;
+  } else {
+    const count = await ordersCol.countDocuments({});
+    nextSerial = count + 1;
+  }
+
+  for (let offset = 0; offset < 100; offset += 1) {
+    const candidate = `NX-${nextSerial + offset}`;
     const exists = await ordersCol.findOne({ order_number: candidate });
     if (!exists) return candidate;
   }
 
-  return String(Date.now()).slice(-8);
+  return `NX-${Date.now().toString().slice(-6)}`;
 }
 
 function serializeOrder(order) {
@@ -31,20 +47,13 @@ function serializeOrder(order) {
   };
 }
 
-function normalizeOrderQuery(value) {
-  return String(value || "")
-    .trim()
-    .replace(/^#/, "")
-    .toUpperCase();
-}
-
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const phone = normalizePhone(searchParams.get("phone"));
-    const orderNumber = normalizeOrderQuery(searchParams.get("order") || searchParams.get("search"));
+    const orderNumber = String(searchParams.get("order") || searchParams.get("search") || "").trim();
 
-    const ordersCol = dbConnect(ORDERS_COLLECTION);
+    const ordersCol = await dbConnect(ORDERS_COLLECTION);
 
     if (phone) {
       if (!isValidBdPhone(phone)) {
@@ -80,9 +89,7 @@ export async function GET(request) {
       );
     }
 
-    const order = await ordersCol.findOne({
-      order_number: { $regex: new RegExp(`^${orderNumber.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") },
-    });
+    const order = await ordersCol.findOne(buildOrderNumberLookupFilter(orderNumber));
 
     if (!order) {
       return NextResponse.json({ error: "কোনো অর্ডার পাওয়া যায়নি" }, { status: 404 });
@@ -122,7 +129,7 @@ export async function POST(request) {
       return NextResponse.json({ error: itemsResult.error }, { status: 400 });
     }
 
-    const productsCol = dbConnect(PRODUCTS_COLLECTION);
+    const productsCol = await dbConnect(PRODUCTS_COLLECTION);
     const orderLines = [];
     const stockUpdates = new Map();
 
@@ -210,7 +217,7 @@ export async function POST(request) {
     const total = subtotal + deliveryCharge;
 
     const now = new Date();
-    const ordersCol = dbConnect(ORDERS_COLLECTION);
+    const ordersCol = await dbConnect(ORDERS_COLLECTION);
     const orderDoc = {
       order_number: await generateOrderNumber(ordersCol),
       customer: customerResult.values,

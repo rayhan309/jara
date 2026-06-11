@@ -4,7 +4,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "motion/react";
-import { ImagePlus, Layers, Loader2, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
+import {
+  GripVertical,
+  ImagePlus,
+  Layers,
+  Loader2,
+  Pencil,
+  Plus,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
+import toast from "react-hot-toast";
 import { FieldError } from "@/components/dashboard/DashboardFormUi";
 import TablePagination from "@/components/dashboard/TablePagination";
 import {
@@ -19,11 +30,12 @@ import {
   useCategories,
   useCreateCategory,
   useDeleteCategory,
+  useReorderCategories,
   useUpdateCategory,
 } from "@/hooks/useCategories";
 
 const inputClass =
-  "w-full border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
+  "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
 
 const emptyValues = { name: "", slug: "" };
 
@@ -346,20 +358,32 @@ function CategoryFormModal({ open, onClose, category }) {
   );
 }
 
+function reorderCategoryList(items, fromId, toId) {
+  const next = [...items];
+  const fromIndex = next.findIndex((item) => item._id === fromId);
+  const toIndex = next.findIndex((item) => item._id === toId);
+
+  if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return items;
+
+  const [moved] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, moved);
+  return next;
+}
+
 function CategoryRowActions({ category, onEdit, onDelete, isDeleting }) {
   const iconBtn =
-    "inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors";
+    "inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors";
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center justify-end gap-0.5">
       <button
         type="button"
         aria-label="Edit category"
         title="Edit"
         onClick={() => onEdit(category)}
-        className={`${iconBtn} border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100`}
+        className={`${iconBtn} text-slate-400 hover:bg-slate-100 hover:text-indigo-600`}
       >
-        <Pencil className="h-4 w-4" />
+        <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
       </button>
       <button
         type="button"
@@ -367,14 +391,30 @@ function CategoryRowActions({ category, onEdit, onDelete, isDeleting }) {
         title="Delete"
         onClick={() => onDelete(category)}
         disabled={isDeleting}
-        className={`${iconBtn} border-red-200 bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-60`}
+        className={`${iconBtn} text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50`}
       >
         {isDeleting ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
         ) : (
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
         )}
       </button>
+    </div>
+  );
+}
+
+function CategoryImageThumb({ category, size = "md" }) {
+  const sizeClass = size === "lg" ? "h-16 w-16" : "h-12 w-12";
+
+  return (
+    <div className={`relative ${sizeClass} shrink-0 overflow-hidden rounded-lg border border-slate-200/80 bg-slate-50 shadow-sm`}>
+      {category.image?.url ? (
+        <Image src={category.image.url} alt={category.name} fill unoptimized className="object-cover" />
+      ) : (
+        <div className="flex h-full items-center justify-center text-dash-muted">
+          <Layers className="h-4 w-4 opacity-40" />
+        </div>
+      )}
     </div>
   );
 }
@@ -382,9 +422,15 @@ function CategoryRowActions({ category, onEdit, onDelete, isDeleting }) {
 export default function CategoriesManager({ embedded = false }) {
   const { data: categories = [], isLoading, isError, error, refetch } = useCategories();
   const { mutate: deleteCategory, isPending: isDeleting, variables: deletingId } = useDeleteCategory();
+  const { mutateAsync: reorderCategories, isPending: isReordering } = useReorderCategories();
   const [formOpen, setFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [search, setSearch] = useState("");
+  const [draggingId, setDraggingId] = useState(null);
+  const [dragOverId, setDragOverId] = useState(null);
+  const dragIdRef = useRef(null);
+
+  const canReorder = !search.trim();
 
   const filteredCategories = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -419,6 +465,55 @@ export default function CategoriesManager({ embedded = false }) {
   function handleDelete(category) {
     if (!window.confirm(`Delete "${category.name}" category?`)) return;
     deleteCategory(category._id);
+  }
+
+  function handleDragStart(event, categoryId) {
+    if (!canReorder || isReordering) {
+      event.preventDefault();
+      return;
+    }
+
+    dragIdRef.current = categoryId;
+    setDraggingId(categoryId);
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", categoryId);
+  }
+
+  function handleDragEnter(categoryId) {
+    if (!canReorder || !dragIdRef.current || dragIdRef.current === categoryId) return;
+    setDragOverId(categoryId);
+  }
+
+  function handleDragOver(event) {
+    if (!canReorder) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }
+
+  async function handleDrop(event, targetId) {
+    event.preventDefault();
+
+    const fromId = dragIdRef.current;
+    dragIdRef.current = null;
+    setDraggingId(null);
+    setDragOverId(null);
+
+    if (!canReorder || !fromId || fromId === targetId || isReordering) return;
+
+    const reordered = reorderCategoryList(categories, fromId, targetId);
+
+    try {
+      await reorderCategories(reordered.map((item) => item._id));
+      toast.success("Category order updated");
+    } catch (err) {
+      toast.error(err.message || "Failed to reorder categories");
+    }
+  }
+
+  function handleDragEnd() {
+    dragIdRef.current = null;
+    setDraggingId(null);
+    setDragOverId(null);
   }
 
   return (
@@ -468,7 +563,7 @@ export default function CategoriesManager({ embedded = false }) {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search by name, slug, or description..."
-          className={`${inputClass} w-full sm:max-w-md`}
+          className={`${inputClass} w-full`}
         />
       ) : null}
 
@@ -500,104 +595,141 @@ export default function CategoriesManager({ embedded = false }) {
         </div>
       ) : (
         <div className="dash-card overflow-hidden">
-          <MobileCardList className="p-3">
-            {paginatedItems.map((category, index) => (
-              <motion.div
-                key={category._id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.02 }}
-              >
-                <MobileDashCard>
-                  <div className="flex gap-3">
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border border-dash-border bg-slate-100">
-                      {category.image?.url ? (
-                        <Image src={category.image.url} alt={category.name} fill unoptimized className="object-cover" />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-dash-muted">
-                          <Layers className="h-4 w-4 opacity-40" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-dash-text">{category.name}</p>
-                      <p className="mt-0.5 break-all text-xs text-indigo-600">/{category.slug}</p>
-                    </div>
-                  </div>
-                  {category.description ? (
-                    <p className="mt-2 line-clamp-2 text-sm text-dash-muted">{category.description}</p>
-                  ) : null}
-                  <div className="mt-3 flex justify-end">
-                    <CategoryRowActions
-                      category={category}
-                      onEdit={openEditForm}
-                      onDelete={handleDelete}
-                      isDeleting={isDeleting && deletingId === category._id}
-                    />
-                  </div>
-                </MobileDashCard>
-              </motion.div>
-            ))}
-          </MobileCardList>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-dash-border px-4 py-3 sm:px-5">
+            <div>
+              {canReorder ? (
+                <p className="text-xs text-slate-500">Drag rows to change storefront order</p>
+              ) : (
+                <p className="text-xs text-amber-600">Clear search to reorder categories</p>
+              )}
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              {isReordering ? <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-600" /> : null}
+              <span>
+                {filteredCategories.length} {filteredCategories.length === 1 ? "item" : "items"}
+              </span>
+            </div>
+          </div>
 
-          <DesktopTable>
-            <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-dash-border bg-slate-50 text-[11px] font-semibold tracking-wide text-dash-muted uppercase">
-                  <th className="px-4 py-3">Image</th>
-                  <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Slug</th>
-                  <th className="px-4 py-3">Description</th>
-                  <th className="px-4 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedItems.map((category, index) => (
-                  <motion.tr
-                    key={category._id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.02 }}
-                    className="border-b border-dash-border last:border-b-0 hover:bg-slate-50/80"
-                  >
-                    <td className="px-4 py-3">
-                      <div className="relative h-12 w-12 overflow-hidden rounded-md border border-dash-border bg-slate-100">
-                        {category.image?.url ? (
-                          <Image
-                            src={category.image.url}
-                            alt={category.name}
-                            fill
-                            unoptimized
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-dash-muted">
-                            <Layers className="h-4 w-4 opacity-40" />
+          <MobileCardList className="space-y-0 divide-y divide-dash-border p-0 lg:hidden">
+            {paginatedItems.map((category, index) => {
+              const serial = (page - 1) * pageSize + index + 1;
+
+              return (
+                <div key={category._id} className="p-3.5">
+                  <MobileDashCard className="border-0 p-0 shadow-none">
+                    <div className="flex gap-3">
+                      <CategoryImageThumb category={category} size="lg" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-semibold text-dash-text">{category.name}</p>
+                            <p className="mt-0.5 text-xs text-indigo-600">/{category.slug}</p>
                           </div>
-                        )}
+                          <span className="shrink-0 text-[11px] font-medium text-slate-400">#{serial}</span>
+                        </div>
                       </div>
-                    </td>
-                    <td className="px-4 py-3 font-semibold text-dash-text">{category.name}</td>
-                    <td className="px-4 py-3">
-                      <span className="break-all text-xs font-medium text-indigo-600">/{category.slug}</span>
-                    </td>
-                    <td className="max-w-[280px] px-4 py-3 text-dash-muted">
-                      {category.description ? (
-                        <p className="line-clamp-2">{category.description}</p>
-                      ) : (
-                        <span className="text-slate-400 italic">—</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
+                    </div>
+                    {category.description ? (
+                      <p className="mt-2 line-clamp-2 text-xs text-slate-500">{category.description}</p>
+                    ) : null}
+                    <div className="mt-3 flex justify-end border-t border-dash-border pt-3">
                       <CategoryRowActions
                         category={category}
                         onEdit={openEditForm}
                         onDelete={handleDelete}
                         isDeleting={isDeleting && deletingId === category._id}
                       />
-                    </td>
-                  </motion.tr>
-                ))}
+                    </div>
+                  </MobileDashCard>
+                </div>
+              );
+            })}
+          </MobileCardList>
+
+          <DesktopTable>
+            <table className="min-w-full border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-dash-border bg-slate-50/90">
+                  <th className="w-16 px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                    #
+                  </th>
+                  <th className="w-20 px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                    Image
+                  </th>
+                  <th className="min-w-[160px] px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                    Name
+                  </th>
+                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                    Slug
+                  </th>
+                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                    Description
+                  </th>
+                  <th className="w-[88px] px-4 py-2.5 text-right text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {paginatedItems.map((category, index) => {
+                  const serial = (page - 1) * pageSize + index + 1;
+                  const canDrag = canReorder && !isReordering;
+                  const isDragging = draggingId === category._id;
+                  const isDragOver = dragOverId === category._id;
+
+                  return (
+                    <tr
+                      key={category._id}
+                      draggable={canDrag}
+                      onDragStart={(event) => handleDragStart(event, category._id)}
+                      onDragEnter={() => handleDragEnter(category._id)}
+                      onDragOver={handleDragOver}
+                      onDrop={(event) => handleDrop(event, category._id)}
+                      onDragEnd={handleDragEnd}
+                      className={`group transition-colors hover:bg-slate-50/70 ${
+                        isDragOver ? "bg-indigo-50/60" : ""
+                      } ${isDragging ? "opacity-50" : ""} ${canDrag ? "cursor-grab active:cursor-grabbing" : ""}`}
+                    >
+                      <td className="px-4 py-2.5">
+                        <div className="flex items-center gap-1.5 text-slate-400">
+                          {canDrag ? (
+                            <GripVertical className="h-4 w-4 shrink-0" />
+                          ) : null}
+                          <span className="text-xs font-medium tabular-nums text-slate-500">
+                            {serial}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <CategoryImageThumb category={category} />
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <p className="text-[13px] font-medium text-dash-text">{category.name}</p>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <span className="text-xs font-medium text-indigo-600">/{category.slug}</span>
+                      </td>
+                      <td className="max-w-[240px] px-4 py-2.5 text-[13px] text-slate-500">
+                        {category.description ? (
+                          <p className="line-clamp-2">{category.description}</p>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <div className="opacity-80 transition-opacity group-hover:opacity-100">
+                          <CategoryRowActions
+                            category={category}
+                            onEdit={openEditForm}
+                            onDelete={handleDelete}
+                            isDeleting={isDeleting && deletingId === category._id}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </DesktopTable>

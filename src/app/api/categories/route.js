@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/dbConnect";
 import imagekit from "@/lib/imagekit";
+import { serializeCategory, sortCategoriesList } from "@/lib/categorySort";
 import { slugify } from "@/lib/slugify";
 
 const COLLECTION = "categories";
@@ -30,18 +31,12 @@ async function ensureUniqueSlug(categories, baseSlug) {
 
 export async function GET() {
   try {
-    const categories = dbConnect(COLLECTION);
-    const list = await categories
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
+    const categories = await dbConnect(COLLECTION);
+    const list = await categories.find({}).toArray();
 
     return NextResponse.json({
       success: true,
-      categories: list.map((item) => ({
-        ...item,
-        _id: item._id.toString(),
-      })),
+      categories: sortCategoriesList(list).map(serializeCategory),
     });
   } catch (error) {
     console.error("GET /api/categories error:", error);
@@ -90,14 +85,21 @@ export async function POST(request) {
       useUniqueFileName: true,
     });
 
-    const categories = dbConnect(COLLECTION);
+    const categories = await dbConnect(COLLECTION);
     const slug = await ensureUniqueSlug(categories, baseSlug);
     const now = new Date();
+    const existing = await categories.find({}).toArray();
+    const maxOrder = existing.reduce(
+      (max, item) => (typeof item.sort_order === "number" ? Math.max(max, item.sort_order) : max),
+      -1
+    );
+    const sort_order = maxOrder + 1;
 
     const doc = {
       name,
       slug,
       description,
+      sort_order,
       image: {
         url: uploadResponse.url,
         fileId: uploadResponse.fileId,

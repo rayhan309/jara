@@ -6,6 +6,8 @@ import { motion } from "motion/react";
 import { CheckCircle2, Copy, Package } from "lucide-react";
 import toast from "react-hot-toast";
 import StoreShell from "@/components/layout/StoreShell";
+import { formatDisplayOrderNumber } from "@/lib/orderHelpers";
+import { trackMetaEvent } from "@/lib/metaPixel";
 
 export default function ThankYou() {
   const [orderInfo, setOrderInfo] = useState(null);
@@ -14,20 +16,40 @@ export default function ThankYou() {
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem("nexa_last_order");
-      if (raw) {
-        setOrderInfo(JSON.parse(raw));
-        sessionStorage.removeItem("nexa_last_order");
-      }
+      if (!raw) return;
+
+      const parsed = JSON.parse(raw);
+      setOrderInfo(parsed);
+      sessionStorage.removeItem("nexa_last_order");
+
+      const items = parsed.items || [];
+      trackMetaEvent("Purchase", {
+        value: Number(parsed.total || 0),
+        currency: parsed.currency || "BDT",
+        content_ids: items.map((item) => String(item.id)),
+        content_type: "product",
+        contents: items.map((item) => ({
+          id: String(item.id),
+          quantity: item.quantity,
+          item_price: item.price,
+        })),
+        num_items: items.reduce((sum, item) => sum + (item.quantity || 0), 0),
+        order_id: formatDisplayOrderNumber(parsed.order_number),
+      });
     } catch {
       setOrderInfo(null);
     }
   }, []);
 
+  const displayOrderNumber = orderInfo?.order_number
+    ? formatDisplayOrderNumber(orderInfo.order_number)
+    : null;
+
   async function handleCopyOrderId() {
-    if (!orderInfo?.order_number) return;
+    if (!displayOrderNumber) return;
 
     try {
-      await navigator.clipboard.writeText(orderInfo.order_number);
+      await navigator.clipboard.writeText(displayOrderNumber);
       setCopied(true);
       toast.success("অর্ডার নম্বর কপি হয়েছে");
       setTimeout(() => setCopied(false), 2000);
@@ -65,11 +87,11 @@ export default function ThankYou() {
             আপনার অর্ডারের জন্য ধন্যবাদ!
           </h1>
 
-          {orderInfo?.order_number ? (
+          {displayOrderNumber ? (
             <div className="mt-4 rounded-md border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-700">
               <p className="text-xs font-semibold text-zinc-400">অর্ডার নম্বর</p>
               <div className="mt-1 flex items-center justify-center gap-2">
-                <span className="font-bold text-indigo-600">{orderInfo.order_number}</span>
+                <span className="font-bold text-indigo-600">{displayOrderNumber}</span>
                 <button
                   type="button"
                   onClick={handleCopyOrderId}

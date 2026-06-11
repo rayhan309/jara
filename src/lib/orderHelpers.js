@@ -123,15 +123,51 @@ export function getOrderItemSummary(order) {
   return `${items[0].title} +${items.length - 1} more`;
 }
 
-/** Short display ID — numeric orders as-is; legacy NEXA-* shows trailing digits only */
+/** Strip # and NX- prefix from user search input */
+export function normalizeOrderNumberQuery(value) {
+  return String(value || "")
+    .trim()
+    .replace(/^#/, "")
+    .replace(/^NX-/i, "")
+    .trim();
+}
+
+/** Display ID — always NX-XXXX (supports legacy numeric and NEXA-* stored values) */
 export function formatDisplayOrderNumber(orderNumber) {
   if (!orderNumber) return "—";
   const str = String(orderNumber).trim();
-  if (/^\d+$/.test(str)) return str;
+  if (/^NX-\d+$/i.test(str)) return `NX-${str.replace(/^NX-/i, "")}`;
+  if (/^\d+$/.test(str)) return `NX-${str}`;
+  if (/^NEXA-/i.test(str)) {
+    const match = str.match(/(\d+)$/);
+    if (match) return `NX-${match[1]}`;
+  }
   const trailing = str.match(/(\d+)$/);
-  if (trailing) return trailing[1];
-  const digits = str.replace(/\D/g, "");
-  return digits.slice(-6) || str;
+  if (trailing) return `NX-${trailing[1]}`;
+  return str;
+}
+
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** MongoDB filter for order lookup — NX-5436, 5436, or legacy NEXA-* */
+export function buildOrderNumberLookupFilter(query) {
+  const raw = String(query || "").trim().replace(/^#/, "");
+  if (!raw) return null;
+
+  const serial = normalizeOrderNumberQuery(raw);
+  const conditions = [{ order_number: { $regex: new RegExp(`^${escapeRegex(raw)}$`, "i") } }];
+
+  if (serial) {
+    conditions.push({ order_number: { $regex: new RegExp(`^NX-${escapeRegex(serial)}$`, "i") } });
+    if (/^\d+$/.test(serial)) {
+      conditions.push({ order_number: serial });
+      conditions.push({ order_number: { $regex: new RegExp(`NEXA-.*${escapeRegex(serial)}$`, "i") } });
+    }
+  }
+
+  return { $or: conditions };
 }
 
 export function buildCourierClipboardText(order) {
@@ -151,10 +187,18 @@ export function buildCourierClipboardText(order) {
 }
 
 export function getWhatsAppPhoneUrl(phone) {
-  const digits = String(phone || "").replace(/\D/g, "");
+  let digits = String(phone || "").replace(/\D/g, "");
   if (!digits) return "";
-  const normalized = digits.startsWith("880") ? digits : `88${digits.replace(/^0/, "")}`;
-  return `https://wa.me/${normalized}`;
+
+  if (digits.startsWith("880")) {
+    // already BD international format
+  } else if (digits.startsWith("0")) {
+    digits = `880${digits.slice(1)}`;
+  } else {
+    digits = `880${digits}`;
+  }
+
+  return `https://wa.me/${digits}`;
 }
 
 export const ORDER_DATE_FILTERS = [

@@ -9,6 +9,7 @@ import StoreShell from "@/components/layout/StoreShell";
 import { fetchOrdersByPhone } from "@/lib/api/orders";
 import { isValidBdPhone, normalizePhone } from "@/lib/orderValidation";
 import {
+  formatDisplayOrderNumber,
   getOrderStatusClass,
   getOrderTrackingInfo,
   ORDER_TRACKING_STEPS,
@@ -22,7 +23,7 @@ function mapOrderToView(order) {
 
   return {
     _id: order._id,
-    id: order.order_number,
+    id: formatDisplayOrderNumber(order.order_number),
     customer: order.customer?.name || "—",
     phone: order.customer?.phone || "",
     items: items.map((item) => ({

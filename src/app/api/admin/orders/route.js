@@ -12,7 +12,7 @@ function serializeOrder(order) {
 
 export async function GET() {
   try {
-    const ordersCol = dbConnect(ORDERS_COLLECTION);
+    const ordersCol = await dbConnect(ORDERS_COLLECTION);
     const list = await ordersCol.find({}).sort({ createdAt: -1 }).toArray();
 
     return NextResponse.json({

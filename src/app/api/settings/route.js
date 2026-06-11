@@ -32,7 +32,7 @@ export async function PUT(request) {
       socialLinks: body.socialLinks,
     });
 
-    const collection = dbConnect(COLLECTION);
+    const collection = await dbConnect(COLLECTION);
     const now = new Date();
 
     await collection.updateOne(

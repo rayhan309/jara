@@ -1,10 +1,21 @@
 export const productKeys = {
   all: ["products"],
-  list: () => [...productKeys.all, "list"],
+  list: (filters = {}) => [...productKeys.all, "list", filters],
 };
 
-export async function fetchProducts() {
-  const response = await fetch("/api/products");
+export async function fetchProducts(filters = {}) {
+  const params = new URLSearchParams();
+
+  if (filters.search?.trim()) {
+    params.set("search", filters.search.trim());
+  }
+
+  if (filters.category && filters.category !== "all") {
+    params.set("category", filters.category);
+  }
+
+  const query = params.toString();
+  const response = await fetch(`/api/products${query ? `?${query}` : ""}`);
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));

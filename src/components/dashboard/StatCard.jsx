@@ -1,15 +1,13 @@
 "use client";
 
-import { TrendingDown, TrendingUp } from "lucide-react";
-import { HiOutlineCurrencyBangladeshi } from "react-icons/hi2";
-import { MotionFadeIn, MotionHoverCard } from "@/components/dashboard/MotionFade";
+import { MotionFadeIn } from "@/components/dashboard/MotionFade";
 import { StatSparkline } from "@/components/dashboard/RevenueChart";
 
 const accents = {
-  indigo: { gradient: "from-indigo-500 to-violet-500", color: "#6366f1" },
-  emerald: { gradient: "from-emerald-500 to-teal-500", color: "#10b981" },
-  amber: { gradient: "from-amber-500 to-orange-500", color: "#f59e0b" },
-  rose: { gradient: "from-rose-500 to-pink-500", color: "#f43f5e" },
+  indigo: { icon: "bg-indigo-50 text-indigo-600", spark: "#6366f1" },
+  emerald: { icon: "bg-emerald-50 text-emerald-600", spark: "#10b981" },
+  amber: { icon: "bg-amber-50 text-amber-600", spark: "#f59e0b" },
+  rose: { icon: "bg-rose-50 text-rose-600", spark: "#f43f5e" },
 };
 
 const sparkData = {
@@ -30,58 +28,40 @@ const sparkData = {
 export default function StatCard({
   title,
   value,
-  change,
   subtitle,
   accent = "indigo",
   delay = 0,
-  showCurrencyIcon = false,
+  icon: Icon,
 }) {
-  const isPositive = change?.startsWith("+");
-  const { gradient, color } = accents[accent];
+  const { icon: iconClass, spark } = accents[accent];
 
   return (
     <MotionFadeIn delay={delay}>
-      <MotionHoverCard>
-        <div className="dash-card group relative overflow-hidden p-4 sm:p-6 transition-shadow hover:shadow-lg">
-          <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${gradient}`} />
-
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-semibold tracking-[0.14em] text-dash-muted uppercase">
-                {title}
-              </p>
-              <div className="mt-3 flex min-w-0 items-center gap-2">
-                {showCurrencyIcon ? (
-                  <HiOutlineCurrencyBangladeshi className="h-5 w-5 shrink-0 text-indigo-500 sm:h-6 sm:w-6" />
-                ) : null}
-                <p className="truncate text-xl font-bold tracking-tight text-dash-text sm:text-2xl lg:text-3xl">
-                  {value}
-                </p>
-              </div>
-              {subtitle ? (
-                <p className="mt-1 text-xs text-dash-muted">{subtitle}</p>
-              ) : null}
-            </div>
-
-            {change ? (
-              <div
-                className={`rounded-md flex items-center gap-1 px-2 py-1 text-xs font-semibold ${
-                  isPositive ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"
-                }`}
-              >
-                {isPositive ? (
-                  <TrendingUp className="h-3.5 w-3.5" />
-                ) : (
-                  <TrendingDown className="h-3.5 w-3.5" />
-                )}
-                {change}
-              </div>
+      <div className="dash-card flex h-full flex-col p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-semibold tracking-[0.1em] text-slate-500 uppercase">
+              {title}
+            </p>
+            <p className="mt-2 truncate text-xl font-bold tabular-nums tracking-tight text-dash-text sm:text-2xl">
+              {value}
+            </p>
+            {subtitle ? (
+              <p className="mt-1 text-[11px] text-slate-500">{subtitle}</p>
             ) : null}
           </div>
-
-          <StatSparkline data={sparkData[accent]} color={color} />
+          {Icon ? (
+            <span
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${iconClass}`}
+            >
+              <Icon className="h-4 w-4" strokeWidth={1.75} />
+            </span>
+          ) : null}
         </div>
-      </MotionHoverCard>
+        <div className="mt-3 hidden h-9 w-full sm:block">
+          <StatSparkline data={sparkData[accent]} color={spark} />
+        </div>
+      </div>
     </MotionFadeIn>
   );
 }

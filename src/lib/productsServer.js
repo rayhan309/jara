@@ -11,13 +11,13 @@ function serializeProduct(product) {
 }
 
 export async function getProductBySlug(slug) {
-  const products = dbConnect(COLLECTION);
+  const products = await dbConnect(COLLECTION);
   const product = await products.findOne({ slug });
   return product ? serializeProduct(product) : null;
 }
 
 export async function getProductByIdOrSlug(idOrSlug) {
-  const products = dbConnect(COLLECTION);
+  const products = await dbConnect(COLLECTION);
   const objectId = parseObjectId(idOrSlug);
 
   const product = objectId
@@ -28,7 +28,7 @@ export async function getProductByIdOrSlug(idOrSlug) {
 }
 
 export async function getRelatedProducts(product, limit = 8) {
-  const products = dbConnect(COLLECTION);
+  const products = await dbConnect(COLLECTION);
   const excludeId = parseObjectId(product._id);
 
   if (!excludeId) return [];

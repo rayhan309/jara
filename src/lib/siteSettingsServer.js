@@ -6,7 +6,7 @@ import { DEFAULT_SETTINGS, normalizeSettings, SETTINGS_ID } from "@/lib/siteSett
 const COLLECTION = "site_settings";
 
 async function readSiteSettingsFromDb() {
-  const collection = dbConnect(COLLECTION);
+  const collection = await dbConnect(COLLECTION);
   const doc = await collection.findOne({ _id: SETTINGS_ID });
   return normalizeSettings(doc || DEFAULT_SETTINGS);
 }

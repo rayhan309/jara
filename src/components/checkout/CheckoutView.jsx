@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -26,6 +26,7 @@ import {
 } from "@/lib/orderValidation";
 import { getProductVariantConfig } from "@/lib/productVariants";
 import { getProductCardImageUrl } from "@/lib/imageUrl";
+import { buildCartPixelPayload, trackMetaEvent } from "@/lib/metaPixel";
 
 const DELIVERY_LIST = [
   { id: "inside_dhaka", ...DELIVERY_OPTIONS.inside_dhaka },
@@ -216,6 +217,13 @@ export default function CheckoutView() {
   const deliveryCharge =
     DELIVERY_LIST.find((option) => option.id === delivery)?.charge ?? 0;
   const payable = subtotal + deliveryCharge;
+  const initiateCheckoutTracked = useRef(false);
+
+  useEffect(() => {
+    if (!items.length || initiateCheckoutTracked.current) return;
+    initiateCheckoutTracked.current = true;
+    trackMetaEvent("InitiateCheckout", buildCartPixelPayload(items, payable));
+  }, [items, payable]);
 
   function clearFieldError(field) {
     setFieldErrors((prev) => {
@@ -276,6 +284,13 @@ export default function CheckoutView() {
           order_number: order.order_number,
           phone: validation.values.phone,
           total: order.pricing?.total,
+          currency: order.pricing?.currency || "BDT",
+          items: (order.items || []).map((item) => ({
+            id: item.product_id || item.slug,
+            title: item.title,
+            quantity: item.quantity,
+            price: item.price,
+          })),
         })
       );
 

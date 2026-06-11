@@ -27,7 +27,7 @@ export async function GET(_request, { params }) {
       return NextResponse.json({ error: "Invalid order id." }, { status: 400 });
     }
 
-    const ordersCol = dbConnect(ORDERS_COLLECTION);
+    const ordersCol = await dbConnect(ORDERS_COLLECTION);
     const order = await ordersCol.findOne({ _id: objectId });
 
     if (!order) {
@@ -52,8 +52,8 @@ export async function PUT(request, { params }) {
     const body = await request.json();
     const { status, customer, delivery, items, pricing } = body;
 
-    const ordersCol = dbConnect(ORDERS_COLLECTION);
-    const productsCol = dbConnect(PRODUCTS_COLLECTION);
+    const ordersCol = await dbConnect(ORDERS_COLLECTION);
+    const productsCol = await dbConnect(PRODUCTS_COLLECTION);
     const existing = await ordersCol.findOne({ _id: objectId });
 
     if (!existing) {
@@ -207,8 +207,8 @@ export async function DELETE(_request, { params }) {
       return NextResponse.json({ error: "Invalid order id." }, { status: 400 });
     }
 
-    const ordersCol = dbConnect(ORDERS_COLLECTION);
-    const productsCol = dbConnect(PRODUCTS_COLLECTION);
+    const ordersCol = await dbConnect(ORDERS_COLLECTION);
+    const productsCol = await dbConnect(PRODUCTS_COLLECTION);
     const order = await ordersCol.findOne({ _id: objectId });
 
     if (!order) {

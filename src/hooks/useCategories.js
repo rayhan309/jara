@@ -5,6 +5,7 @@ import {
   categoryKeys,
   createCategory,
   fetchCategories,
+  reorderCategories,
   updateCategory,
   deleteCategory,
 } from "@/lib/api/categories";
@@ -13,6 +14,7 @@ export {
   categoryKeys,
   fetchCategories,
   createCategory,
+  reorderCategories,
   updateCategory,
   deleteCategory,
 } from "@/lib/api/categories";
@@ -30,8 +32,8 @@ export function useCreateCategory() {
 
   return useMutation({
     mutationFn: createCategory,
-    onSuccess: (category) => {
-      queryClient.setQueryData(categoryKeys.list(), (current = []) => [category, ...current]);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.all });
     },
   });
 }
@@ -41,10 +43,8 @@ export function useUpdateCategory() {
 
   return useMutation({
     mutationFn: ({ id, formData }) => updateCategory(id, formData),
-    onSuccess: (category) => {
-      queryClient.setQueryData(categoryKeys.list(), (current = []) =>
-        current.map((item) => (item._id === category._id ? category : item))
-      );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.all });
     },
   });
 }
@@ -54,10 +54,19 @@ export function useDeleteCategory() {
 
   return useMutation({
     mutationFn: deleteCategory,
-    onSuccess: (id) => {
-      queryClient.setQueryData(categoryKeys.list(), (current = []) =>
-        current.filter((item) => item._id !== id)
-      );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.all });
+    },
+  });
+}
+
+export function useReorderCategories() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: reorderCategories,
+    onSuccess: (categories) => {
+      queryClient.setQueryData(categoryKeys.list(), categories);
     },
   });
 }

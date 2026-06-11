@@ -176,7 +176,7 @@ function NavbarContent() {
                 <button
                   type="button"
                   aria-label="যোগাযোগ করুন"
-                  onClick={() => window.open(`https://wa.me/${CONTACT_PHONE}`, '_blank')}
+                  onClick={() => window.open(`https://wa.me/8801815131040`, "_blank")}
                   className="relative flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 text-zinc-700"
                 >
                   <FaWhatsapp className="h-5 w-5" />
