@@ -46,20 +46,22 @@ export default function RevenueChart({ data = [] }) {
   const maxRevenue = Math.max(...chartData.map((entry) => entry.revenue), 1);
 
   return (
-    <div className="h-44 w-full pt-2 sm:h-56">
+    <div className="h-40 w-full min-w-0 pt-2 sm:h-52 lg:h-56">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} barSize={32}>
+        <BarChart data={chartData} barSize={24}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
           <XAxis
             dataKey="month"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748b", fontSize: 11 }}
+            tick={{ fill: "#64748b", fontSize: 10 }}
+            interval="preserveStartEnd"
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748b", fontSize: 11 }}
+            width={36}
+            tick={{ fill: "#64748b", fontSize: 10 }}
             tickFormatter={(value) =>
               value >= 1000 ? `${Math.round(value / 1000)}k` : value
             }

@@ -1,18 +1,14 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { dbConnect } from "@/lib/dbConnect";
-import { DEFAULT_SETTINGS, normalizeSettings, SETTINGS_ID } from "@/lib/siteSettings";
+import { normalizeSettings, SETTINGS_ID } from "@/lib/siteSettings";
+import { getSiteSettings } from "@/lib/siteSettingsServer";
 
 const COLLECTION = "site_settings";
 
-async function getSettingsDocument() {
-  const collection = dbConnect(COLLECTION);
-  const doc = await collection.findOne({ _id: SETTINGS_ID });
-  return normalizeSettings(doc || DEFAULT_SETTINGS);
-}
-
 export async function GET() {
   try {
-    const settings = await getSettingsDocument();
+    const settings = await getSiteSettings();
 
     return NextResponse.json({
       success: true,
@@ -52,6 +48,8 @@ export async function PUT(request) {
       },
       { upsert: true }
     );
+
+    revalidateTag("site-settings");
 
     return NextResponse.json({
       success: true,

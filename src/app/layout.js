@@ -1,6 +1,10 @@
 import { hindSiliguri, poppins } from "@/lib/fonts";
 import QueryProvider from "@/components/providers/QueryProvider";
 import ToastProvider from "@/components/providers/ToastProvider";
+import SiteSettingsProvider from "@/components/providers/SiteSettingsProvider";
+import SiteSettingsHead from "@/components/layout/SiteSettingsHead";
+import { getSiteSettings } from "@/lib/siteSettingsServer";
+import { getThemeCssProperties } from "@/lib/siteSettings";
 import "./globals.css";
 
 export const metadata = {
@@ -14,16 +18,25 @@ export const viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const settings = await getSiteSettings();
+  const themeStyle = getThemeCssProperties(settings);
+
   return (
     <html
       lang="bn"
       className={`${hindSiliguri.variable} ${poppins.variable} h-full antialiased`}
+      style={themeStyle}
     >
+      <head>
+        <SiteSettingsHead settings={settings} />
+      </head>
       <body className="min-h-full flex flex-col">
         <QueryProvider>
-          {children}
-          <ToastProvider />
+          <SiteSettingsProvider initialSettings={settings}>
+            {children}
+            <ToastProvider />
+          </SiteSettingsProvider>
         </QueryProvider>
       </body>
     </html>

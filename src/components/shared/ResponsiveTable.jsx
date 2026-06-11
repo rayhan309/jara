@@ -1,11 +1,11 @@
 export function DesktopTable({ children, className = "" }) {
   return (
-    <div className={`hidden overflow-x-auto md:block ${className}`}>{children}</div>
+    <div className={`hidden overflow-x-auto lg:block ${className}`}>{children}</div>
   );
 }
 
 export function MobileCardList({ children, className = "" }) {
-  return <div className={`space-y-3 md:hidden ${className}`}>{children}</div>;
+  return <div className={`space-y-3 lg:hidden ${className}`}>{children}</div>;
 }
 
 export function MobileDataCard({ children, className = "" }) {
@@ -46,9 +46,9 @@ export function MobileDashRow({ label, value, className = "" }) {
   );
 }
 
-/** Full-screen on mobile, centered dialog on sm+ */
+/** Full-screen bottom sheet on mobile, viewport-centered dialog on sm+ (mx-auto avoids transform clash with motion) */
 export const mobileModalClass =
-  "fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-zinc-200 bg-white shadow-xl sm:inset-x-4 sm:bottom-auto sm:top-[4vh] sm:max-h-[90vh] sm:rounded-md sm:inset-x-auto";
+  "fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-zinc-200 bg-white shadow-xl sm:inset-x-auto sm:bottom-auto sm:left-0 sm:right-0 sm:top-[4vh] sm:mx-auto sm:max-h-[90vh] sm:w-[calc(100%-2rem)] sm:max-w-lg sm:rounded-md md:max-w-2xl lg:max-w-4xl";
 
 export const mobileDashModalClass =
-  "fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-dash-border bg-white shadow-xl sm:inset-x-4 sm:bottom-auto sm:top-[5vh] sm:max-h-[90vh] sm:rounded-md sm:inset-x-auto";
+  "fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-dash-border bg-white shadow-xl sm:inset-x-auto sm:bottom-auto sm:left-0 sm:right-0 sm:top-[5vh] sm:mx-auto sm:max-h-[90vh] sm:w-[calc(100%-2rem)] sm:max-w-lg sm:rounded-md md:max-w-2xl lg:max-w-4xl";

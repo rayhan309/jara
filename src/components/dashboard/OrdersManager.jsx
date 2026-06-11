@@ -282,7 +282,7 @@ export default function OrdersManager() {
           <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">
             Fulfillment
           </p>
-          <h1 className="text-2xl font-bold text-dash-text">Orders</h1>
+          <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Orders</h1>
           <p className="mt-1 text-sm text-dash-muted">
             View, update status, and manage customer orders.
           </p>
@@ -296,12 +296,12 @@ export default function OrdersManager() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search by order ID, name, or phone..."
-          className={`${inputClass} sm:max-w-sm`}
+          className={`${inputClass} w-full sm:max-w-sm`}
         />
         <select
           value={statusFilter}
           onChange={(event) => setStatusFilter(event.target.value)}
-          className={`${inputClass} sm:w-44`}
+          className={`${inputClass} w-full sm:w-44`}
         >
           <option value="all">All statuses</option>
           {ORDER_STATUSES.map((entry) => (

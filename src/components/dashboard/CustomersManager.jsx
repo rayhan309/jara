@@ -87,7 +87,7 @@ function CustomerViewModal({ open, customer, onClose }) {
             </div>
 
             <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-5 sm:p-6">
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-md border border-dash-border bg-slate-50 p-3">
                   <p className="text-xs text-dash-muted">Total orders</p>
                   <p className="mt-1 text-lg font-bold text-dash-text">{customer.orderCount}</p>
@@ -199,7 +199,7 @@ export default function CustomersManager() {
           <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">
             CRM
           </p>
-          <h1 className="text-2xl font-bold text-dash-text">Customer Directory</h1>
+          <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Customer Directory</h1>
           <p className="mt-1 text-sm text-dash-muted">
             Customer profiles and purchase history from live orders.
           </p>
@@ -208,7 +208,7 @@ export default function CustomersManager() {
       </motion.div>
 
       {!isLoading && !isError && customers.length > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard label="Total customers" value={stats.totalCustomers} />
           <StatCard
             label="Repeat customers"
@@ -225,7 +225,7 @@ export default function CustomersManager() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search by name, phone, or address..."
-          className={`${inputClass} max-w-md`}
+          className={`${inputClass} w-full sm:max-w-md`}
         />
       ) : null}
 

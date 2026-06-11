@@ -305,7 +305,7 @@ export default function SettingsManager() {
                   key={link.id}
                   className="rounded-md border border-dash-border bg-slate-50/70 p-3 sm:p-4"
                 >
-                  <div className="grid gap-3 sm:grid-cols-[140px_1fr_auto] sm:items-end">
+                  <div className="grid gap-3 md:grid-cols-[140px_1fr_auto] md:items-end">
                     <div>
                       <label className="mb-1 block text-xs font-semibold text-dash-muted">
                         Platform

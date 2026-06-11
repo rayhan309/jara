@@ -45,16 +45,18 @@ export default function StatCard({
         <div className="dash-card group relative overflow-hidden p-4 sm:p-6 transition-shadow hover:shadow-lg">
           <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${gradient}`} />
 
-          <div className="flex items-start justify-between">
-            <div>
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
               <p className="text-[11px] font-semibold tracking-[0.14em] text-dash-muted uppercase">
                 {title}
               </p>
-              <div className="mt-3 flex items-center gap-2">
+              <div className="mt-3 flex min-w-0 items-center gap-2">
                 {showCurrencyIcon ? (
-                  <HiOutlineCurrencyBangladeshi className="h-6 w-6 text-indigo-500" />
+                  <HiOutlineCurrencyBangladeshi className="h-5 w-5 shrink-0 text-indigo-500 sm:h-6 sm:w-6" />
                 ) : null}
-                <p className="text-2xl font-bold tracking-tight text-dash-text sm:text-3xl">{value}</p>
+                <p className="truncate text-xl font-bold tracking-tight text-dash-text sm:text-2xl lg:text-3xl">
+                  {value}
+                </p>
               </div>
               {subtitle ? (
                 <p className="mt-1 text-xs text-dash-muted">{subtitle}</p>

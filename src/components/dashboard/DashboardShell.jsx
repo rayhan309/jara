@@ -107,7 +107,7 @@ export default function DashboardShell({ children }) {
             </motion.div>
           </div>
 
-          <div className="border-t border-dash-border px-3 pb-3 sm:px-5 lg:hidden">
+          <div className="border-t border-dash-border px-3 pb-3 sm:px-5 md:hidden">
             <div className="relative mt-3">
               <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-dash-muted" />
               <input
@@ -119,7 +119,7 @@ export default function DashboardShell({ children }) {
           </div>
         </header>
 
-        <main className="relative z-10 min-h-0 flex-1 overflow-y-auto p-3 sm:p-5 lg:p-8">
+        <main className="relative z-10 min-h-0 flex-1 overflow-x-hidden overflow-y-auto p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-5 lg:p-8">
           {children}
         </main>
       </div>

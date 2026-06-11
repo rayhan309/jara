@@ -94,7 +94,7 @@ export default function DashboardOverview() {
           <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">
             Overview
           </p>
-          <h1 className="text-2xl font-bold text-dash-text">Dashboard</h1>
+          <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Dashboard</h1>
           <p className="mt-1 text-sm text-dash-muted">
             Live store performance from your orders and products.
           </p>
@@ -203,12 +203,12 @@ export default function DashboardOverview() {
         <MotionFadeIn delay={480} className="lg:col-span-2">
           <MotionHoverCard>
             <div className="dash-card p-4 sm:p-6">
-              <div className="mb-6 flex items-center justify-between">
-                <div>
+              <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
                   <h2 className="text-lg font-bold text-dash-text">Recent Orders</h2>
                   <p className="mt-1 text-sm text-dash-muted">Latest transactions</p>
                 </div>
-                <Link href="/dashboard/orders">
+                <Link href="/dashboard/orders" className="shrink-0">
                   <motion.span
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
@@ -333,7 +333,7 @@ export default function DashboardOverview() {
         </MotionFadeIn>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-3">
         {[
           {
             label: "Pending Orders",

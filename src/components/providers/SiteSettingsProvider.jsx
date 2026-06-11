@@ -14,8 +14,14 @@ export function useStoreSettings() {
   return useContext(SiteSettingsContext);
 }
 
-export default function SiteSettingsProvider({ children, className = "" }) {
-  const { data: settings = DEFAULT_SETTINGS } = useSiteSettings();
+export default function SiteSettingsProvider({
+  children,
+  className = "",
+  initialSettings = DEFAULT_SETTINGS,
+}) {
+  const { data: settings = initialSettings } = useSiteSettings({
+    initialData: initialSettings,
+  });
   const themeStyle = useMemo(() => getThemeCssProperties(settings), [settings]);
 
   useEffect(() => {
@@ -24,9 +30,13 @@ export default function SiteSettingsProvider({ children, className = "" }) {
 
   return (
     <SiteSettingsContext.Provider value={settings}>
-      <div className={className} style={themeStyle}>
-        {children}
-      </div>
+      {className ? (
+        <div className={className} style={themeStyle}>
+          {children}
+        </div>
+      ) : (
+        children
+      )}
     </SiteSettingsContext.Provider>
   );
 }

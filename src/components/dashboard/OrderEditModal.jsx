@@ -46,8 +46,10 @@ function ModalShell({ open, title, onClose, children }) {
             exit={{ opacity: 0, scale: 0.96, y: 16 }}
             className={`${mobileDashModalClass} sm:max-w-6xl`}
           >
-            <div className="flex shrink-0 items-center justify-between border-b border-dash-border px-5 py-4">
-              <h2 className="text-lg font-bold text-dash-text">{title}</h2>
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-dash-border px-4 py-3 sm:px-5 sm:py-4">
+              <h2 className="min-w-0 flex-1 truncate text-base font-bold text-dash-text sm:text-lg">
+                {title}
+              </h2>
               <button
                 type="button"
                 onClick={onClose}
@@ -257,7 +259,79 @@ export default function OrderEditModal({ open, onClose, order }) {
           </div>
 
           <div className="overflow-hidden rounded-md border border-dash-border">
-            <div className="overflow-x-auto">
+            <div className="space-y-3 p-3 lg:hidden">
+              {items.map((item, index) => (
+                <div
+                  key={`mobile-${item.product_id}-${item.selected_variant}-${index}`}
+                  className="rounded-md border border-dash-border bg-white p-3"
+                >
+                  <div className="flex gap-3">
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-slate-100">
+                      {item.image ? (
+                        <Image src={item.image} alt={item.title} fill unoptimized className="object-contain p-1" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-dash-muted">
+                          <ShoppingBag className="h-4 w-4 opacity-40" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="line-clamp-2 text-sm font-medium text-dash-text">{item.title}</p>
+                      <p className="mt-0.5 text-xs text-dash-muted">{formatVariantDisplay(item)}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(index)}
+                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-red-500 text-white hover:bg-red-600"
+                      aria-label="Remove item"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="mb-1 block text-[10px] font-semibold text-dash-muted uppercase">Qty</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={999}
+                        value={item.quantity}
+                        onChange={(event) => updateItem(index, { quantity: event.target.value })}
+                        className={tableInputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[10px] font-semibold text-dash-muted uppercase">Price</label>
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={item.price}
+                        onChange={(event) => updateItem(index, { price: event.target.value })}
+                        className={tableInputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[10px] font-semibold text-dash-muted uppercase">Discount</label>
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={item.discount}
+                        onChange={(event) => updateItem(index, { discount: event.target.value })}
+                        className={tableInputClass}
+                      />
+                    </div>
+                    <div className="flex flex-col justify-end">
+                      <p className="text-[10px] font-semibold text-dash-muted uppercase">Sub Total</p>
+                      <p className="text-sm font-bold text-dash-text">৳{item.line_total.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto lg:block">
               <table className="min-w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-dash-border bg-slate-50 text-[11px] font-semibold tracking-wide text-dash-muted uppercase">

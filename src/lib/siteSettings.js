@@ -158,3 +158,14 @@ export function applyThemeToDocument(settings) {
     root.style.setProperty(key, value);
   });
 }
+
+export function getThemeInlineCss(settings) {
+  const vars = getThemeCssProperties(settings);
+  if (!vars || Object.keys(vars).length === 0) return "";
+
+  const declarations = Object.entries(vars)
+    .map(([key, value]) => `${key}:${value}`)
+    .join(";");
+
+  return `:root,html{${declarations}}`;
+}

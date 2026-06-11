@@ -22,6 +22,7 @@ import {
   MobileCardList,
   MobileDashCard,
   MobileDashRow,
+  mobileDashModalClass,
 } from "@/components/shared/ResponsiveTable";
 
 const inputClass =
@@ -293,7 +294,7 @@ function ProductFormModal({ open, onClose, product }) {
             initial={{ opacity: 0, scale: 0.98, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 20 }}
-            className="rounded-md fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-dash-border bg-white shadow-2xl sm:inset-x-3 sm:bottom-auto sm:top-[4vh] sm:max-h-[92vh] sm:rounded-md sm:max-w-4xl"
+            className={`${mobileDashModalClass} lg:max-w-4xl`}
           >
             <div className="flex shrink-0 items-center justify-between border-b border-dash-border px-5 py-4 sm:px-6">
               <div>
@@ -566,7 +567,7 @@ function ProductRowActions({ product, onEdit, onDelete, isDeleting }) {
   );
 }
 
-export default function ProductsManager() {
+export default function ProductsManager({ embedded = false }) {
   const { data: products = [], isLoading, isError, error, refetch } = useProducts();
   const { data: categories = [] } = useCategories();
   const { mutate: deleteProduct, isPending: isDeleting, variables: deletingId } = useDeleteProduct();
@@ -628,17 +629,44 @@ export default function ProductsManager() {
 
   return (
     <div className="space-y-6">
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">Catalog</p>
-          <h1 className="text-2xl font-bold text-dash-text">Product Catalog</h1>
-          <p className="mt-1 text-sm text-dash-muted">Add products with pricing, inventory, attributes, and ImageKit uploads.</p>
+      {embedded ? (
+        <div className="flex justify-end">
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={openCreateForm}
+            className="inline-flex w-full items-center justify-center gap-2 bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 sm:w-auto"
+          >
+            <Plus className="h-4 w-4" />
+            Add Product
+          </motion.button>
         </div>
-        <motion.button type="button" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={openCreateForm} className="inline-flex items-center justify-center gap-2 self-start bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 sm:self-auto">
-          <Plus className="h-4 w-4" />
-          Add Product
-        </motion.button>
-      </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">Catalog</p>
+            <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Product Catalog</h1>
+            <p className="mt-1 text-sm text-dash-muted">
+              Add products with pricing, inventory, attributes, and ImageKit uploads.
+            </p>
+          </div>
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={openCreateForm}
+            className="inline-flex items-center justify-center gap-2 self-start bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 sm:self-auto"
+          >
+            <Plus className="h-4 w-4" />
+            Add Product
+          </motion.button>
+        </motion.div>
+      )}
 
       {products.length > 0 ? (
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -647,7 +675,7 @@ export default function ProductsManager() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search by name, brand, or slug..."
-            className={`${inputClass} sm:max-w-sm sm:flex-1`}
+            className={`${inputClass} w-full sm:max-w-sm sm:flex-1`}
           />
           <select
             value={categoryFilter}

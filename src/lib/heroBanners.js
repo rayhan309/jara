@@ -1,3 +1,5 @@
+import { getOptimizedImageUrl } from "@/lib/imageUrl";
+
 export const FALLBACK_HERO_BANNERS = [
   {
     id: "fallback-1",
@@ -35,6 +37,19 @@ export function normalizeHeroBanners(banners) {
 export function getActiveHeroBanners(banners) {
   const normalized = normalizeHeroBanners(banners).filter((banner) => banner.enabled);
   return normalized.length > 0 ? normalized : FALLBACK_HERO_BANNERS;
+}
+
+export function getHeroBannerPreloadUrls(banners, limit = 2) {
+  return getActiveHeroBanners(banners)
+    .slice(0, limit)
+    .map((banner) =>
+      getOptimizedImageUrl(banner.image.url, {
+        width: 1170,
+        height: 880,
+        quality: 90,
+      })
+    )
+    .filter(Boolean);
 }
 
 export function createHeroBanner(image, overrides = {}) {

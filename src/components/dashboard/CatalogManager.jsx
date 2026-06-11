@@ -13,7 +13,7 @@ function CatalogTabs({ activeTab, onChange }) {
   ];
 
   return (
-    <div className="flex flex-wrap gap-2 border-b border-dash-border pb-4">
+    <div className="flex gap-2 overflow-x-auto border-b border-dash-border pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const active = activeTab === tab.id;
@@ -23,7 +23,7 @@ function CatalogTabs({ activeTab, onChange }) {
             key={tab.id}
             type="button"
             onClick={() => onChange(tab.id)}
-            className={`inline-flex items-center gap-2 rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors ${
+            className={`inline-flex shrink-0 items-center gap-2 rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors ${
               active
                 ? "border-indigo-200 bg-indigo-50 text-indigo-700"
                 : "border-dash-border bg-white text-dash-muted hover:border-indigo-200 hover:text-indigo-700"
@@ -52,7 +52,11 @@ function CatalogContent() {
   return (
     <div className="space-y-6">
       <CatalogTabs activeTab={activeTab} onChange={handleTabChange} />
-      {activeTab === "categories" ? <CategoriesManager /> : <ProductsManager />}
+      {activeTab === "categories" ? (
+        <CategoriesManager embedded />
+      ) : (
+        <ProductsManager embedded />
+      )}
     </div>
   );
 }

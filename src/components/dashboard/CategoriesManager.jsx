@@ -11,6 +11,7 @@ import {
   DesktopTable,
   MobileCardList,
   MobileDashCard,
+  mobileDashModalClass,
 } from "@/components/shared/ResponsiveTable";
 import { usePagination } from "@/hooks/usePagination";
 import { slugify } from "@/lib/slugify";
@@ -197,9 +198,9 @@ function CategoryFormModal({ open, onClose, category }) {
             initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 16 }}
-            className="rounded-md fixed inset-x-4 top-[8vh] z-50 mx-auto max-h-[84vh] w-full max-w-lg overflow-y-auto border border-dash-border bg-white shadow-2xl sm:inset-x-auto sm:top-[10vh]"
+            className={`${mobileDashModalClass} sm:max-w-lg`}
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-dash-border bg-white px-5 py-4 sm:px-6">
+            <div className="flex shrink-0 items-center justify-between border-b border-dash-border px-4 py-4 sm:px-6">
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">
                   {isEditing ? "Edit Category" : "New Category"}
@@ -218,7 +219,8 @@ function CategoryFormModal({ open, onClose, category }) {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-5 sm:p-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+              <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4 sm:p-6">
               <div>
                 <label htmlFor="category-name" className="mb-1.5 block text-sm font-semibold text-dash-text">
                   Category Name <span className="text-red-500">*</span>
@@ -307,7 +309,8 @@ function CategoryFormModal({ open, onClose, category }) {
                 <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">{submitError}</p>
               ) : null}
 
-              <div className="flex flex-col-reverse gap-2 border-t border-dash-border pt-4 sm:flex-row sm:justify-end">
+              </div>
+              <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-dash-border bg-white p-4 sm:flex-row sm:justify-end sm:p-5">
                 <button
                   type="button"
                   onClick={handleClose}
@@ -376,7 +379,7 @@ function CategoryRowActions({ category, onEdit, onDelete, isDeleting }) {
   );
 }
 
-export default function CategoriesManager() {
+export default function CategoriesManager({ embedded = false }) {
   const { data: categories = [], isLoading, isError, error, refetch } = useCategories();
   const { mutate: deleteCategory, isPending: isDeleting, variables: deletingId } = useDeleteCategory();
   const [formOpen, setFormOpen] = useState(false);
@@ -420,29 +423,44 @@ export default function CategoriesManager() {
 
   return (
     <div className="space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-      >
-        <div>
-          <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">Catalog</p>
-          <h1 className="text-2xl font-bold text-dash-text">Product Categories</h1>
-          <p className="mt-1 text-sm text-dash-muted">
-            Add categories with images. Files upload to ImageKit and save in MongoDB.
-          </p>
+      {embedded ? (
+        <div className="flex justify-end">
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={openCreateForm}
+            className="inline-flex w-full items-center justify-center gap-2 bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 sm:w-auto"
+          >
+            <Plus className="h-4 w-4" />
+            Add Category
+          </motion.button>
         </div>
-        <motion.button
-          type="button"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={openCreateForm}
-          className="inline-flex items-center justify-center gap-2 self-start bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 sm:self-auto"
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
-          <Plus className="h-4 w-4" />
-          Add Category
-        </motion.button>
-      </motion.div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">Catalog</p>
+            <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Product Categories</h1>
+            <p className="mt-1 text-sm text-dash-muted">
+              Add categories with images. Files upload to ImageKit and save in MongoDB.
+            </p>
+          </div>
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={openCreateForm}
+            className="inline-flex items-center justify-center gap-2 self-start bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 sm:self-auto"
+          >
+            <Plus className="h-4 w-4" />
+            Add Category
+          </motion.button>
+        </motion.div>
+      )}
 
       {categories.length > 0 ? (
         <input
@@ -450,7 +468,7 @@ export default function CategoriesManager() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search by name, slug, or description..."
-          className={`${inputClass} max-w-md`}
+          className={`${inputClass} w-full sm:max-w-md`}
         />
       ) : null}
 
