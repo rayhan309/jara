@@ -4,7 +4,8 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
 import { RiStore2Fill } from "react-icons/ri";
-import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
+import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
+import { getActiveSocialLinks, getSocialIcon } from "@/lib/socialLinks";
 
 const quickLinks = [
   { href: "/", label: "হোম" },
@@ -14,13 +15,16 @@ const quickLinks = [
 ];
 
 const supportLinks = [
-  { href: "mailto:support@nexa.com", label: "সাপোর্টে যোগাযোগ" },
-  { href: "#", label: "শিপিং নীতি" },
-  { href: "#", label: "রিটার্ন নীতি" },
-  { href: "#", label: "গোপনীয়তা নীতি" },
+  { href: "/support#contact", label: "সাপোর্টে যোগাযোগ" },
+  { href: "/support#shipping", label: "শিপিং নীতি" },
+  { href: "/support#returns", label: "রিটার্ন নীতি" },
+  { href: "/support#privacy", label: "গোপনীয়তা নীতি" },
 ];
 
 export default function Footer() {
+  const settings = useStoreSettings();
+  const socialLinks = getActiveSocialLinks(settings);
+
   return (
     <footer className="border-t border-zinc-200 bg-white">
       <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
@@ -41,17 +45,28 @@ export default function Footer() {
               আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। মানসম্মত পণ্য, দ্রুত ডেলিভারি
               এবং সহজ অর্ডার ট্র্যাকিং।
             </p>
-            <div className="mt-5 flex gap-2">
-              {[FaFacebookF, FaInstagram, FaTwitter].map((Icon, index) => (
-                <motion.a
-                  key={index}
-                  href="#"
-                  whileHover={{ y: -3, scale: 1.05 }}
-                  className="rounded-md flex h-9 w-9 items-center justify-center border border-zinc-200 text-zinc-500 transition-colors hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600"
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                </motion.a>
-              ))}
+            <div className="mt-5 flex flex-wrap gap-2">
+              {socialLinks.length > 0 ? (
+                socialLinks.map((link) => {
+                  const Icon = getSocialIcon(link.platform);
+                  return (
+                    <motion.a
+                      key={link.id}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={link.label}
+                      title={link.label}
+                      whileHover={{ y: -3, scale: 1.05 }}
+                      className="rounded-md flex h-9 w-9 items-center justify-center border border-zinc-200 text-zinc-500 transition-colors hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600"
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                    </motion.a>
+                  );
+                })
+              ) : (
+                <p className="text-xs text-zinc-400">Social links admin settings theke add korun.</p>
+              )}
             </div>
           </motion.div>
 
@@ -113,7 +128,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2.5 text-sm text-zinc-500">
                 <Phone className="h-4 w-4 shrink-0 text-indigo-500" />
-                +880 1XXX-XXXXXX
+                +8801815131040
               </li>
               <li className="flex items-center gap-2.5 text-sm text-zinc-500">
                 <Mail className="h-4 w-4 shrink-0 text-indigo-500" />

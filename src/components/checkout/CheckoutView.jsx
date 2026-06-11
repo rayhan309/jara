@@ -25,6 +25,7 @@ import {
   validateCustomerDetails,
 } from "@/lib/orderValidation";
 import { getProductVariantConfig } from "@/lib/productVariants";
+import { getProductCardImageUrl } from "@/lib/imageUrl";
 
 const DELIVERY_LIST = [
   { id: "inside_dhaka", ...DELIVERY_OPTIONS.inside_dhaka },
@@ -60,23 +61,20 @@ function CheckoutItemCard({ item, items, products, onUpdateQty, onUpdateVariant,
       ? Math.round(((item.regular_price - item.price) / item.regular_price) * 100)
       : 0;
   const lineTotal = item.price * item.quantity;
-  const maxQty = getMaxLineQuantity(item, items);
+  const imageSrc = getProductCardImageUrl(item.image);
 
   return (
-    <div className="relative rounded-md border border-zinc-200 bg-zinc-50/80 p-3 sm:p-4">
-      <button
-        type="button"
-        aria-label="আইটেম সরান"
-        onClick={() => onRemove(item)}
-        className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-md text-rose-500 transition-colors hover:bg-rose-50"
-      >
-        <Trash2 className="h-4 w-4" />
-      </button>
-
-      <div className="flex gap-3 pr-8">
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md border border-zinc-200 bg-white sm:h-24 sm:w-24">
-          {item.image ? (
-            <Image src={item.image} alt={item.title} fill unoptimized className="object-contain p-1.5" />
+    <article className="overflow-hidden rounded-xl border border-zinc-200/90 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]">
+      <div className="flex gap-3.5 p-3.5 sm:gap-4 sm:p-4">
+        <div className="relative h-[76px] w-[76px] shrink-0 overflow-hidden rounded-lg border border-zinc-100 bg-zinc-50 sm:h-20 sm:w-20">
+          {imageSrc ? (
+            <Image
+              src={imageSrc}
+              alt={item.title}
+              fill
+              unoptimized
+              className="object-cover object-center"
+            />
           ) : (
             <div className="flex h-full items-center justify-center text-zinc-300">
               <Package className="h-6 w-6" />
@@ -85,72 +83,103 @@ function CheckoutItemCard({ item, items, products, onUpdateQty, onUpdateVariant,
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-900">{item.title}</p>
-
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className="text-base font-bold text-zinc-900">৳{item.price.toLocaleString()}</span>
-            {item.regular_price > item.price ? (
-              <>
-                <span className="text-xs text-zinc-400 line-through">
-                  ৳{item.regular_price.toLocaleString()}
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="line-clamp-2 text-sm font-bold leading-snug text-zinc-900">
+                {item.title}
+              </h3>
+              <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                <span className="text-base font-bold text-zinc-900">
+                  ৳{item.price.toLocaleString()}
                 </span>
-                {discount > 0 ? (
-                  <span className="rounded-md bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                    {discount}% OFF
-                  </span>
+                {item.regular_price > item.price ? (
+                  <>
+                    <span className="text-xs text-zinc-400 line-through">
+                      ৳{item.regular_price.toLocaleString()}
+                    </span>
+                    {discount > 0 ? (
+                      <span className="rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        -{discount}%
+                      </span>
+                    ) : null}
+                  </>
                 ) : null}
-              </>
-            ) : null}
-          </div>
+              </div>
+            </div>
 
-          <p className="mt-1 text-xs font-semibold text-indigo-600">৳{lineTotal.toLocaleString()}</p>
-        </div>
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        {hasVariants ? (
-          <div className="relative min-w-[120px] flex-1">
-            <label className="sr-only">{variantLabel}</label>
-            <select
-              value={item.selected_variant || variantOptions[0] || ""}
-              onChange={(event) =>
-                onUpdateVariant(item, event.target.value)
-              }
-              className="w-full appearance-none rounded-md border border-zinc-200 bg-white py-2 pl-3 pr-8 text-sm font-medium text-zinc-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+            <button
+              type="button"
+              aria-label="আইটেম সরান"
+              onClick={() => onRemove(item)}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-rose-50 hover:text-rose-500"
             >
-              {variantOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              <Trash2 className="h-4 w-4" />
+            </button>
           </div>
-        ) : null}
 
-        <div className="inline-flex items-center rounded-md border border-zinc-200 bg-white">
-          <button
-            type="button"
-            aria-label="পরিমাণ কমান"
-            onClick={() => onUpdateQty(item, item.quantity - 1)}
-            className="flex h-9 w-9 items-center justify-center text-zinc-600 hover:bg-zinc-50"
-          >
-            <Minus className="h-3.5 w-3.5" />
-          </button>
-          <span className="min-w-[2.5rem] text-center text-sm font-bold text-zinc-900">
-            {item.quantity}
-          </span>
-          <button
-            type="button"
-            aria-label="পরিমাণ বাড়ান"
-            onClick={() => onUpdateQty(item, item.quantity + 1)}
-            className="flex h-9 w-9 items-center justify-center text-zinc-600 hover:bg-zinc-50"
-          >
-            <Plus className="h-3.5 w-3.5" />
-          </button>
+          <div className="mt-3 flex flex-wrap items-end gap-2.5 sm:gap-3">
+            {hasVariants ? (
+              <div className="min-w-[120px] flex-1">
+                <label className="mb-1 block text-[10px] font-semibold tracking-wide text-zinc-500 uppercase">
+                  {variantLabel}
+                </label>
+                <div className="relative">
+                  <select
+                    value={item.selected_variant || variantOptions[0] || ""}
+                    onChange={(event) => onUpdateVariant(item, event.target.value)}
+                    className="h-9 w-full appearance-none rounded-lg border border-zinc-200 bg-zinc-50 py-0 pl-3 pr-8 text-sm font-medium text-zinc-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  >
+                    {variantOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                </div>
+              </div>
+            ) : null}
+
+            <div className={hasVariants ? "" : "flex-1"}>
+              <label className="mb-1 block text-[10px] font-semibold tracking-wide text-zinc-500 uppercase">
+                পরিমাণ
+              </label>
+              <div className="inline-flex h-9 items-center overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
+                <button
+                  type="button"
+                  aria-label="পরিমাণ কমান"
+                  onClick={() => onUpdateQty(item, item.quantity - 1)}
+                  className="flex h-9 w-9 items-center justify-center text-zinc-600 transition-colors hover:bg-white"
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+                <span className="min-w-[2rem] border-x border-zinc-200 bg-white px-2 text-center text-sm font-bold text-zinc-900">
+                  {item.quantity}
+                </span>
+                <button
+                  type="button"
+                  aria-label="পরিমাণ বাড়ান"
+                  onClick={() => onUpdateQty(item, item.quantity + 1)}
+                  disabled={item.quantity >= getMaxLineQuantity(item, items)}
+                  className="flex h-9 w-9 items-center justify-center text-zinc-600 transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      <div className="flex items-center justify-between border-t border-zinc-100 bg-indigo-50/50 px-3.5 py-2.5 sm:px-4">
+        <span className="text-xs text-zinc-600">
+          {item.quantity} × ৳{item.price.toLocaleString()}
+        </span>
+        <span className="text-sm font-bold text-indigo-700">
+          মোট ৳{lineTotal.toLocaleString()}
+        </span>
+      </div>
+    </article>
   );
 }
 

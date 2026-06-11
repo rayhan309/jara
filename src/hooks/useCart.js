@@ -13,11 +13,10 @@ import {
   getProductMaxStock,
   isProductInCart,
   removeFromCart as removeProductFromCart,
-  toggleCartItem as toggleProductInCart,
   updateCartQuantity as updateProductCartQuantity,
   updateCartVariant as updateProductCartVariant,
 } from "@/lib/cart";
-import { getProductVariantConfig } from "@/lib/productVariants";
+import { resolveProductVariant } from "@/lib/productVariants";
 
 function productTitle(product) {
   return product.title_bn || product.title_en || product.title || "পণ্য";
@@ -45,13 +44,7 @@ export function useCart() {
 
   const addToCart = useCallback(
     (product, quantity = 1, selectedVariant = "") => {
-      const variantConfig = getProductVariantConfig(product);
-
-      if (variantConfig.required && !selectedVariant) {
-        toast.error(`অনুগ্রহ করে ${variantConfig.label} বেছে নিন`);
-        return false;
-      }
-
+      const variant = resolveProductVariant(product, selectedVariant);
       const maxStock = getProductMaxStock(product);
 
       if (maxStock <= 0) {
@@ -59,7 +52,7 @@ export function useCart() {
         return false;
       }
 
-      const result = addProductToCart(product, quantity, selectedVariant);
+      const result = addProductToCart(product, quantity, variant);
       syncCart();
 
       if (!result.ok) {
@@ -70,7 +63,7 @@ export function useCart() {
       }
 
       const title = productTitle(product);
-      const variantNote = selectedVariant ? ` (${selectedVariant})` : "";
+      const variantNote = variant ? ` (${variant})` : "";
       if (result.limited) {
         toast.success(`${title}${variantNote} কার্টে যোগ হয়েছে (${stockLimitMessage(result.maxStock)})`);
       } else {
@@ -83,14 +76,7 @@ export function useCart() {
 
   const toggleCart = useCallback(
     (product) => {
-      const variantConfig = getProductVariantConfig(product);
-
-      if (variantConfig.required) {
-        toast.error(`অনুগ্রহ করে ${variantConfig.label} বেছে নিন`);
-        router.push(`/products/${product.slug}`);
-        return false;
-      }
-
+      const variant = resolveProductVariant(product);
       const maxStock = getProductMaxStock(product);
 
       if (maxStock <= 0) {
@@ -98,21 +84,16 @@ export function useCart() {
         return false;
       }
 
-      const result = toggleProductInCart(product);
-      syncCart();
-      const title = productTitle(product);
-
-      if (result.added) {
-        toast.success(`${title} কার্টে যোগ হয়েছে`);
-      } else if (result.reason === "out_of_stock") {
-        toast.error("এই পণ্যটি স্টকে নেই");
-        return false;
-      } else {
-        toast(`${title} কার্ট থেকে সরানো হয়েছে`);
+      if (isProductInCart(product._id, variant)) {
+        removeProductFromCart(product._id, variant);
+        syncCart();
+        toast(`${productTitle(product)} কার্ট থেকে সরানো হয়েছে`);
+        return true;
       }
-      return true;
+
+      return addToCart(product, 1, variant);
     },
-    [router, syncCart]
+    [addToCart, syncCart]
   );
 
   const removeFromCart = useCallback(
@@ -180,13 +161,7 @@ export function useCart() {
 
   const buyNow = useCallback(
     (product, quantity = 1, selectedVariant = "") => {
-      const variantConfig = getProductVariantConfig(product);
-
-      if (variantConfig.required && !selectedVariant) {
-        toast.error(`অনুগ্রহ করে ${variantConfig.label} বেছে নিন`);
-        return false;
-      }
-
+      const variant = resolveProductVariant(product, selectedVariant);
       const maxStock = getProductMaxStock(product);
 
       if (maxStock <= 0) {
@@ -194,7 +169,7 @@ export function useCart() {
         return false;
       }
 
-      const result = buyProductNow(product, quantity, selectedVariant);
+      const result = buyProductNow(product, quantity, variant);
       syncCart();
 
       if (!result.ok) {

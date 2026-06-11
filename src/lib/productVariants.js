@@ -37,6 +37,25 @@ export function getProductVariantConfig(product) {
   };
 }
 
+export function getDefaultProductVariant(product) {
+  const config = getProductVariantConfig(product);
+  return config.options[0] || "";
+}
+
+export function resolveProductVariant(product, selectedVariant) {
+  const config = getProductVariantConfig(product);
+
+  if (!config.required) {
+    return "";
+  }
+
+  if (selectedVariant) {
+    return selectedVariant;
+  }
+
+  return getDefaultProductVariant(product);
+}
+
 export function formatVariantLabel(type, value) {
   if (!value) return "";
   const prefix = type === "weight" ? "ওজন" : "সাইজ";

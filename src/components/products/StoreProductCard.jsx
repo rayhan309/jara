@@ -2,24 +2,27 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { Check, Package, ShoppingCart, Star, Zap } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
-import { getProductVariantConfig } from "@/lib/productVariants";
+import { resolveProductVariant } from "@/lib/productVariants";
+import { getProductCardImageUrl } from "@/lib/imageUrl";
 
 export default function StoreProductCard({ product, index = 0 }) {
-  const router = useRouter();
   const { toggleCart, buyNow, items } = useCart();
-  const variantConfig = getProductVariantConfig(product);
-  const image = product.images?.[0]?.url;
+  const defaultVariant = resolveProductVariant(product);
+  const image = getProductCardImageUrl(product.images?.[0]?.url);
   const discount = product.pricing?.discount_percentage || 0;
   const title = product.title_bn || product.title_en;
   const salePrice = product.pricing?.sale_price;
   const regularPrice = product.pricing?.regular_price;
   const outOfStock = product.inventory?.stock_status === "out_of_stock";
-  const inCart = items.some((item) => item._id === product._id);
+  const inCart = items.some(
+    (item) =>
+      item._id === product._id &&
+      (item.selected_variant || "") === (defaultVariant || "")
+  );
 
   function handleCartToggle(event) {
     event.preventDefault();
@@ -38,12 +41,7 @@ export default function StoreProductCard({ product, index = 0 }) {
       toast.error("এই পণ্যটি স্টকে নেই");
       return;
     }
-    if (variantConfig.required) {
-      toast.error(`অনুগ্রহ করে ${variantConfig.label} বেছে নিন`);
-      router.push(`/products/${product.slug}`);
-      return;
-    }
-    buyNow(product);
+    buyNow(product, 1, defaultVariant);
   }
 
   return (
@@ -61,8 +59,8 @@ export default function StoreProductCard({ product, index = 0 }) {
               alt={title}
               fill
               unoptimized
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04]"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04] [transform:translateZ(0)]"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-zinc-300">

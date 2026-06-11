@@ -24,7 +24,7 @@ import {
 const inputClass =
   "w-full border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
 
-const emptyValues = { name: "", slug: "", description: "" };
+const emptyValues = { name: "", slug: "" };
 
 function CategoryFormModal({ open, onClose, category }) {
   const fileInputRef = useRef(null);
@@ -38,8 +38,11 @@ function CategoryFormModal({ open, onClose, category }) {
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({ defaultValues: emptyValues });
+
+  const nameValue = watch("name");
 
   const [slugEdited, setSlugEdited] = useState(false);
   const [imageFile, setImageFile] = useState(null);
@@ -110,7 +113,6 @@ function CategoryFormModal({ open, onClose, category }) {
 
     const formData = new FormData();
     formData.append("name", values.name.trim());
-    formData.append("description", values.description.trim());
     if (values.slug.trim()) formData.append("slug", values.slug.trim());
 
     const onDone = {
@@ -143,7 +145,6 @@ function CategoryFormModal({ open, onClose, category }) {
       reset({
         name: category.name || "",
         slug: category.slug || "",
-        description: category.description || "",
       });
       setSlugEdited(true);
       setExistingImage(category.image || null);
@@ -155,6 +156,11 @@ function CategoryFormModal({ open, onClose, category }) {
       resetAll();
     }
   }, [open, category, reset]);
+
+  useEffect(() => {
+    if (!open || slugEdited) return;
+    setValue("slug", slugify(nameValue || ""));
+  }, [nameValue, slugEdited, open, setValue]);
 
   useEffect(() => {
     if (!open) return;
@@ -222,7 +228,9 @@ function CategoryFormModal({ open, onClose, category }) {
                   {...nameField}
                   onChange={(event) => {
                     nameField.onChange(event);
-                    if (!slugEdited) setValue("slug", slugify(event.target.value));
+                    if (!slugEdited) {
+                      setValue("slug", slugify(event.target.value));
+                    }
                   }}
                   placeholder="e.g. Electronics"
                   className={inputClass}
@@ -243,19 +251,6 @@ function CategoryFormModal({ open, onClose, category }) {
                   }}
                   placeholder="auto-generated-from-name"
                   className={inputClass}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="category-description" className="mb-1.5 block text-sm font-semibold text-dash-text">
-                  Description
-                </label>
-                <textarea
-                  id="category-description"
-                  rows={3}
-                  {...register("description")}
-                  placeholder="Short description for this category"
-                  className={`${inputClass} resize-none`}
                 />
               </div>
 

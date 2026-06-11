@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   ClipboardList,
-  Layers,
   Loader2,
   PackagePlus,
   Warehouse,
@@ -52,17 +51,10 @@ const quickActions = [
   },
   {
     label: "Products",
-    desc: "Catalog & inventory",
+    desc: "Products & categories",
     href: "/dashboard/products",
     icon: Warehouse,
     accent: "bg-emerald-500",
-  },
-  {
-    label: "Categories",
-    desc: "Manage categories",
-    href: "/dashboard/categories",
-    icon: Layers,
-    accent: "bg-amber-500",
   },
 ];
 

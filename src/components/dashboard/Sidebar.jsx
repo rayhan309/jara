@@ -6,9 +6,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
   LayoutDashboard,
-  Layers,
   LogOut,
   Package,
+  Settings,
   ShoppingBag,
   Users,
   X,
@@ -20,8 +20,8 @@ const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
   { href: "/dashboard/products", label: "Products", icon: Package },
-  { href: "/dashboard/categories", label: "Categories", icon: Layers },
   { href: "/dashboard/customers", label: "Customers", icon: Users },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -114,7 +114,12 @@ export default function Sidebar({ isOpen, onClose }) {
           </p>
           <nav className="space-y-1">
             {navItems.map((item, index) => {
-              const active = pathname === item.href;
+              const active =
+                pathname === item.href ||
+                (item.href === "/dashboard/products" &&
+                  (pathname.startsWith("/dashboard/products") ||
+                    pathname.startsWith("/dashboard/categories"))) ||
+                (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
               const Icon = item.icon;
 
               return (

@@ -1,7 +1,7 @@
 "use client";
 
-import ProductsManager from "@/components/dashboard/ProductsManager";
+import CatalogManager from "@/components/dashboard/CatalogManager";
 
 export default function ProductsPage() {
-  return <ProductsManager />;
+  return <CatalogManager />;
 }

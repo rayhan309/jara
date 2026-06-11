@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Minus, Package, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { getMaxLineQuantity } from "@/lib/cart";
+import { getProductCardImageUrl } from "@/lib/imageUrl";
 
 export default function CartSidebar({ open, onClose }) {
   const router = useRouter();
@@ -77,88 +78,106 @@ export default function CartSidebar({ open, onClose }) {
             ) : (
               <>
                 <div className="flex-1 space-y-3 overflow-y-auto p-4">
-                  {items.map((item) => (
-                    <div
-                      key={`${item._id}-${item.selected_variant || "default"}`}
-                      className="flex gap-3 rounded-md border border-zinc-200 bg-zinc-50/50 p-3"
-                    >
-                      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-white">
-                        {item.image ? (
-                          <Image
-                            src={item.image}
-                            alt={item.title}
-                            fill
-                            unoptimized
-                            className="object-contain p-1"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-zinc-300">
-                            <Package className="h-5 w-5" />
-                          </div>
-                        )}
-                      </div>
+                  {items.map((item) => {
+                    const lineTotal = item.price * item.quantity;
+                    const variantLabel = item.variant_type === "weight" ? "ওজন" : "সাইজ";
+                    const imageSrc = getProductCardImageUrl(item.image);
 
-                      <div className="min-w-0 flex-1">
-                        <p className="line-clamp-2 text-sm font-semibold text-zinc-900">{item.title}</p>
-                        {item.selected_variant ? (
-                          <p className="mt-0.5 text-[11px] font-medium text-zinc-500">
-                            {item.variant_type === "weight" ? "ওজন" : "সাইজ"}: {item.selected_variant}
-                          </p>
-                        ) : null}
-                        <p className="mt-0.5 text-xs font-bold text-indigo-600">
-                          ৳{item.price.toLocaleString()}
-                        </p>
-
-                        <div className="mt-2 flex items-center justify-between gap-2">
-                          <div className="inline-flex items-center rounded-md border border-zinc-200 bg-white">
-                            <button
-                              type="button"
-                              aria-label="পরিমাণ কমান"
-                              onClick={() =>
-                                updateQuantity(
-                                  item._id,
-                                  item.quantity - 1,
-                                  item.title,
-                                  item.selected_variant
-                                )
-                              }
-                              className="flex h-8 w-8 items-center justify-center text-zinc-600 transition-colors hover:bg-zinc-50"
-                            >
-                              <Minus className="h-3.5 w-3.5" />
-                            </button>
-                            <span className="min-w-[2rem] text-center text-sm font-semibold text-zinc-900">
-                              {item.quantity}
-                            </span>
-                            <button
-                              type="button"
-                              aria-label="পরিমাণ বাড়ান"
-                              onClick={() =>
-                                updateQuantity(
-                                  item._id,
-                                  item.quantity + 1,
-                                  item.title,
-                                  item.selected_variant
-                                )
-                              }
-                              disabled={item.quantity >= getMaxLineQuantity(item, items)}
-                              className="flex h-8 w-8 items-center justify-center text-zinc-600 transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
-                            >
-                              <Plus className="h-3.5 w-3.5" />
-                            </button>
+                    return (
+                      <article
+                        key={`${item._id}-${item.selected_variant || "default"}`}
+                        className="overflow-hidden rounded-xl border border-zinc-200/90 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)]"
+                      >
+                        <div className="flex gap-3 p-3">
+                          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-zinc-100 bg-zinc-50">
+                            {imageSrc ? (
+                              <Image
+                                src={imageSrc}
+                                alt={item.title}
+                                fill
+                                unoptimized
+                                className="object-cover object-center"
+                              />
+                            ) : (
+                              <div className="flex h-full items-center justify-center text-zinc-300">
+                                <Package className="h-5 w-5" />
+                              </div>
+                            )}
                           </div>
 
-                          <button
-                            type="button"
-                            aria-label="কার্ট থেকে সরান"
-                            onClick={() => removeFromCart(item._id, item.title, item.selected_variant)}
-                            className="flex h-8 w-8 items-center justify-center rounded-md text-rose-500 transition-colors hover:bg-rose-50"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="line-clamp-2 text-sm font-bold leading-snug text-zinc-900">
+                                  {item.title}
+                                </p>
+                                {item.selected_variant ? (
+                                  <span className="mt-1 inline-flex rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700">
+                                    {variantLabel}: {item.selected_variant}
+                                  </span>
+                                ) : null}
+                                <p className="mt-1 text-sm font-bold text-zinc-900">
+                                  ৳{item.price.toLocaleString()}
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                aria-label="কার্ট থেকে সরান"
+                                onClick={() =>
+                                  removeFromCart(item._id, item.title, item.selected_variant)
+                                }
+                                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-rose-50 hover:text-rose-500"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+
+                            <div className="mt-2.5 flex items-center justify-between gap-2">
+                              <div className="inline-flex h-8 items-center overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
+                                <button
+                                  type="button"
+                                  aria-label="পরিমাণ কমান"
+                                  onClick={() =>
+                                    updateQuantity(
+                                      item._id,
+                                      item.quantity - 1,
+                                      item.title,
+                                      item.selected_variant
+                                    )
+                                  }
+                                  className="flex h-8 w-8 items-center justify-center text-zinc-600 hover:bg-white"
+                                >
+                                  <Minus className="h-3.5 w-3.5" />
+                                </button>
+                                <span className="min-w-[1.75rem] border-x border-zinc-200 bg-white px-1.5 text-center text-sm font-bold text-zinc-900">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  type="button"
+                                  aria-label="পরিমাণ বাড়ান"
+                                  onClick={() =>
+                                    updateQuantity(
+                                      item._id,
+                                      item.quantity + 1,
+                                      item.title,
+                                      item.selected_variant
+                                    )
+                                  }
+                                  disabled={item.quantity >= getMaxLineQuantity(item, items)}
+                                  className="flex h-8 w-8 items-center justify-center text-zinc-600 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                              <span className="text-xs font-bold text-indigo-700">
+                                ৳{lineTotal.toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
+                      </article>
+                    );
+                  })}
                 </div>
 
                 <div className="border-t border-zinc-100 p-4">

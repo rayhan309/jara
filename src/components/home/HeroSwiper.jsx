@@ -34,7 +34,8 @@ export default function HeroSwiper() {
                   alt={slide.alt}
                   fill
                   priority
-                  className="object-cover"
+                  quality={95}
+                  className="object-cover object-center"
                   sizes="100vw"
                 />
               </div>

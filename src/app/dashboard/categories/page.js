@@ -1,7 +1,5 @@
-"use client";
-
-import CategoriesManager from "@/components/dashboard/CategoriesManager";
+import { redirect } from "next/navigation";
 
 export default function CategoriesPage() {
-  return <CategoriesManager />;
+  redirect("/dashboard/products?tab=categories");
 }

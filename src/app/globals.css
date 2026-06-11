@@ -9,6 +9,12 @@
   --background: #ffffff;
   --foreground: #171717;
 
+  --store-primary: #4f46e5;
+  --store-primary-hover: #4338ca;
+  --store-primary-dark: #3730a3;
+  --store-primary-soft: #eef2ff;
+  --store-primary-border: #c7d2fe;
+
   --dash-bg: #eef1f6;
   --dash-surface: #ffffff;
   --dash-sidebar: #0b1120;
@@ -199,6 +205,12 @@ html {
   }
 }
 
+.hero-swiper .swiper-slide img {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
 .hero-swiper .swiper-pagination-bullet {
   width: 7px;
   height: 7px;
@@ -210,7 +222,7 @@ html {
 .hero-swiper .swiper-pagination-bullet-active {
   width: 20px;
   border-radius: 999px;
-  background: #4f46e5;
+  background: var(--store-primary);
 }
 
 .hero-swiper .swiper-pagination {
@@ -230,4 +242,17 @@ html {
   .hero-swiper .swiper-pagination-bullet-active {
     width: 24px;
   }
+}
+
+/* Storefront dynamic theme — Tailwind v4 uses --color-indigo-* variables */
+.font-store {
+  --color-indigo-50: var(--store-primary-soft);
+  --color-indigo-100: var(--store-primary-soft);
+  --color-indigo-200: var(--store-primary-border);
+  --color-indigo-300: color-mix(in srgb, var(--store-primary) 55%, white);
+  --color-indigo-400: color-mix(in srgb, var(--store-primary) 72%, white);
+  --color-indigo-500: color-mix(in srgb, var(--store-primary) 86%, white);
+  --color-indigo-600: var(--store-primary);
+  --color-indigo-700: var(--store-primary-hover);
+  --color-indigo-800: var(--store-primary-dark);
 }

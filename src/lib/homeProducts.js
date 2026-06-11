@@ -1,3 +1,14 @@
+import { filterProductsByCategory } from "@/lib/categoryFilter";
+
+export function getProductsByCategory(categories = [], products = [], limit = 8) {
+  return categories
+    .map((category) => ({
+      category,
+      products: filterProductsByCategory(products, category).slice(0, limit),
+    }))
+    .filter((entry) => entry.products.length > 0);
+}
+
 export function getBestSellingProducts(products = [], limit = 8) {
   return [...products]
     .sort((a, b) => {
