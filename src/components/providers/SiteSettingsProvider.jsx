@@ -1,12 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo } from "react";
+import { createContext, useContext, useLayoutEffect, useMemo } from "react";
 import {
   applyThemeToDocument,
   DEFAULT_SETTINGS,
   getThemeCssProperties,
 } from "@/lib/siteSettings";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { syncMetaPixelSettings } from "@/lib/metaPixel";
 
 const SiteSettingsContext = createContext(DEFAULT_SETTINGS);
 
@@ -24,8 +25,9 @@ export default function SiteSettingsProvider({
   });
   const themeStyle = useMemo(() => getThemeCssProperties(settings), [settings]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     applyThemeToDocument(settings);
+    syncMetaPixelSettings(settings);
   }, [settings]);
 
   return (

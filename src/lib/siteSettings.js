@@ -14,6 +14,8 @@ export const SOCIAL_PLATFORMS = [
 
 export const DEFAULT_SETTINGS = {
   primaryColor: "#4f46e5",
+  metaPixelId: "",
+  metaPixelEnabled: false,
   heroBanners: [],
   socialLinks: [
     { id: "facebook", platform: "facebook", label: "Facebook", url: "", enabled: false },
@@ -109,12 +111,35 @@ function normalizeSocialLink(link, index) {
   };
 }
 
+export function normalizeMetaPixelId(value) {
+  return String(value || "").trim().replace(/\D/g, "");
+}
+
+/** Admin settings first; env fallback when dashboard-এ pixel configure করা নেই */
+export function getMetaPixelIdFromSettings(settings, envFallback = "") {
+  if (settings?.metaPixelEnabled && settings?.metaPixelId) {
+    return settings.metaPixelId;
+  }
+
+  if (settings?.metaPixelEnabled === false) {
+    return "";
+  }
+
+  if (settings?.metaPixelId) {
+    return "";
+  }
+
+  return String(envFallback || "").trim().replace(/\D/g, "");
+}
+
 export function normalizeSettings(input = {}) {
   const primaryColor = normalizeHexColor(input.primaryColor);
   const theme = deriveThemeColors(primaryColor);
   const socialLinks = Array.isArray(input.socialLinks)
     ? input.socialLinks.map(normalizeSocialLink)
     : DEFAULT_SETTINGS.socialLinks;
+  const metaPixelId = normalizeMetaPixelId(input.metaPixelId);
+  const metaPixelEnabled = Boolean(input.metaPixelEnabled) && metaPixelId.length >= 10;
 
   return {
     primaryColor: theme.primaryColor,
@@ -122,6 +147,8 @@ export function normalizeSettings(input = {}) {
     primaryColorDark: theme.primaryColorDark,
     primaryColorSoft: theme.primaryColorSoft,
     primaryColorBorder: theme.primaryColorBorder,
+    metaPixelId,
+    metaPixelEnabled,
     heroBanners: normalizeHeroBanners(input.heroBanners),
     socialLinks,
   };

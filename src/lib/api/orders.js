@@ -1,4 +1,4 @@
-export async function (payload) {
+export async function createOrder(payload) {
   const response = await fetch("/api/orders", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

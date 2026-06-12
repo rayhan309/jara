@@ -9,6 +9,7 @@ import {
   DEFAULT_SETTINGS,
   deriveThemeColors,
   normalizeHexColor,
+  normalizeMetaPixelId,
   SOCIAL_PLATFORMS,
   applyThemeToDocument,
 } from "@/lib/siteSettings";
@@ -48,6 +49,8 @@ export default function SettingsManager() {
   const [primaryColor, setPrimaryColor] = useState(DEFAULT_SETTINGS.primaryColor);
   const [heroBanners, setHeroBanners] = useState(DEFAULT_SETTINGS.heroBanners);
   const [socialLinks, setSocialLinks] = useState(DEFAULT_SETTINGS.socialLinks);
+  const [metaPixelId, setMetaPixelId] = useState(DEFAULT_SETTINGS.metaPixelId);
+  const [metaPixelEnabled, setMetaPixelEnabled] = useState(DEFAULT_SETTINGS.metaPixelEnabled);
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
 
   useEffect(() => {
@@ -55,6 +58,8 @@ export default function SettingsManager() {
     setPrimaryColor(settings.primaryColor);
     setHeroBanners(settings.heroBanners || DEFAULT_SETTINGS.heroBanners);
     setSocialLinks(settings.socialLinks || DEFAULT_SETTINGS.socialLinks);
+    setMetaPixelId(settings.metaPixelId || "");
+    setMetaPixelEnabled(Boolean(settings.metaPixelEnabled));
   }, [settings]);
 
   const previewTheme = useMemo(
@@ -131,9 +136,17 @@ export default function SettingsManager() {
       return;
     }
 
+    const cleanedPixelId = normalizeMetaPixelId(metaPixelId);
+    if (metaPixelEnabled && cleanedPixelId.length < 10) {
+      toast.error("Meta Pixel ID সঠিক দিন (কমপক্ষে ১০ ডিজিট)");
+      return;
+    }
+
     saveSettings(
       {
         primaryColor: normalizeHexColor(primaryColor),
+        metaPixelId: cleanedPixelId,
+        metaPixelEnabled,
         heroBanners: heroBanners.map((banner) => ({
           ...banner,
           alt: banner.alt.trim(),
@@ -188,7 +201,7 @@ export default function SettingsManager() {
           </p>
           <h1 className="text-2xl font-bold text-dash-text">Store Settings</h1>
           <p className="mt-1 text-sm text-dash-muted">
-            Storefront color, hero banners ar footer social links manage korun.
+            Storefront color, Meta Pixel, hero banners ar footer social links manage korun.
           </p>
         </div>
         <motion.button
@@ -364,6 +377,54 @@ export default function SettingsManager() {
                   </div>
                 </div>
               ))
+            )}
+          </div>
+        </section>
+
+        <section className="dash-card p-5 sm:p-6 lg:col-span-2">
+          <h2 className="text-lg font-bold text-dash-text">Meta Pixel (Facebook)</h2>
+          <p className="mt-1 text-sm text-dash-muted">
+            Meta Events Manager থেকে Pixel ID দিন। Storefront-এ PageView, AddToCart, Purchase track হবে।
+          </p>
+
+          <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-dash-muted">Pixel ID</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={metaPixelId}
+                onChange={(event) => setMetaPixelId(event.target.value)}
+                placeholder="1234567890123456"
+                className={`${inputClass} font-mono`}
+              />
+              <p className="mt-2 text-xs text-dash-muted">
+                Events Manager → Data Sources → আপনার Pixel → Settings → Pixel ID
+              </p>
+            </div>
+
+            <label className="inline-flex h-fit items-center gap-2 rounded-md border border-dash-border bg-white px-3 py-2.5 text-xs font-semibold text-dash-text">
+              <input
+                type="checkbox"
+                checked={metaPixelEnabled}
+                onChange={(event) => setMetaPixelEnabled(event.target.checked)}
+                className="h-4 w-4 accent-indigo-600"
+              />
+              Pixel চালু করুন
+            </label>
+          </div>
+
+          <div className="mt-4 rounded-md border border-dash-border bg-slate-50 px-4 py-3 text-xs text-dash-muted">
+            {metaPixelEnabled && normalizeMetaPixelId(metaPixelId).length >= 10 ? (
+              <span className="font-semibold text-emerald-700">
+                Active — storefront-এ Meta Pixel লোড হবে
+              </span>
+            ) : metaPixelEnabled ? (
+              <span className="font-semibold text-amber-700">
+                Pixel ID দিন এবং Save Settings চাপুন
+              </span>
+            ) : (
+              <span>Pixel বন্ধ আছে — tracking হবে না</span>
             )}
           </div>
         </section>

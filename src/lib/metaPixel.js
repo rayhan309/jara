@@ -1,7 +1,19 @@
+import { getMetaPixelIdFromSettings } from "@/lib/siteSettings";
+
 export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "";
 
+let cachedSettings = null;
+
+export function syncMetaPixelSettings(settings) {
+  cachedSettings = settings || null;
+}
+
+export function getActiveMetaPixelId() {
+  return getMetaPixelIdFromSettings(cachedSettings, META_PIXEL_ID);
+}
+
 export function isMetaPixelEnabled() {
-  return Boolean(META_PIXEL_ID);
+  return Boolean(getActiveMetaPixelId());
 }
 
 function canTrack() {

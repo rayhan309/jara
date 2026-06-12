@@ -28,6 +28,8 @@ export async function PUT(request) {
     const body = await request.json();
     const settings = normalizeSettings({
       primaryColor: body.primaryColor,
+      metaPixelId: body.metaPixelId,
+      metaPixelEnabled: body.metaPixelEnabled,
       heroBanners: body.heroBanners,
       socialLinks: body.socialLinks,
     });

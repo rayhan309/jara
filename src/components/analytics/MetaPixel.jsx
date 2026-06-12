@@ -3,25 +3,33 @@
 import { useEffect } from "react";
 import Script from "next/script";
 import { usePathname } from "next/navigation";
-import { isMetaPixelEnabled, META_PIXEL_ID, trackMetaPageView } from "@/lib/metaPixel";
+import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
+import { getMetaPixelIdFromSettings } from "@/lib/siteSettings";
+import { META_PIXEL_ID, trackMetaPageView } from "@/lib/metaPixel";
 
-function MetaPixelPageView() {
+function MetaPixelPageView({ enabled }) {
   const pathname = usePathname();
 
   useEffect(() => {
+    if (!enabled) return;
     trackMetaPageView();
-  }, [pathname]);
+  }, [pathname, enabled]);
 
   return null;
 }
 
 export default function MetaPixel() {
-  if (!isMetaPixelEnabled()) return null;
+  const settings = useStoreSettings();
+  const pixelId = getMetaPixelIdFromSettings(settings, META_PIXEL_ID);
+  const enabled = Boolean(pixelId);
+
+  if (!enabled) return null;
 
   return (
     <>
       <Script
-        id="meta-pixel"
+        key={pixelId}
+        id={`meta-pixel-${pixelId}`}
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
@@ -33,7 +41,7 @@ export default function MetaPixel() {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${META_PIXEL_ID}');
+            fbq('init', '${pixelId}');
             fbq('track', 'PageView');
           `,
         }}
@@ -43,11 +51,11 @@ export default function MetaPixel() {
           height="1"
           width="1"
           style={{ display: "none" }}
-          src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+          src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
           alt=""
         />
       </noscript>
-      <MetaPixelPageView />
+      <MetaPixelPageView enabled={enabled} />
     </>
   );
 }
