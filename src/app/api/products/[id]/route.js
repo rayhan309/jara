@@ -62,12 +62,13 @@ function parseExistingImages(value) {
 export async function GET(_request, { params }) {
   try {
     const { id } = await params;
+    const decodedId = decodeURIComponent(id);
     const products = await dbConnect(COLLECTION);
-    const objectId = parseObjectId(id);
+    const objectId = parseObjectId(decodedId);
 
     const product = objectId
       ? await products.findOne({ _id: objectId })
-      : await products.findOne({ slug: id });
+      : await products.findOne({ slug: decodedId });
 
     if (!product) {
       return NextResponse.json({ error: "Product not found." }, { status: 404 });
@@ -86,7 +87,8 @@ export async function GET(_request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const { id } = await params;
-    const objectId = parseObjectId(id);
+    const decodedId = decodeURIComponent(id);
+    const objectId = parseObjectId(decodedId);
 
     if (!objectId) {
       return NextResponse.json({ error: "Invalid product id." }, { status: 400 });

@@ -82,6 +82,14 @@ function ProductFormModal({ open, onClose, product }) {
   } = useForm({ defaultValues: emptyValues });
 
   const [slugEdited, setSlugEdited] = useState(false);
+  const [prevProduct, setPrevProduct] = useState(null);
+  const [prevOpen, setPrevOpen] = useState(false);
+
+  if (open !== prevOpen || product !== prevProduct) {
+    setPrevOpen(open);
+    setPrevProduct(product);
+    setSlugEdited(open ? Boolean(product?.slug) : false);
+  }
   const [existingImages, setExistingImages] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
@@ -96,6 +104,7 @@ function ProductFormModal({ open, onClose, product }) {
   );
 
   const titleEnValue = watch("title_en");
+  const titleBnValue = watch("title_bn");
   const titleBnField = register("title_bn", { required: "পণ্যের নাম লিখুন।" });
   const titleEnField = register("title_en", { required: "English title is required." });
   const categoryField = register("category", { required: "Please select a category." });
@@ -197,7 +206,7 @@ function ProductFormModal({ open, onClose, product }) {
     formData.append("stock_status", values.stock_status);
     formData.append("variant_type", values.variant_type);
     formData.append("variant_options", values.variant_options.trim());
-    formData.append("attribute_material", values.attribute_material.trim());
+    formData.append("attribute_material", (values.attribute_material || "").trim());
     formData.append("average_rating", values.average_rating || "0");
     formData.append("total_reviews", values.total_reviews || "0");
 
@@ -245,7 +254,6 @@ function ProductFormModal({ open, onClose, product }) {
         average_rating: String(product.ratings?.average_rating ?? "0"),
         total_reviews: String(product.ratings?.total_reviews ?? "0"),
       });
-      setSlugEdited(true);
       setExistingImages(product.images || []);
       setImageFiles([]);
       setImagePreviews([]);
@@ -258,8 +266,8 @@ function ProductFormModal({ open, onClose, product }) {
 
   useEffect(() => {
     if (!open || slugEdited) return;
-    setValue("slug", slugify(titleEnValue || ""));
-  }, [titleEnValue, slugEdited, open, setValue]);
+    setValue("slug", slugify(titleEnValue || titleBnValue || ""));
+  }, [titleEnValue, titleBnValue, slugEdited, open, setValue]);
 
   useEffect(() => {
     if (!open) return;
@@ -342,10 +350,6 @@ function ProductFormModal({ open, onClose, product }) {
                       <input
                         id="title-en"
                         {...titleEnField}
-                        onChange={(event) => {
-                          titleEnField.onChange(event);
-                          if (!slugEdited) setValue("slug", slugify(event.target.value));
-                        }}
                         placeholder="Premium Magic Mosquito Net"
                         className={inputClass}
                       />
@@ -357,8 +361,9 @@ function ProductFormModal({ open, onClose, product }) {
                         id="slug"
                         {...register("slug")}
                         onChange={(event) => {
-                          setSlugEdited(true);
-                          setValue("slug", event.target.value);
+                          const val = event.target.value;
+                          setSlugEdited(Boolean(val));
+                          setValue("slug", val);
                         }}
                         className={inputClass}
                       />
@@ -463,14 +468,10 @@ function ProductFormModal({ open, onClose, product }) {
                       ) : null}
                     </div>
                     <div>
-                      <label htmlFor="material" className={labelClass}>Material</label>
-                      <input id="material" {...register("attribute_material")} className={inputClass} />
-                    </div>
-                    <div>
                       <label htmlFor="rating" className={labelClass}>Average Rating</label>
                       <input id="rating" type="number" min="0" max="5" step="0.1" {...register("average_rating")} className={inputClass} />
                     </div>
-                    <div className="sm:col-span-2 lg:col-span-1">
+                    <div>
                       <label htmlFor="reviews" className={labelClass}>Total Reviews</label>
                       <input id="reviews" type="number" min="0" {...register("total_reviews")} className={inputClass} />
                     </div>

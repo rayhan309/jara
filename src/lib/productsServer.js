@@ -12,17 +12,19 @@ function serializeProduct(product) {
 
 export async function getProductBySlug(slug) {
   const products = await dbConnect(COLLECTION);
-  const product = await products.findOne({ slug });
+  const decoded = decodeURIComponent(slug);
+  const product = await products.findOne({ slug: decoded });
   return product ? serializeProduct(product) : null;
 }
 
 export async function getProductByIdOrSlug(idOrSlug) {
   const products = await dbConnect(COLLECTION);
-  const objectId = parseObjectId(idOrSlug);
+  const decoded = decodeURIComponent(idOrSlug);
+  const objectId = parseObjectId(decoded);
 
   const product = objectId
     ? await products.findOne({ _id: objectId })
-    : await products.findOne({ slug: idOrSlug });
+    : await products.findOne({ slug: decoded });
 
   return product ? serializeProduct(product) : null;
 }
