@@ -24,6 +24,9 @@ const supportLinks = [
 export default function Footer() {
   const settings = useStoreSettings();
   const socialLinks = getActiveSocialLinks(settings);
+  const contactPhone = settings?.contactPhone || "+8801815131040";
+  const contactEmail = settings?.contactEmail || "support@nexa.com";
+  const contactAddress = settings?.contactAddress || "ঢাকা, বাংলাদেশ";
 
   return (
     <footer className="border-t border-zinc-200 bg-white">
@@ -125,15 +128,15 @@ export default function Footer() {
             <ul className="mt-4 space-y-3">
               <li className="flex items-start gap-2.5 text-sm text-zinc-500">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
-                ঢাকা, বাংলাদেশ
+                {contactAddress}
               </li>
               <li className="flex items-center gap-2.5 text-sm text-zinc-500">
                 <Phone className="h-4 w-4 shrink-0 text-indigo-500" />
-                +8801815131040
+                {contactPhone}
               </li>
               <li className="flex items-center gap-2.5 text-sm text-zinc-500">
                 <Mail className="h-4 w-4 shrink-0 text-indigo-500" />
-                support@nexa.com
+                {contactEmail}
               </li>
             </ul>
           </motion.div>

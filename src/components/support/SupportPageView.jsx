@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { Mail, MapPin, MessageCircle, Phone, Truck } from "lucide-react";
 
-const CONTACT_PHONE = "+8801815131040";
-const CONTACT_EMAIL = "support@nexa.com";
+import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 
 const navItems = [
   { id: "contact", label: "সাপোর্টে যোগাযোগ" },
@@ -26,6 +25,10 @@ function PolicySection({ id, title, children }) {
 }
 
 export default function SupportPageView() {
+  const settings = useStoreSettings();
+  const CONTACT_PHONE = settings.contactPhone || "+8801815131040";
+  const CONTACT_EMAIL = settings.contactEmail || "support@nexa.com";
+  const CONTACT_ADDRESS = settings.contactAddress || "ঢাকা, বাংলাদেশ";
   return (
     <div className="store-container py-8 sm:py-10 lg:py-12">
       <div className="mx-auto max-w-3xl">
@@ -89,7 +92,7 @@ export default function SupportPageView() {
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600" />
                 <div>
                   <p className="text-xs font-semibold text-zinc-500">ঠিকানা</p>
-                  <p className="font-semibold text-zinc-900">ঢাকা, বাংলাদেশ</p>
+                  <p className="font-semibold text-zinc-900">{CONTACT_ADDRESS}</p>
                 </div>
               </li>
             </ul>

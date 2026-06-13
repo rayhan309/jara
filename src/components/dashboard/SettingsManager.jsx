@@ -51,6 +51,9 @@ export default function SettingsManager() {
   const [socialLinks, setSocialLinks] = useState(DEFAULT_SETTINGS.socialLinks);
   const [metaPixelId, setMetaPixelId] = useState(DEFAULT_SETTINGS.metaPixelId);
   const [metaPixelEnabled, setMetaPixelEnabled] = useState(DEFAULT_SETTINGS.metaPixelEnabled);
+  const [contactPhone, setContactPhone] = useState(DEFAULT_SETTINGS.contactPhone || "");
+  const [contactEmail, setContactEmail] = useState(DEFAULT_SETTINGS.contactEmail || "");
+  const [contactAddress, setContactAddress] = useState(DEFAULT_SETTINGS.contactAddress || "");
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
 
   useEffect(() => {
@@ -60,6 +63,9 @@ export default function SettingsManager() {
     setSocialLinks(settings.socialLinks || DEFAULT_SETTINGS.socialLinks);
     setMetaPixelId(settings.metaPixelId || "");
     setMetaPixelEnabled(Boolean(settings.metaPixelEnabled));
+    setContactPhone(settings.contactPhone || DEFAULT_SETTINGS.contactPhone || "");
+    setContactEmail(settings.contactEmail || DEFAULT_SETTINGS.contactEmail || "");
+    setContactAddress(settings.contactAddress || DEFAULT_SETTINGS.contactAddress || "");
   }, [settings]);
 
   const previewTheme = useMemo(
@@ -142,11 +148,27 @@ export default function SettingsManager() {
       return;
     }
 
+    if (!contactPhone.trim()) {
+      toast.error("যোগাযোগের ফোন নম্বর দিন");
+      return;
+    }
+    if (!contactEmail.trim()) {
+      toast.error("যোগাযোগের ইমেইল দিন");
+      return;
+    }
+    if (!contactAddress.trim()) {
+      toast.error("যোগাযোগের ঠিকানা দিন");
+      return;
+    }
+
     saveSettings(
       {
         primaryColor: normalizeHexColor(primaryColor),
         metaPixelId: cleanedPixelId,
         metaPixelEnabled,
+        contactPhone: contactPhone.trim(),
+        contactEmail: contactEmail.trim(),
+        contactAddress: contactAddress.trim(),
         heroBanners: heroBanners.map((banner) => ({
           ...banner,
           alt: banner.alt.trim(),
@@ -426,6 +448,51 @@ export default function SettingsManager() {
             ) : (
               <span>Pixel বন্ধ আছে — tracking হবে না</span>
             )}
+          </div>
+        </section>
+
+        <section className="dash-card p-5 sm:p-6 lg:col-span-2">
+          <h2 className="text-lg font-bold text-dash-text">Contact Information</h2>
+          <p className="mt-1 text-sm text-dash-muted">
+            Storefront footer, navbar, ar support page ar contact details update korun.
+          </p>
+
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="contact-phone" className="mb-1 block text-xs font-semibold text-dash-muted">Phone Number</label>
+              <input
+                id="contact-phone"
+                type="text"
+                value={contactPhone}
+                onChange={(event) => setContactPhone(event.target.value)}
+                placeholder="+8801815131040"
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="contact-email" className="mb-1 block text-xs font-semibold text-dash-muted">Email Address</label>
+              <input
+                id="contact-email"
+                type="email"
+                value={contactEmail}
+                onChange={(event) => setContactEmail(event.target.value)}
+                placeholder="support@nexa.com"
+                className={inputClass}
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label htmlFor="contact-address" className="mb-1 block text-xs font-semibold text-dash-muted">Physical Address</label>
+              <input
+                id="contact-address"
+                type="text"
+                value={contactAddress}
+                onChange={(event) => setContactAddress(event.target.value)}
+                placeholder="ঢাকা, বাংলাদেশ"
+                className={inputClass}
+              />
+            </div>
           </div>
         </section>
       </div>

@@ -16,6 +16,9 @@ export const DEFAULT_SETTINGS = {
   primaryColor: "#4f46e5",
   metaPixelId: "",
   metaPixelEnabled: false,
+  contactPhone: "+8801815131040",
+  contactEmail: "support@nexa.com",
+  contactAddress: "ঢাকা, বাংলাদেশ",
   heroBanners: [],
   socialLinks: [
     { id: "facebook", platform: "facebook", label: "Facebook", url: "", enabled: false },
@@ -140,6 +143,9 @@ export function normalizeSettings(input = {}) {
     : DEFAULT_SETTINGS.socialLinks;
   const metaPixelId = normalizeMetaPixelId(input.metaPixelId);
   const metaPixelEnabled = Boolean(input.metaPixelEnabled) && metaPixelId.length >= 10;
+  const contactPhone = String(input.contactPhone || DEFAULT_SETTINGS.contactPhone || "").trim();
+  const contactEmail = String(input.contactEmail || DEFAULT_SETTINGS.contactEmail || "").trim();
+  const contactAddress = String(input.contactAddress || DEFAULT_SETTINGS.contactAddress || "").trim();
 
   return {
     primaryColor: theme.primaryColor,
@@ -149,6 +155,9 @@ export function normalizeSettings(input = {}) {
     primaryColorBorder: theme.primaryColorBorder,
     metaPixelId,
     metaPixelEnabled,
+    contactPhone,
+    contactEmail,
+    contactAddress,
     heroBanners: normalizeHeroBanners(input.heroBanners),
     socialLinks,
   };

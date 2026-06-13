@@ -30,6 +30,9 @@ export async function PUT(request) {
       primaryColor: body.primaryColor,
       metaPixelId: body.metaPixelId,
       metaPixelEnabled: body.metaPixelEnabled,
+      contactPhone: body.contactPhone,
+      contactEmail: body.contactEmail,
+      contactAddress: body.contactAddress,
       heroBanners: body.heroBanners,
       socialLinks: body.socialLinks,
     });

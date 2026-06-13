@@ -21,8 +21,7 @@ import { useCart } from "@/hooks/useCart";
 import { useCategories } from "@/hooks/useCategories";
 import CartSidebar from "@/components/cart/CartSidebar";
 import { FaWhatsapp } from "react-icons/fa";
-
-const CONTACT_PHONE = "+8801815131040";
+import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 
 const navLinks = [
   { href: "/", label: "হোম" },
@@ -114,6 +113,9 @@ function NavbarFallback() {
 }
 
 function NavbarContent() {
+  const settings = useStoreSettings();
+  const CONTACT_PHONE = settings.contactPhone || "+8801815131040";
+  const whatsappPhone = CONTACT_PHONE.replace(/\+/g, "").trim();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeCategorySlug = searchParams.get("category");
@@ -176,7 +178,7 @@ function NavbarContent() {
                 <button
                   type="button"
                   aria-label="যোগাযোগ করুন"
-                  onClick={() => window.open(`https://wa.me/8801815131040`, "_blank")}
+                  onClick={() => window.open(`https://wa.me/${whatsappPhone}`, "_blank")}
                   className="relative flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 text-zinc-700"
                 >
                   <FaWhatsapp className="h-5 w-5" />

@@ -26,10 +26,8 @@ import { useCart } from "@/hooks/useCart";
 import { getProductMaxStock } from "@/lib/cart";
 import { getProductVariantConfig } from "@/lib/productVariants";
 import StoreProductCard from "@/components/products/StoreProductCard";
+import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import { buildProductPixelPayload, trackMetaEvent } from "@/lib/metaPixel";
-
-const CONTACT_PHONE = "+8801815131040";
-const WHATSAPP_URL = "https://wa.me/8801815131040";
 
 function RatingStars({ rating }) {
   const value = Math.min(5, Math.max(0, rating || 0));
@@ -49,6 +47,10 @@ function RatingStars({ rating }) {
 }
 
 export default function StoreProductDetailView({ product, relatedProducts = [] }) {
+  const settings = useStoreSettings();
+  const CONTACT_PHONE = settings.contactPhone || "+8801815131040";
+  const whatsappPhone = CONTACT_PHONE.replace(/\+/g, "").trim();
+  const WHATSAPP_URL = `https://wa.me/${whatsappPhone}`;
   const router = useRouter();
   const { addToCart, buyNow, removeFromCart, items } = useCart();
   const [activeImage, setActiveImage] = useState(0);
