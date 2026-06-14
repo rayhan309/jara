@@ -1,7 +1,9 @@
 export function adminFetch(url, options = {}) {
   const headers = new Headers(options.headers || {});
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
 
-  if (options.body && !headers.has("Content-Type")) {
+  if (options.body && !headers.has("Content-Type") && !isFormData) {
     headers.set("Content-Type", "application/json");
   }
 

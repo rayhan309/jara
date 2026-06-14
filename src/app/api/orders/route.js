@@ -12,6 +12,7 @@ import { revalidateAdminOrdersCache } from "@/lib/adminOrdersServer";
 import { getProductVariantConfig } from "@/lib/productVariants";
 import { applyProductStockChange, getOrderStockKey } from "@/lib/productInventoryServer";
 import { getProductMaxStock, isVariantOutOfStock } from "@/lib/variantStock";
+import { resolveProductPricing } from "@/lib/productPricing";
 import { parseObjectId } from "@/lib/mongodbHelpers";
 import { buildOrderNumberLookupFilter } from "@/lib/orderHelpers";
 
@@ -197,8 +198,9 @@ export async function POST(request) {
 
       stockUpdates.set(stockKey, totalRequested);
 
-      const salePrice = product.pricing?.sale_price ?? 0;
-      const regularPrice = product.pricing?.regular_price ?? salePrice;
+      const pricing = resolveProductPricing(product, selectedVariant);
+      const salePrice = pricing.sale_price ?? 0;
+      const regularPrice = pricing.regular_price ?? salePrice;
 
       orderLines.push({
         product_id: cartItem._id,

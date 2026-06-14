@@ -1,5 +1,14 @@
 import StoreShell from "@/components/layout/StoreShell";
 import StoreCategoriesView from "@/components/categories/StoreCategoriesView";
+import { createPageMetadata } from "@/lib/siteMetadata";
+
+export const metadata = createPageMetadata({
+  title: "ক্যাটাগরি",
+  description:
+    "Nexa Commerce-এর সকল ক্যাটাগরি দেখুন এবং আপনার পছন্দের পণ্য সহজে ব্রাউজ করুন।",
+  path: "/categories",
+  keywords: ["categories", "catalog", "ক্যাটাগরি", "পণ্যের ধরন"],
+});
 
 export default function CategoriesPage() {
   return (

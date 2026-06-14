@@ -3,9 +3,12 @@ import { requireAdminPermission } from "@/lib/adminAuthServer";
 import { PERMISSIONS } from "@/lib/adminRoles";
 import { dbConnect } from "@/lib/dbConnect";
 import imagekit from "@/lib/imagekit";
-import { calculateDiscountPercentage, parseNumber } from "@/lib/productHelpers";
 import { slugify } from "@/lib/slugify";
-import { buildProductInventory, parseVariantStockPayload } from "@/lib/variantStock";
+import {
+  buildProductDocumentFields,
+  parseProductFormData,
+  validateProductFormPayload,
+} from "@/lib/productFormServer";
 import { getProducts, revalidateProductsCache, serializeProduct } from "@/lib/productsServer";
 
 const COLLECTION = "products";
@@ -84,49 +87,12 @@ export async function POST(request) {
     }
 
     const formData = await request.formData();
-
-    const titleBn = String(formData.get("title_bn") || "").trim();
-    const titleEn = String(formData.get("title_en") || "").trim();
-    const slugInput = String(formData.get("slug") || "").trim();
-    const brandOrVendor = String(formData.get("brand_or_vendor") || "").trim();
-    const category = String(formData.get("category") || "").trim();
-    const categoryId = String(formData.get("category_id") || "").trim();
-    const categorySlug = String(formData.get("category_slug") || "").trim();
-    const description = String(formData.get("description") || "").trim();
-    const currency = String(formData.get("currency") || "BDT").trim();
-    const regularPrice = parseNumber(formData.get("regular_price"));
-    const salePrice = parseNumber(formData.get("sale_price"));
-    const quantity = parseNumber(formData.get("quantity"));
-    const stockStatus = String(formData.get("stock_status") || "in_stock").trim();
-    const attributeVariantType = String(formData.get("variant_type") || "").trim();
-    const attributeVariantOptions = String(formData.get("variant_options") || "").trim();
-    const attributeMaterial = String(formData.get("attribute_material") || "").trim();
-    const averageRating = parseNumber(formData.get("average_rating"));
-    const totalReviews = parseNumber(formData.get("total_reviews"));
-    const variantStockPayload = parseVariantStockPayload(formData.get("variant_stock"));
+    const payload = parseProductFormData(formData);
     const imageFiles = formData.getAll("images").filter((file) => typeof file !== "string");
 
-    if (!titleBn) {
-      return NextResponse.json({ error: "পণ্যের নাম প্রয়োজন।" }, { status: 400 });
-    }
-
-    if (!titleEn) {
-      return NextResponse.json({ error: "English title is required." }, { status: 400 });
-    }
-
-    if (!category) {
-      return NextResponse.json({ error: "Category is required." }, { status: 400 });
-    }
-
-    if (regularPrice <= 0) {
-      return NextResponse.json({ error: "Regular price must be greater than 0." }, { status: 400 });
-    }
-
-    if (salePrice <= 0 || salePrice > regularPrice) {
-      return NextResponse.json(
-        { error: "Sale price must be greater than 0 and less than or equal to regular price." },
-        { status: 400 }
-      );
+    const validationError = validateProductFormPayload(payload);
+    if (validationError) {
+      return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
     if (imageFiles.length === 0) {
@@ -139,7 +105,7 @@ export async function POST(request) {
       }
     }
 
-    const baseSlug = slugify(slugInput || titleEn);
+    const baseSlug = slugify(payload.slugInput || payload.titleEn);
     if (!baseSlug) {
       return NextResponse.json({ error: "A valid slug could not be generated." }, { status: 400 });
     }
@@ -148,40 +114,18 @@ export async function POST(request) {
     const slug = await ensureUniqueSlug(products, baseSlug);
     const uploadedImages = await uploadProductImages(imageFiles, slug);
     const now = new Date();
+    const sharedFields = buildProductDocumentFields(payload);
 
     const doc = {
-      title_en: titleEn,
-      title_bn: titleBn,
+      title_en: payload.titleEn,
+      title_bn: payload.titleBn,
       slug,
-      brand_or_vendor: brandOrVendor,
-      category,
-      category_id: categoryId,
-      category_slug: categorySlug,
-      description,
-      pricing: {
-        currency,
-        regular_price: regularPrice,
-        sale_price: salePrice,
-        discount_percentage: calculateDiscountPercentage(regularPrice, salePrice),
-      },
-      inventory: buildProductInventory({
-        quantity,
-        stockStatus,
-        variantType: attributeVariantType,
-        variantOptions: attributeVariantOptions,
-        variantStockPayload,
-      }),
+      brand_or_vendor: payload.brandOrVendor,
+      category: payload.category,
+      category_id: payload.categoryId,
+      category_slug: payload.categorySlug,
+      ...sharedFields,
       images: uploadedImages,
-      attributes: {
-        variant_type: attributeVariantType,
-        variant_options: attributeVariantOptions,
-        material: attributeMaterial,
-        size: attributeVariantType === "size" ? attributeVariantOptions : "",
-      },
-      ratings: {
-        average_rating: averageRating,
-        total_reviews: totalReviews,
-      },
       createdAt: now,
       updatedAt: now,
     };

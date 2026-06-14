@@ -7,12 +7,10 @@ import SiteSettingsHead from "@/components/layout/SiteSettingsHead";
 import { getCategories } from "@/lib/categoriesServer";
 import { getSiteSettings } from "@/lib/siteSettingsServer";
 import { getThemeCssProperties } from "@/lib/siteSettings";
+import { rootMetadata } from "@/lib/siteMetadata";
 import "./globals.css";
 
-export const metadata = {
-  title: "Nexa E-Commerce",
-  description: "Nexa E-Commerce — দ্রুত ডেলিভারি ও অর্ডার ট্র্যাকিং সহ অনলাইন শপিং",
-};
+export const metadata = rootMetadata;
 
 export const viewport = {
   width: "device-width",

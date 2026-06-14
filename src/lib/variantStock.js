@@ -23,7 +23,17 @@ export function normalizeVariantStockEntry(entry = {}) {
     quantity = 0;
   }
 
-  return { stock_status: stockStatus, quantity };
+  const normalized = { stock_status: stockStatus, quantity };
+
+  if (entry.regular_price != null && entry.regular_price !== "") {
+    normalized.regular_price = Math.max(0, Number(entry.regular_price) || 0);
+  }
+
+  if (entry.sale_price != null && entry.sale_price !== "") {
+    normalized.sale_price = Math.max(0, Number(entry.sale_price) || 0);
+  }
+
+  return normalized;
 }
 
 export function getVariantStockList(product) {
@@ -99,6 +109,8 @@ export function mergeVariantStockWithOptions(options = [], existingList = [], fa
 
     return {
       option,
+      regular_price: "",
+      sale_price: "",
       stock_status: defaultStatus,
       quantity: defaultStatus === "stock" ? fallbackQty : 0,
     };
@@ -113,10 +125,23 @@ export function parseVariantStockPayload(raw) {
     if (!Array.isArray(parsed)) return [];
 
     return parsed
-      .map((entry) => ({
-        option: String(entry.option || "").trim(),
-        ...normalizeVariantStockEntry(entry),
-      }))
+      .map((entry) => {
+        const normalized = normalizeVariantStockEntry(entry);
+        const result = {
+          option: String(entry.option || "").trim(),
+          ...normalized,
+        };
+
+        if (entry.regular_price != null && entry.regular_price !== "") {
+          result.regular_price = Math.max(0, Number(entry.regular_price) || 0);
+        }
+
+        if (entry.sale_price != null && entry.sale_price !== "") {
+          result.sale_price = Math.max(0, Number(entry.sale_price) || 0);
+        }
+
+        return result;
+      })
       .filter((entry) => entry.option);
   } catch {
     return [];

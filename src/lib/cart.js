@@ -1,4 +1,5 @@
-import { parseVariantOptions } from "./productVariants";
+import { parseVariantOptions, getVariantTypeLabel } from "./productVariants";
+import { resolveProductPricing } from "./productPricing";
 import {
   getProductMaxStock as resolveProductMaxStock,
   UNTRACKED_STOCK_LIMIT,
@@ -68,19 +69,22 @@ export function normalizeCartProduct(product, selectedVariant = "") {
     product.stock_status ??
     "in_stock";
 
+  const pricing = resolveProductPricing(product, selectedVariant);
+
   return {
     _id: product._id,
     slug: product.slug,
     title: product.title_bn || product.title_en || product.title,
     title_en: product.title_en,
     image: product.images?.[0]?.url || product.image || "",
-    price: product.pricing?.sale_price ?? product.price ?? 0,
-    regular_price: product.pricing?.regular_price ?? product.regular_price ?? 0,
+    price: pricing.sale_price ?? product.price ?? 0,
+    regular_price: pricing.regular_price ?? product.regular_price ?? 0,
     quantity: 1,
     max_stock: maxStock,
     stock_status: stockStatus,
     selected_variant: selectedVariant || "",
     variant_type: variantType,
+    variant_label: getVariantTypeLabel(attrs, "bn"),
     variant_options: variantOptions,
   };
 }

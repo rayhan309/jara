@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Minus, Package, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { getMaxLineQuantity } from "@/lib/cart";
+import { getVariantTypeLabel } from "@/lib/productVariants";
 import { getProductCardImageUrl } from "@/lib/imageUrl";
 
 export default function CartSidebar({ open, onClose }) {
@@ -80,7 +81,7 @@ export default function CartSidebar({ open, onClose }) {
                 <div className="flex-1 space-y-3 overflow-y-auto p-3 sm:p-4">
                   {items.map((item) => {
                     const lineTotal = item.price * item.quantity;
-                    const variantLabel = item.variant_type === "weight" ? "ওজন" : "সাইজ";
+                    const variantLabel = item.variant_label || getVariantTypeLabel({ variant_type: item.variant_type }, "bn");
                     const imageSrc = getProductCardImageUrl(item.image);
 
                     return (

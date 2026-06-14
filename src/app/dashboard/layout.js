@@ -4,11 +4,9 @@ import DashboardShell from "@/components/dashboard/DashboardShell";
 import DashboardDataProvider from "@/components/providers/DashboardDataProvider";
 import { getAdminSession } from "@/lib/adminAuthServer";
 import { getDashboardPrefetch } from "@/lib/dashboardPrefetch";
+import { adminRootMetadata } from "@/lib/siteMetadata";
 
-export const metadata = {
-  title: "Dashboard | Nexa Admin",
-  description: "Nexa E-Commerce admin dashboard",
-};
+export const metadata = adminRootMetadata;
 
 export default async function DashboardLayout({ children }) {
   const session = await getAdminSession();

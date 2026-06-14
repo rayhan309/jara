@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { getVariantTypeLabel } from "@/lib/productVariants";
 import {
   Banknote,
   ChevronDown,
@@ -59,7 +59,7 @@ function getItemVariantOptions(item, products) {
 function CheckoutItemCard({ item, items, products, onUpdateQty, onUpdateVariant, onRemove }) {
   const variantOptions = getItemVariantOptions(item, products);
   const hasVariants = variantOptions.length > 0;
-  const variantLabel = item.variant_type === "weight" ? "ওজন" : "সাইজ";
+  const variantLabel = item.variant_label || getVariantTypeLabel({ variant_type: item.variant_type }, "bn");
   const discount =
     item.regular_price > item.price
       ? Math.round(((item.regular_price - item.price) / item.regular_price) * 100)

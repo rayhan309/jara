@@ -9,12 +9,13 @@ export async function ensureMongoIndexes() {
 
   indexesPromise = (async () => {
     try {
-      const [orders, products, categories, sessions, users] = await Promise.all([
+      const [orders, products, categories, sessions, users, productAttributes] = await Promise.all([
         dbConnect("orders", { skipIndexes: true }),
         dbConnect("products", { skipIndexes: true }),
         dbConnect("categories", { skipIndexes: true }),
         dbConnect("admin_sessions", { skipIndexes: true }),
         dbConnect("admin_users", { skipIndexes: true }),
+        dbConnect("product_attributes", { skipIndexes: true }),
       ]);
 
       await Promise.all([
@@ -30,6 +31,8 @@ export async function ensureMongoIndexes() {
         sessions.createIndex({ token: 1 }, { unique: true }),
         sessions.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),
         users.createIndex({ username: 1 }, { unique: true }),
+        productAttributes.createIndex({ slug: 1 }, { unique: true }),
+        productAttributes.createIndex({ sort_order: 1 }),
       ]);
 
       indexesEnsured = true;

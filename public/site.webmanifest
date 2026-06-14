@@ -1,0 +1,13 @@
+{
+  "name": "Nexa Commerce",
+  "short_name": "Nexa",
+  "description": "বাংলাদেশের বিশ্বস্ত অনলাইন শপ — দ্রুত ডেলিভারি ও ক্যাশ অন ডেলিভারি",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "lang": "bn",
+  "categories": ["shopping", "business"]
+}

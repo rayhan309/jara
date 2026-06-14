@@ -25,6 +25,7 @@ import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
 import { getProductMaxStock } from "@/lib/cart";
 import { getProductVariantConfig } from "@/lib/productVariants";
+import { isVariableProduct, resolveProductPricing } from "@/lib/productPricing";
 import { isProductFullyOutOfStock, isVariantOutOfStock } from "@/lib/variantStock";
 import StoreProductCard from "@/components/products/StoreProductCard";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
@@ -65,9 +66,14 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
   );
   const images = product.images?.length ? product.images : [];
   const title = product.title_bn || product.title_en;
-  const salePrice = product.pricing?.sale_price || 0;
-  const regularPrice = product.pricing?.regular_price || 0;
-  const discount = product.pricing?.discount_percentage || 0;
+  const activePricing = useMemo(
+    () => resolveProductPricing(product, selectedVariant),
+    [product, selectedVariant]
+  );
+  const salePrice = activePricing.sale_price || 0;
+  const regularPrice = activePricing.regular_price || 0;
+  const discount = activePricing.discount_percentage || 0;
+  const showFromPrice = isVariableProduct(product) && !selectedVariant;
   const outOfStock = variantConfig.required
     ? selectedVariant
       ? isVariantOutOfStock(product, selectedVariant)
@@ -339,6 +345,9 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
           <div className="mt-4.5 rounded-md">
             <div className="flex flex-wrap items-end gap-3">
+              {showFromPrice ? (
+                <span className="pb-1 text-sm font-semibold text-indigo-600">থেকে</span>
+              ) : null}
               <p className="text-2xl font-bold text-zinc-900 sm:text-3xl lg:text-4xl">
                 ৳{salePrice.toLocaleString()}
               </p>

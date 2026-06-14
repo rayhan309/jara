@@ -1,3 +1,5 @@
+import { getVariantTypeLabel } from "@/lib/productVariants";
+
 export function getOrderItemKey(item) {
   return `${item.product_id}::${item.selected_variant || ""}`;
 }
@@ -103,8 +105,11 @@ export function computeStockAdjustments(oldItems = [], newItems = []) {
   return adjustments;
 }
 
-export function formatVariantDisplay(item) {
+export function formatVariantDisplay(item, product) {
   if (!item?.selected_variant) return "N/A";
-  const label = item.variant_type === "weight" ? "Weight" : "Size";
+  const label = getVariantTypeLabel(
+    product || { variant_type: item.variant_type, variant_label: item.variant_label },
+    "en"
+  );
   return `${label}: ${item.selected_variant}`;
 }

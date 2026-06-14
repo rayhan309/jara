@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createProduct,
+  fetchProduct,
   fetchProducts,
   productKeys,
   updateProduct,
@@ -15,6 +16,7 @@ export {
   createProduct,
   updateProduct,
   deleteProduct,
+  fetchProduct,
 } from "@/lib/api/products";
 
 export function useProducts(options = {}) {
@@ -35,6 +37,16 @@ export function useProductsList(options = {}) {
     ...query,
     products: query.data ?? [],
   };
+}
+
+export function useProduct(id, options = {}) {
+  return useQuery({
+    queryKey: productKeys.detail(id),
+    queryFn: () => fetchProduct(id),
+    enabled: Boolean(id),
+    staleTime: 30 * 1000,
+    ...options,
+  });
 }
 
 export function useCreateProduct() {

@@ -100,6 +100,7 @@ export function getNavItemsForRole(role) {
         pathname.startsWith("/dashboard/products") || pathname.startsWith("/dashboard/categories"),
       children: [
         { href: "/dashboard/products", label: "Products", icon: "products" },
+        { href: "/dashboard/products/attributes", label: "Attributes", icon: "attributes" },
         { href: "/dashboard/categories", label: "Categories", icon: "categories" },
       ],
     });

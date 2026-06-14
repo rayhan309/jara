@@ -10,6 +10,26 @@ export function parseVariantOptions(value) {
     .filter(Boolean);
 }
 
+const FALLBACK_LABELS = {
+  size: { bn: "সাইজ", en: "Size", placeholder: "S, M, L, XL" },
+  weight: { bn: "ওজন", en: "Weight", placeholder: "500g, 1kg, 2kg" },
+  color: { bn: "রং", en: "Color", placeholder: "Red, Blue, Green" },
+};
+
+export function getVariantTypeLabel(productOrAttrs, locale = "bn") {
+  const attrs = typeof productOrAttrs === "object" ? productOrAttrs?.attributes || productOrAttrs : null;
+  const type = attrs?.variant_type || (typeof productOrAttrs === "string" ? productOrAttrs : "");
+
+  if (locale === "bn" && attrs?.variant_label_bn) return attrs.variant_label_bn;
+  if (attrs?.variant_label) return attrs.variant_label;
+
+  const fallback = FALLBACK_LABELS[type];
+  if (fallback) return locale === "bn" ? fallback.bn : fallback.en;
+
+  if (!type) return "";
+  return type.charAt(0).toUpperCase() + type.slice(1);
+}
+
 export function getProductVariantConfig(product) {
   const attrs = product?.attributes || {};
   let type = attrs.variant_type || "";
@@ -21,19 +41,17 @@ export function getProductVariantConfig(product) {
   }
 
   const required = Boolean(type && options.length > 0);
+  const fallback = FALLBACK_LABELS[type] || {};
+  const labelBn = attrs.variant_label_bn || fallback.bn || getVariantTypeLabel(attrs, "bn");
+  const labelEn = attrs.variant_label || fallback.en || getVariantTypeLabel(attrs, "en");
 
   return {
     type,
     options,
     required,
-    label: type === "weight" ? "ওজন" : type === "size" ? "সাইজ" : "",
-    labelEn: type === "weight" ? "Weight" : "Size",
-    placeholder:
-      type === "weight"
-        ? "500g, 1kg, 2kg"
-        : type === "size"
-          ? "S, M, L, XL"
-          : "S, M, L or 500g, 1kg",
+    label: labelBn,
+    labelEn,
+    placeholder: attrs.variant_placeholder || fallback.placeholder || "Option 1, Option 2",
   };
 }
 
@@ -56,8 +74,12 @@ export function resolveProductVariant(product, selectedVariant) {
   return getDefaultProductVariant(product);
 }
 
-export function formatVariantLabel(type, value) {
+export function formatVariantLabel(productOrType, value) {
   if (!value) return "";
-  const prefix = type === "weight" ? "ওজন" : "সাইজ";
-  return `${prefix}: ${value}`;
+  const label = getVariantTypeLabel(productOrType, "bn");
+  return `${label}: ${value}`;
+}
+
+export function findProductAttribute(attributes = [], slug = "") {
+  return attributes.find((entry) => entry.slug === slug) || null;
 }

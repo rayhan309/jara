@@ -1,5 +1,14 @@
 import StoreShell from "@/components/layout/StoreShell";
 import StoreProductsView from "@/components/products/StoreProductsView";
+import { createPageMetadata } from "@/lib/siteMetadata";
+
+export const metadata = createPageMetadata({
+  title: "সকল পণ্য",
+  description:
+    "Nexa Commerce-এর সম্পূর্ণ পণ্য তালিকা। ক্যাটাগরি ও সার্চ দিয়ে সহজে পছন্দের পণ্য খুঁজে নিন।",
+  path: "/products",
+  keywords: ["products", "shop", "online store", "পণ্য", "অনলাইন দোকান"],
+});
 
 export default function ProductsPage() {
   return (

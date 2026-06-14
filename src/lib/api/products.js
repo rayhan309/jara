@@ -3,7 +3,19 @@ import { adminFetch } from "@/lib/adminFetch";
 export const productKeys = {
   all: ["products"],
   list: (filters = {}) => [...productKeys.all, "list", filters],
+  detail: (id) => [...productKeys.all, "detail", id],
 };
+
+export async function fetchProduct(id) {
+  const response = await adminFetch(`/api/products/${encodeURIComponent(id)}`);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to fetch product.");
+  }
+
+  return data.product;
+}
 
 export async function fetchProducts(filters = {}) {
   const params = new URLSearchParams();

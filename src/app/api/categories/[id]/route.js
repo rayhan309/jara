@@ -11,7 +11,7 @@ const COLLECTION = "categories";
 
 function getImageKitConfigError() {
   if (
-    !process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY ||
+    !process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || 
     !process.env.IMAGEKIT_PRIVATE_KEY ||
     !process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT
   ) {

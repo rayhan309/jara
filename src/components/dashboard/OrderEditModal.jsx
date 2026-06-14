@@ -16,6 +16,7 @@ import {
 } from "@/lib/adminOrderHelpers";
 import { DEFAULT_ORDER_STATUS, formatDisplayOrderNumber, ORDER_STATUSES } from "@/lib/orderHelpers";
 import { getDefaultProductVariant, getProductVariantConfig } from "@/lib/productVariants";
+import { resolveProductPricing } from "@/lib/productPricing";
 import { DELIVERY_OPTIONS } from "@/lib/orderValidation";
 import { mobileDashModalClass } from "@/components/shared/ResponsiveTable";
 
@@ -77,6 +78,7 @@ function mapOrderItemToDraft(item) {
 function buildProductLine(product) {
   const variantConfig = getProductVariantConfig(product);
   const selectedVariant = getDefaultProductVariant(product);
+  const pricing = resolveProductPricing(product, selectedVariant);
 
   return normalizeAdminOrderItem({
     product_id: product._id,
@@ -84,8 +86,8 @@ function buildProductLine(product) {
     title: product.title_bn || product.title_en,
     title_en: product.title_en,
     image: product.images?.[0]?.url || "",
-    price: product.pricing?.sale_price ?? 0,
-    regular_price: product.pricing?.regular_price ?? product.pricing?.sale_price ?? 0,
+    price: pricing.sale_price ?? 0,
+    regular_price: pricing.regular_price ?? pricing.sale_price ?? 0,
     quantity: 1,
     discount: 0,
     selected_variant: selectedVariant,
