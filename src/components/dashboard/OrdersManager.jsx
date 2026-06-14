@@ -4,7 +4,20 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import toast from "react-hot-toast";
-import { Copy, ExternalLink, Eye, Loader2, Pencil, Phone, ShoppingBag, Trash2, Truck, X } from "lucide-react";
+import {
+  Copy,
+  ExternalLink,
+  Eye,
+  FileText,
+  Loader2,
+  Pencil,
+  Phone,
+  ShoppingBag,
+  Tag,
+  Trash2,
+  Truck,
+  X,
+} from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import OrderEditModal from "@/components/dashboard/OrderEditModal";
 import {
@@ -40,6 +53,159 @@ import {
 
 const inputClass =
   "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
+
+const PRINT_STYLES = `
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Inter", Arial, sans-serif; color: #0f172a; }
+  h1, h2, h3, h4 { margin: 0; }
+  .muted { color: #64748b; }
+  .title { font-weight: 700; font-size: 18px; }
+  .subtitle { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #6366f1; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { padding: 6px 4px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+  th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; }
+  .totals { margin-top: 10px; font-size: 12px; }
+  .totals div { display: flex; justify-content: space-between; padding: 2px 0; }
+  .badge { display: inline-block; border: 1px solid #cbd5f5; background: #eef2ff; color: #4338ca; padding: 2px 6px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+  .divider { height: 1px; background: #e2e8f0; margin: 10px 0; }
+  .grid { display: grid; gap: 8px; }
+`;
+
+function formatCurrency(value) {
+  return `৳${Number(value || 0).toLocaleString()}`;
+}
+
+function getCourierId(order) {
+  return getSteadfastConsignmentId(order) || getSteadfastTrackingCode(order) || "";
+}
+
+function openPrintWindow({ html, title, pageSize }) {
+  const win = window.open("", "_blank", "width=920,height=720");
+  if (!win) {
+    toast.error("Popup blocked. Allow popups to print.");
+    return;
+  }
+
+  win.document.open();
+  win.document.write(`<!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>${title}</title>
+        <style>
+          @page { size: ${pageSize}; margin: 8mm; }
+          ${PRINT_STYLES}
+        </style>
+      </head>
+      <body>${html}</body>
+    </html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(() => {
+    win.print();
+  }, 300);
+}
+
+function buildInvoiceHtml(order) {
+  const orderNumber = formatDisplayOrderNumber(order.order_number);
+  const courierId = getCourierId(order);
+  const items = order.items || [];
+
+  const rows = items
+    .map(
+      (item) => `
+        <tr>
+          <td>${item.title || "-"}</td>
+          <td>${item.selected_variant || "-"}</td>
+          <td>${item.quantity || 0}</td>
+          <td>${formatCurrency(item.price)}</td>
+          <td>${formatCurrency(item.line_total)}</td>
+        </tr>
+      `
+    )
+    .join("");
+
+  return `
+    <div style="width: 148mm; min-height: 210mm;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <p class="subtitle">Invoice</p>
+          <h1 class="title">Nexa E-Commerce</h1>
+          <p class="muted" style="margin-top:4px;">Order #${orderNumber}</p>
+        </div>
+        <div style="text-align:right;">
+          <p class="muted" style="font-size:11px;">${formatOrderDate(order.createdAt)}</p>
+          ${courierId ? `<span class="badge">Courier ID: ${courierId}</span>` : ""}
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="grid" style="grid-template-columns:1fr 1fr;">
+        <div>
+          <p class="muted" style="font-size:11px; margin-bottom:4px;">Customer</p>
+          <p style="font-weight:600; margin:0;">${order.customer?.name || "-"}</p>
+          <p class="muted" style="margin:2px 0;">${order.customer?.phone || "-"}</p>
+        </div>
+        <div>
+          <p class="muted" style="font-size:11px; margin-bottom:4px;">Delivery</p>
+          <p style="margin:0;">${order.delivery?.label || "-"}</p>
+          <p class="muted" style="margin:2px 0;">${order.delivery?.area || order.customer?.delivery_area || "-"}</p>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;">
+        <p class="muted" style="font-size:11px; margin-bottom:4px;">Address</p>
+        <p style="margin:0;">${order.customer?.address || "-"}</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Variant</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+
+      <div class="totals">
+        <div><span>Subtotal</span><span>${formatCurrency(order.pricing?.subtotal)}</span></div>
+        <div><span>Delivery</span><span>${formatCurrency(order.pricing?.delivery_charge)}</span></div>
+        ${order.pricing?.discount ? `<div><span>Discount</span><span>- ${formatCurrency(order.pricing.discount)}</span></div>` : ""}
+        <div style="font-weight:700;"><span>Total</span><span>${formatOrderTotal(order)}</span></div>
+      </div>
+    </div>
+  `;
+}
+
+function buildStickerHtml(order) {
+  const orderNumber = formatDisplayOrderNumber(order.order_number);
+  const courierId = getCourierId(order);
+
+  return `
+    <div style="width: 3in; min-height: 2in; border: 1px dashed #cbd5f5; padding: 6px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <p class="subtitle" style="font-size:9px;">Sticker</p>
+          <h2 style="font-size:14px; font-weight:700; margin:2px 0;">Order #${orderNumber}</h2>
+        </div>
+        ${courierId ? `<span class="badge">Courier ID: ${courierId}</span>` : ""}
+      </div>
+      <div class="divider"></div>
+      <p style="margin:0; font-weight:600;">${order.customer?.name || "-"}</p>
+      <p class="muted" style="margin:2px 0; font-size:11px;">${order.customer?.phone || "-"}</p>
+      <p style="margin:4px 0; font-size:11px;">${order.customer?.address || "-"}</p>
+      <p class="muted" style="font-size:10px; margin-top:4px;">${order.delivery?.label || "Delivery"}</p>
+    </div>
+  `;
+}
 
 function SectionTitle({ children }) {
   return (
@@ -400,6 +566,36 @@ function OrderRowActions({
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
+      <button
+        type="button"
+        title="Print Invoice"
+        aria-label="Print Invoice"
+        onClick={() =>
+          openPrintWindow({
+            title: `Invoice ${order.order_number}`,
+            pageSize: "A5",
+            html: buildInvoiceHtml(order),
+          })
+        }
+        className={`${iconBtn} border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100`}
+      >
+        <FileText className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        title="Print Sticker"
+        aria-label="Print Sticker"
+        onClick={() =>
+          openPrintWindow({
+            title: `Sticker ${order.order_number}`,
+            pageSize: "2in 3in",
+            html: buildStickerHtml(order),
+          })
+        }
+        className={`${iconBtn} border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100`}
+      >
+        <Tag className="h-4 w-4" />
+      </button>
       {alreadySent ? (
         <>
           {consignmentId ? (

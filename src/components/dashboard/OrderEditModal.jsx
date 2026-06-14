@@ -17,7 +17,8 @@ import {
 import { DEFAULT_ORDER_STATUS, formatDisplayOrderNumber, ORDER_STATUSES } from "@/lib/orderHelpers";
 import { getDefaultProductVariant, getProductVariantConfig } from "@/lib/productVariants";
 import { resolveProductPricing } from "@/lib/productPricing";
-import { DELIVERY_OPTIONS } from "@/lib/orderValidation";
+import { buildDeliveryOptions } from "@/lib/shipping";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { mobileDashModalClass } from "@/components/shared/ResponsiveTable";
 
 const inputClass =
@@ -115,6 +116,11 @@ export default function OrderEditModal({ open, onClose, order }) {
   const [addProductId, setAddProductId] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
+  const { data: siteSettings } = useSiteSettings();
+  const deliveryOptions = useMemo(
+    () => buildDeliveryOptions(items, siteSettings),
+    [items, siteSettings]
+  );
 
   useEffect(() => {
     if (!open || !order) return;
@@ -257,12 +263,13 @@ export default function OrderEditModal({ open, onClose, order }) {
                 onChange={(event) => {
                   const method = event.target.value;
                   setDeliveryMethod(method);
-                  setShippingFee(DELIVERY_OPTIONS[method]?.charge ?? 0);
+                  const option = deliveryOptions.find((entry) => entry.id === method);
+                  setShippingFee(option?.charge ?? 0);
                 }}
                 className={inputClass}
               >
-                {Object.entries(DELIVERY_OPTIONS).map(([key, option]) => (
-                  <option key={key} value={key}>
+                {deliveryOptions.map((option) => (
+                  <option key={option.id} value={option.id}>
                     {option.label}
                   </option>
                 ))}

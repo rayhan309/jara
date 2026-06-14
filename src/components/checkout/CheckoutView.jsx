@@ -17,22 +17,18 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
+import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import { useProducts } from "@/hooks/useProducts";
 import { createOrder } from "@/lib/api/orders";
 import { getMaxLineQuantity } from "@/lib/cart";
 import {
-  DELIVERY_OPTIONS,
   normalizePhone,
   validateCustomerDetails,
 } from "@/lib/orderValidation";
 import { getProductVariantConfig } from "@/lib/productVariants";
 import { getProductCardImageUrl } from "@/lib/imageUrl";
 import { buildCartPixelPayload, trackMetaEvent } from "@/lib/metaPixel";
-
-const DELIVERY_LIST = [
-  { id: "inside_dhaka", ...DELIVERY_OPTIONS.inside_dhaka },
-  { id: "outside_dhaka", ...DELIVERY_OPTIONS.outside_dhaka },
-];
+import { buildDeliveryOptions } from "@/lib/shipping";
 
 const fieldLabelClass =
   "mb-2 block text-base font-bold text-zinc-900 sm:mb-1.5 sm:text-sm sm:font-semibold sm:text-zinc-800";
@@ -192,11 +188,12 @@ export default function CheckoutView() {
   const router = useRouter();
   const { items, updateQuantity, updateVariant, removeFromCart, clearCart } = useCart();
   const { data: products = [] } = useProducts();
+  const settings = useStoreSettings();
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [delivery, setDelivery] = useState("outside_dhaka");
+  const [delivery, setDelivery] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
 
@@ -215,8 +212,20 @@ export default function CheckoutView() {
     [items]
   );
 
+  const deliveryOptions = useMemo(
+    () => buildDeliveryOptions(items, settings),
+    [items, settings]
+  );
+
+  useEffect(() => {
+    if (!deliveryOptions.length) return;
+    if (!delivery || !deliveryOptions.some((option) => option.id === delivery)) {
+      setDelivery(deliveryOptions[0].id);
+    }
+  }, [delivery, deliveryOptions]);
+
   const deliveryCharge =
-    DELIVERY_LIST.find((option) => option.id === delivery)?.charge ?? 0;
+    deliveryOptions.find((option) => option.id === delivery)?.charge ?? 0;
   const payable = subtotal + deliveryCharge;
   const initiateCheckoutTracked = useRef(false);
 
@@ -397,7 +406,7 @@ export default function CheckoutView() {
             <div className="border-t border-zinc-100 pt-5 sm:pt-4">
               <p className={fieldLabelClass}>ডেলিভারি এরিয়া</p>
               <div className="space-y-2.5">
-                {DELIVERY_LIST.map((option) => (
+                {deliveryOptions.map((option) => (
                   <label
                     key={option.id}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3.5 transition-colors sm:rounded-md sm:px-3.5 sm:py-3 ${

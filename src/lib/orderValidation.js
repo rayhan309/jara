@@ -1,10 +1,7 @@
+import { getDeliveryAreas } from "@/lib/shipping";
+
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 const NAME_REGEX = /^[\p{L}\s.'-]{2,80}$/u;
-
-export const DELIVERY_OPTIONS = {
-  inside_dhaka: { label: "ঢাকার ভিতরে", charge: 60 },
-  outside_dhaka: { label: "ঢাকার বাহিরে", charge: 120 },
-};
 
 export function normalizePhone(raw) {
   return String(raw || "")
@@ -55,11 +52,13 @@ export function validateCustomerDetails({ name, phone, address }) {
   };
 }
 
-export function validateDeliveryMethod(delivery) {
-  if (!DELIVERY_OPTIONS[delivery]) {
+export function validateDeliveryMethod(delivery, settings) {
+  const areas = getDeliveryAreas(settings);
+  const match = areas.find((area) => area.id === delivery);
+  if (!match) {
     return { ok: false, error: "ডেলিভারি মেথড বেছে নিন" };
   }
-  return { ok: true, delivery };
+  return { ok: true, delivery, area: match };
 }
 
 export function validateOrderItems(items) {

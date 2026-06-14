@@ -48,6 +48,7 @@ export function parseProductFormData(formData) {
     description: String(formData.get("description") || "").trim(),
     currency: String(formData.get("currency") || "BDT").trim(),
     productType,
+    shippingClass: String(formData.get("shipping_class") || "").trim(),
     regularPrice: parseNumber(formData.get("regular_price")),
     salePrice: parseNumber(formData.get("sale_price")),
     quantity: parseNumber(formData.get("quantity")),
@@ -118,6 +119,7 @@ export function buildProductDocumentFields(payload) {
     }),
     attributes: {
       product_type: payload.productType,
+      shipping_class: payload.shippingClass,
       variant_type: payload.attributeVariantType,
       variant_options: payload.attributeVariantOptions,
       variant_label: payload.variantLabel,

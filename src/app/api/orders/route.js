@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/dbConnect";
 import {
-  DELIVERY_OPTIONS,
   isValidBdPhone,
   normalizePhone,
   validateCustomerDetails,
   validateDeliveryMethod,
   validateOrderItems,
 } from "@/lib/orderValidation";
+import { buildDeliveryOptions } from "@/lib/shipping";
+import { getFreshSiteSettings } from "@/lib/siteSettingsServer";
 import { revalidateAdminOrdersCache } from "@/lib/adminOrdersServer";
 import { getProductVariantConfig } from "@/lib/productVariants";
 import { applyProductStockChange, getOrderStockKey } from "@/lib/productInventoryServer";
@@ -123,7 +124,8 @@ export async function POST(request) {
       return NextResponse.json({ error: firstError }, { status: 400 });
     }
 
-    const deliveryResult = validateDeliveryMethod(delivery);
+    const settings = await getFreshSiteSettings();
+    const deliveryResult = validateDeliveryMethod(delivery, settings);
     if (!deliveryResult.ok) {
       return NextResponse.json({ error: deliveryResult.error }, { status: 400 });
     }
@@ -208,6 +210,7 @@ export async function POST(request) {
         title: product.title_bn || product.title_en,
         title_en: product.title_en,
         image: product.images?.[0]?.url || cartItem.image || "",
+        shipping_class: product.attributes?.shipping_class || "",
         price: salePrice,
         regular_price: regularPrice,
         quantity,
@@ -222,8 +225,9 @@ export async function POST(request) {
       (sum, line) => sum + Math.max(0, (line.regular_price - line.price) * line.quantity),
       0
     );
-    const deliveryInfo = DELIVERY_OPTIONS[delivery];
-    const deliveryCharge = deliveryInfo.charge;
+    const deliveryOptions = buildDeliveryOptions(orderLines, settings);
+    const selectedDelivery = deliveryOptions.find((option) => option.id === deliveryResult.delivery);
+    const deliveryCharge = selectedDelivery?.charge ?? 0;
     const total = subtotal + deliveryCharge;
 
     const now = new Date();
@@ -234,8 +238,9 @@ export async function POST(request) {
       items: orderLines,
       delivery: {
         method: delivery,
-        label: deliveryInfo.label,
+        label: deliveryResult.area?.label || selectedDelivery?.label || "Delivery",
         charge: deliveryCharge,
+        area: deliveryResult.area?.label || "",
       },
       payment: {
         method: "cod",

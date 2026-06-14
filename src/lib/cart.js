@@ -83,6 +83,7 @@ export function normalizeCartProduct(product, selectedVariant = "") {
     max_stock: maxStock,
     stock_status: stockStatus,
     selected_variant: selectedVariant || "",
+    shipping_class: attrs.shipping_class || "",
     variant_type: variantType,
     variant_label: getVariantTypeLabel(attrs, "bn"),
     variant_options: variantOptions,

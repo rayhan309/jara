@@ -8,7 +8,9 @@ import {
   validateAdminOrderItems,
 } from "@/lib/adminOrderHelpers";
 import { ALL_VALID_ORDER_STATUSES } from "@/lib/orderHelpers";
-import { DELIVERY_OPTIONS, validateCustomerDetails } from "@/lib/orderValidation";
+import { validateCustomerDetails } from "@/lib/orderValidation";
+import { getDeliveryAreas } from "@/lib/shipping";
+import { getFreshSiteSettings } from "@/lib/siteSettingsServer";
 import { parseObjectId } from "@/lib/mongodbHelpers";
 import { applyProductStockChange, parseOrderStockKey } from "@/lib/productInventoryServer";
 import { revalidateAdminOrdersCache } from "@/lib/adminOrdersServer";
@@ -161,12 +163,15 @@ export async function PUT(request, { params }) {
     }
 
     if (delivery) {
-      const deliveryInfo = delivery.method ? DELIVERY_OPTIONS[delivery.method] : null;
+      const settings = await getFreshSiteSettings();
+      const deliveryAreas = getDeliveryAreas(settings);
+      const deliveryInfo = delivery.method
+        ? deliveryAreas.find((area) => area.id === delivery.method)
+        : null;
       const deliveryCharge =
         delivery.charge ??
         pricing?.delivery_charge ??
         nextPricing.delivery_charge ??
-        deliveryInfo?.charge ??
         existing.delivery?.charge ??
         0;
 
@@ -174,7 +179,7 @@ export async function PUT(request, { params }) {
         method: delivery.method || existing.delivery?.method || "outside_dhaka",
         label: deliveryInfo?.label || existing.delivery?.label || "Delivery",
         charge: Number(deliveryCharge) || 0,
-        area: String(delivery.area || existing.delivery?.area || "").trim(),
+        area: String(delivery.area || deliveryInfo?.label || existing.delivery?.area || "").trim(),
       };
 
       if (!Array.isArray(items)) {

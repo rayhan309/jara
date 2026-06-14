@@ -1,4 +1,5 @@
 import { normalizeHeroBanners } from "@/lib/heroBanners";
+import { slugify } from "@/lib/slugify";
 
 export const SETTINGS_ID = "global";
 
@@ -24,6 +25,19 @@ export const DEFAULT_SETTINGS = {
   contactEmail: "support@nexa.com",
   contactAddress: "ঢাকা, বাংলাদেশ",
   heroBanners: [],
+  deliveryAreas: [
+    { id: "inside_dhaka", label: "ঢাকার ভিতরে" },
+    { id: "outside_dhaka", label: "ঢাকার বাহিরে" },
+  ],
+  shippingClasses: [
+    {
+      id: "standard",
+      name: "Standard",
+      description: "Default shipping class",
+      freeDelivery: false,
+      charges: { inside_dhaka: 60, outside_dhaka: 120 },
+    },
+  ],
   socialLinks: [
     { id: "facebook", platform: "facebook", label: "Facebook", url: "", enabled: false },
     { id: "instagram", platform: "instagram", label: "Instagram", url: "", enabled: false },
@@ -118,6 +132,39 @@ function normalizeSocialLink(link, index) {
   };
 }
 
+function normalizeDeliveryArea(area, index) {
+  const label = String(area?.label || "").trim();
+  const fallbackId = `area-${index + 1}`;
+  const id = String(area?.id || slugify(label) || fallbackId).trim() || fallbackId;
+
+  return {
+    id,
+    label: label || `Area ${index + 1}`,
+  };
+}
+
+function normalizeShippingClass(shippingClass, index, deliveryAreas) {
+  const name = String(shippingClass?.name || "").trim();
+  const fallbackId = `shipping-${index + 1}`;
+  const id = String(shippingClass?.id || slugify(name) || fallbackId).trim() || fallbackId;
+  const description = String(shippingClass?.description || "").trim();
+  const freeDelivery = Boolean(shippingClass?.freeDelivery);
+  const charges = deliveryAreas.reduce((acc, area) => {
+    const rawCharge = shippingClass?.charges?.[area.id];
+    const chargeValue = Math.max(0, Number(rawCharge) || 0);
+    acc[area.id] = chargeValue;
+    return acc;
+  }, {});
+
+  return {
+    id,
+    name: name || `Shipping ${index + 1}`,
+    description,
+    freeDelivery,
+    charges,
+  };
+}
+
 export function normalizeMetaPixelId(value) {
   return String(value || "").trim().replace(/\D/g, "");
 }
@@ -197,6 +244,16 @@ export function normalizeSettings(input = {}) {
   const socialLinks = Array.isArray(input.socialLinks)
     ? input.socialLinks.map(normalizeSocialLink)
     : DEFAULT_SETTINGS.socialLinks;
+  const deliveryAreas = Array.isArray(input.deliveryAreas) && input.deliveryAreas.length > 0
+    ? input.deliveryAreas.map(normalizeDeliveryArea)
+    : DEFAULT_SETTINGS.deliveryAreas;
+  const shippingClasses = Array.isArray(input.shippingClasses) && input.shippingClasses.length > 0
+    ? input.shippingClasses.map((item, index) =>
+        normalizeShippingClass(item, index, deliveryAreas)
+      )
+    : DEFAULT_SETTINGS.shippingClasses.map((item, index) =>
+        normalizeShippingClass(item, index, deliveryAreas)
+      );
   const metaPixelId = normalizeMetaPixelId(input.metaPixelId);
   const metaPixelEnabled = Boolean(input.metaPixelEnabled) && metaPixelId.length >= 10;
   const contactPhone = String(input.contactPhone || DEFAULT_SETTINGS.contactPhone || "").trim();
@@ -226,6 +283,8 @@ export function normalizeSettings(input = {}) {
     contactEmail,
     contactAddress,
     heroBanners: normalizeHeroBanners(input.heroBanners),
+    deliveryAreas,
+    shippingClasses,
     socialLinks,
   };
 }

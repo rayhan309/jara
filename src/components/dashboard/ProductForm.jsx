@@ -16,6 +16,7 @@ import {
   VARIANT_STOCK_OPTIONS,
 } from "@/lib/variantStock";
 import { useCategories } from "@/hooks/useCategories";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useProductAttributes } from "@/hooks/useProductAttributes";
 import { useCreateProduct, useUpdateProduct } from "@/hooks/useProducts";
 
@@ -38,6 +39,7 @@ const emptyValues = {
   stock_status: "in_stock",
   variant_type: "",
   variant_options: "",
+  shipping_class: "",
   average_rating: "0",
   total_reviews: "0",
 };
@@ -255,6 +257,9 @@ export default function ProductForm({ product = null }) {
   const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
   const { data: categories = [] } = useCategories();
   const { data: productAttributes = [] } = useProductAttributes();
+  const { data: siteSettings } = useSiteSettings();
+  const shippingClasses = siteSettings?.shippingClasses || [];
+  const defaultShippingClass = shippingClasses[0]?.id || "";
   const isEditing = Boolean(product);
   const isPending = isCreating || isUpdating;
 
@@ -281,6 +286,7 @@ export default function ProductForm({ product = null }) {
   const variantType = watch("variant_type");
   const variantOptionsValue = watch("variant_options");
   const stockStatus = watch("stock_status");
+  const shippingClassValue = watch("shipping_class");
   const quantity = watch("quantity");
   const titleEnValue = watch("title_en");
   const titleBnValue = watch("title_bn");
@@ -331,7 +337,7 @@ export default function ProductForm({ product = null }) {
   }
 
   function resetAll() {
-    reset(emptyValues);
+    reset({ ...emptyValues, shipping_class: defaultShippingClass });
     setSlugEdited(false);
     resetImages();
     setSubmitError("");
@@ -424,6 +430,7 @@ export default function ProductForm({ product = null }) {
     formData.append("description", values.description.trim());
     formData.append("currency", "BDT");
     formData.append("tags", JSON.stringify(tags));
+    formData.append("shipping_class", values.shipping_class || defaultShippingClass);
 
     if (isVariable) {
       formData.append("variant_stock", JSON.stringify(variantStock));
@@ -485,6 +492,7 @@ export default function ProductForm({ product = null }) {
       brand_or_vendor: product.brand_or_vendor || "",
       category: product.category || "",
       description: product.description || "",
+      shipping_class: product.attributes?.shipping_class || defaultShippingClass,
       regular_price: String(product.pricing?.regular_price ?? ""),
       sale_price: String(product.pricing?.sale_price ?? ""),
       quantity: String(product.inventory?.quantity ?? ""),
@@ -510,6 +518,14 @@ export default function ProductForm({ product = null }) {
     );
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [product, reset]);
+
+  useEffect(() => {
+    if (product) return;
+    if (!defaultShippingClass) return;
+    if (!shippingClassValue) {
+      setValue("shipping_class", defaultShippingClass);
+    }
+  }, [defaultShippingClass, product, setValue, shippingClassValue]);
 
   useEffect(() => {
     if (!isVariable || !variantType) {
@@ -887,6 +903,27 @@ export default function ProductForm({ product = null }) {
                       ))}
                     </select>
                     <FieldError message={errors.category?.message} />
+                  </div>
+                  <div>
+                    <label htmlFor="shipping-class" className={labelClass}>Shipping Class</label>
+                    <select
+                      id="shipping-class"
+                      {...register("shipping_class")}
+                      className={inputClass}
+                    >
+                      {shippingClasses.length === 0 ? (
+                        <option value="">No shipping class</option>
+                      ) : (
+                        <>
+                          <option value="">Select shipping class</option>
+                          {shippingClasses.map((shipping) => (
+                            <option key={shipping.id} value={shipping.id}>
+                              {shipping.name}
+                            </option>
+                          ))}
+                        </>
+                      )}
+                    </select>
                   </div>
                   <div>
                     <label className={labelClass}>
