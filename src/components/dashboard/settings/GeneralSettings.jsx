@@ -37,11 +37,21 @@ function createSocialLink(platform = "facebook") {
 export default function GeneralSettings() {
   const { settings, isLoading, isError, error, refetch, save, isPending } = useSettingsEditor();
   const [primaryColor, setPrimaryColor] = useState(DEFAULT_SETTINGS.primaryColor);
+  const [shopShortDescription, setShopShortDescription] = useState(
+    DEFAULT_SETTINGS.shopShortDescription
+  );
+  const [shopTagline, setShopTagline] = useState(DEFAULT_SETTINGS.shopTagline);
+  const [copyrightText, setCopyrightText] = useState(DEFAULT_SETTINGS.copyrightText);
   const [socialLinks, setSocialLinks] = useState(DEFAULT_SETTINGS.socialLinks);
 
   useEffect(() => {
     if (!settings) return;
     setPrimaryColor(settings.primaryColor);
+    setShopShortDescription(
+      settings.shopShortDescription || DEFAULT_SETTINGS.shopShortDescription
+    );
+    setShopTagline(settings.shopTagline || DEFAULT_SETTINGS.shopTagline);
+    setCopyrightText(settings.copyrightText || DEFAULT_SETTINGS.copyrightText);
     setSocialLinks(settings.socialLinks || DEFAULT_SETTINGS.socialLinks);
   }, [settings]);
 
@@ -80,6 +90,9 @@ export default function GeneralSettings() {
 
     save({
       primaryColor: normalizeHexColor(primaryColor),
+      shopShortDescription: shopShortDescription.trim(),
+      shopTagline: shopTagline.trim(),
+      copyrightText: copyrightText.trim(),
       socialLinks: socialLinks.map((link) => ({
         ...link,
         url: link.url.trim(),
@@ -169,6 +182,49 @@ export default function GeneralSettings() {
               >
                 Soft Badge
               </span>
+            </div>
+          </div>
+        </section>
+
+        <section className="dash-card p-5 sm:p-6">
+          <h2 className="text-lg font-bold text-dash-text">Shop Content</h2>
+          <p className="mt-1 text-sm text-dash-muted">
+            Footer er short description, tagline ar copyright text edit korun.
+          </p>
+          <div className="mt-4 space-y-4">
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-dash-muted">
+                Short Description
+              </label>
+              <textarea
+                rows={3}
+                value={shopShortDescription}
+                onChange={(event) => setShopShortDescription(event.target.value)}
+                className={`${inputClass} resize-none`}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-dash-muted">Tagline</label>
+              <input
+                value={shopTagline}
+                onChange={(event) => setShopTagline(event.target.value)}
+                className={inputClass}
+                placeholder="আধুনিক ই-কমার্সের জন্য তৈরি"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-dash-muted">
+                Copyright Text
+              </label>
+              <input
+                value={copyrightText}
+                onChange={(event) => setCopyrightText(event.target.value)}
+                className={inputClass}
+                placeholder="© {year} Nexa. সর্বস্বত্ব সংরক্ষিত।"
+              />
+              <p className="mt-1 text-[11px] text-dash-muted">
+                {`{year}`} লিখলে বর্তমান বছর auto বসবে।
+              </p>
             </div>
           </div>
         </section>

@@ -14,6 +14,9 @@ export const SOCIAL_PLATFORMS = [
 ];
 
 export const DEFAULT_SETTINGS = {
+  shopShortDescription: "আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। মানসম্মত পণ্য, দ্রুত ডেলিভারি এবং সহজ অর্ডার ট্র্যাকিং।",
+  shopTagline: "আধুনিক ই-কমার্সের জন্য তৈরি",
+  copyrightText: "© {year} Nexa. সর্বস্বত্ব সংরক্ষিত।",
   primaryColor: "#4f46e5",
   metaPixelId: "",
   metaPixelEnabled: false,
@@ -239,6 +242,13 @@ export function sanitizePublicSettings(settings) {
 }
 
 export function normalizeSettings(input = {}) {
+  const shopShortDescription = String(
+    input.shopShortDescription || DEFAULT_SETTINGS.shopShortDescription || ""
+  ).trim();
+  const shopTagline = String(input.shopTagline || DEFAULT_SETTINGS.shopTagline || "").trim();
+  const copyrightText = String(
+    input.copyrightText || DEFAULT_SETTINGS.copyrightText || ""
+  ).trim();
   const primaryColor = normalizeHexColor(input.primaryColor);
   const theme = deriveThemeColors(primaryColor);
   const socialLinks = Array.isArray(input.socialLinks)
@@ -273,6 +283,9 @@ export function normalizeSettings(input = {}) {
     primaryColorDark: theme.primaryColorDark,
     primaryColorSoft: theme.primaryColorSoft,
     primaryColorBorder: theme.primaryColorBorder,
+    shopShortDescription,
+    shopTagline,
+    copyrightText,
     metaPixelId,
     metaPixelEnabled,
     steadfastBaseUrl,

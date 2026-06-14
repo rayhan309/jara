@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import toast from "react-hot-toast";
 import {
@@ -50,6 +51,7 @@ import {
   ORDER_DATE_FILTERS,
   ORDER_STATUSES,
 } from "@/lib/orderHelpers";
+import { normalizePhone } from "@/lib/orderValidation";
 
 const inputClass =
   "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
@@ -610,19 +612,6 @@ function OrderRowActions({
               <span className="truncate">{consignmentId}</span>
             </button>
           ) : null}
-          {trackingUrl ? (
-            <a
-              href={trackingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Steadfast tracking খুলুন"
-              aria-label="Steadfast tracking খুলুন"
-              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-indigo-200 bg-indigo-50 px-2.5 text-[11px] font-semibold text-indigo-700 transition-colors hover:bg-indigo-100"
-            >
-              <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-              <span>Tracking</span>
-            </a>
-          ) : null}
         </>
       ) : (
         <button
@@ -676,7 +665,21 @@ function OrderRowActions({
   );
 }
 
-export default function OrdersManager() {
+function RepeatCustomerBadge({ phone, count }) {
+  if (!phone || count < 2) return null;
+
+  return (
+    <Link
+      href={`/dashboard/reports/repeat-customers?phone=${encodeURIComponent(phone)}`}
+      className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600 hover:bg-red-100"
+      title="Repeat customer report"
+    >
+      Repeat customer
+    </Link>
+  );
+}
+
+export default function OrdersManager({ initialSearch = "" }) {
   const { data: orders = [], isLoading, isError, error, refetch } = useAdminOrders();
   const { mutate: deleteOrder, isPending: isDeleting, variables: deletingId } = useDeleteAdminOrder();
   const { mutateAsync: sendToSteadfast } = useSendOrderToSteadfast();
@@ -688,10 +691,31 @@ export default function OrdersManager() {
   const [dateFilter, setDateFilter] = useState("lifetime");
   const [customDateFrom, setCustomDateFrom] = useState("");
   const [customDateTo, setCustomDateTo] = useState("");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch);
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [courierOrderId, setCourierOrderId] = useState(null);
   const [bulkCourierLoading, setBulkCourierLoading] = useState(false);
+
+  useEffect(() => {
+    if (initialSearch !== undefined) {
+      setSearch(initialSearch);
+    }
+  }, [initialSearch]);
+
+  const repeatCustomerMap = useMemo(() => {
+    const map = new Map();
+    orders.forEach((order) => {
+      const phone = normalizePhone(order.customer?.phone || "");
+      if (!phone) return;
+      map.set(phone, (map.get(phone) || 0) + 1);
+    });
+    return map;
+  }, [orders]);
+
+  function getRepeatCount(phone) {
+    const normalized = normalizePhone(phone || "");
+    return normalized ? repeatCustomerMap.get(normalized) || 0 : 0;
+  }
 
   const dateRange = useMemo(
     () => getOrderDateRange(dateFilter, customDateFrom, customDateTo),
@@ -1015,7 +1039,18 @@ export default function OrdersManager() {
                         <OrderStatusBadge status={order.status} />
                       </div>
                       <div className="mt-3 space-y-2">
-                        <MobileDashRow label="Customer" value={order.customer?.name} />
+                        <div className="flex items-start justify-between gap-3 text-sm">
+                          <span className="shrink-0 text-dash-muted">Customer</span>
+                          <span className="min-w-0 text-right font-medium break-words text-dash-text">
+                            <span className="block">{order.customer?.name}</span>
+                            <span className="mt-1 inline-flex justify-end">
+                              <RepeatCustomerBadge
+                                phone={order.customer?.phone}
+                                count={getRepeatCount(order.customer?.phone)}
+                              />
+                            </span>
+                          </span>
+                        </div>
                         <div>
                           <p className="text-[10px] font-semibold tracking-wide text-dash-muted uppercase">
                             Phone
@@ -1091,7 +1126,13 @@ export default function OrdersManager() {
                       #{formatDisplayOrderNumber(order.order_number)}
                     </td>
                     <td className="px-4 py-3">
-                      <p className="font-semibold text-dash-text">{order.customer?.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-dash-text">{order.customer?.name}</p>
+                        <RepeatCustomerBadge
+                          phone={order.customer?.phone}
+                          count={getRepeatCount(order.customer?.phone)}
+                        />
+                      </div>
                       <div className="mt-1">
                         <CustomerPhoneActions phone={order.customer?.phone} />
                       </div>

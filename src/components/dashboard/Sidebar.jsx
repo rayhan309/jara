@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ChevronDown,
+  BarChart3,
   ImageIcon,
   Layers,
   LayoutDashboard,
@@ -36,6 +37,7 @@ const ICONS = {
   categories: Layers,
   customers: Users,
   settings: Settings,
+  reports: BarChart3,
   palette: Palette,
   target: Target,
   truck: Truck,

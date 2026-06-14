@@ -27,11 +27,18 @@ export async function POST(request) {
     let configOverride = null;
 
     if (apiKey) {
+      const collection = await dbConnect(COLLECTION);
+      const existing = await collection.findOne({ _id: SETTINGS_ID });
+      const existingApiKey = String(existing?.steadfastApiKey || "").trim();
       let secretKey = secretKeyInput;
 
       if (!secretKey) {
-        const collection = await dbConnect(COLLECTION);
-        const existing = await collection.findOne({ _id: SETTINGS_ID });
+        if (existingApiKey && existingApiKey !== apiKey) {
+          return NextResponse.json(
+            { error: "নতুন API Key টেস্ট করতে Secret Key দিন।" },
+            { status: 400 }
+          );
+        }
         secretKey = String(existing?.steadfastSecretKey || "").trim();
       }
 

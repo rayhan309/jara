@@ -33,8 +33,20 @@ export async function PUT(request) {
     const body = await request.json();
     const collection = await dbConnect(COLLECTION);
     const existing = await collection.findOne({ _id: SETTINGS_ID });
-    const steadfastSecretKey = String(body.steadfastSecretKey || "").trim()
-      ? String(body.steadfastSecretKey).trim()
+    const incomingApiKey = String(body.steadfastApiKey ?? "").trim();
+    const existingApiKey = String(existing?.steadfastApiKey || "").trim();
+    const apiKeyChanged = Boolean(incomingApiKey && incomingApiKey !== existingApiKey);
+    const incomingSecretKey = String(body.steadfastSecretKey || "").trim();
+
+    if (apiKeyChanged && !incomingSecretKey) {
+      return NextResponse.json(
+        { error: "নতুন Steadfast API Key দিলে Secret Key দিন।" },
+        { status: 400 }
+      );
+    }
+
+    const steadfastSecretKey = incomingSecretKey
+      ? incomingSecretKey
       : String(existing?.steadfastSecretKey || "").trim();
     const steadfastApiKey = String(body.steadfastApiKey ?? existing?.steadfastApiKey ?? "").trim();
     const steadfastBaseUrl = body.steadfastBaseUrl ?? existing?.steadfastBaseUrl;
@@ -45,6 +57,9 @@ export async function PUT(request) {
 
     const settings = normalizeSettings({
       primaryColor: body.primaryColor,
+      shopShortDescription: body.shopShortDescription,
+      shopTagline: body.shopTagline,
+      copyrightText: body.copyrightText,
       metaPixelId: body.metaPixelId,
       metaPixelEnabled: body.metaPixelEnabled,
       steadfastBaseUrl,
@@ -56,6 +71,8 @@ export async function PUT(request) {
       contactAddress: body.contactAddress,
       heroBanners: body.heroBanners,
       socialLinks: body.socialLinks,
+      deliveryAreas: body.deliveryAreas,
+      shippingClasses: body.shippingClasses,
     });
 
     const now = new Date();

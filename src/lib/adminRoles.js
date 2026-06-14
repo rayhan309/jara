@@ -18,6 +18,7 @@ export const PERMISSIONS = {
   SETTINGS: "settings",
   USERS: "users",
   ACCOUNT: "account",
+  REPORTS: "reports",
 };
 
 const ROLE_PERMISSIONS = {
@@ -28,7 +29,7 @@ const ROLE_PERMISSIONS = {
     PERMISSIONS.CUSTOMERS,
     PERMISSIONS.ACCOUNT,
   ],
-  [ADMIN_ROLES.MODERATOR]: [PERMISSIONS.ORDERS, PERMISSIONS.ACCOUNT],
+  [ADMIN_ROLES.MODERATOR]: [PERMISSIONS.ORDERS, PERMISSIONS.REPORTS, PERMISSIONS.ACCOUNT],
 };
 
 export function getRoleLabel(role) {
@@ -60,6 +61,10 @@ export function canAccessDashboardPath(role, pathname) {
 
   if (pathname.startsWith("/dashboard/orders")) {
     return hasPermission(role, PERMISSIONS.ORDERS);
+  }
+
+  if (pathname.startsWith("/dashboard/reports")) {
+    return hasPermission(role, PERMISSIONS.REPORTS) || hasPermission(role, PERMISSIONS.ORDERS);
   }
 
   if (
@@ -123,6 +128,22 @@ export function getNavItemsForRole(role) {
         { href: "/dashboard/settings/shipping", label: "Shipping", icon: "truck" },
         { href: "/dashboard/settings/contact", label: "Contact", icon: "mail" },
         { href: "/dashboard/settings/banners", label: "Hero Banners", icon: "image" },
+      ],
+    });
+  }
+
+  if (hasPermission(role, PERMISSIONS.REPORTS) || hasPermission(role, PERMISSIONS.ORDERS)) {
+    items.push({
+      type: "group",
+      label: "Reports",
+      icon: "reports",
+      match: (pathname) => pathname.startsWith("/dashboard/reports"),
+      children: [
+        {
+          href: "/dashboard/reports/repeat-customers",
+          label: "Repeat Customers",
+          icon: "reports",
+        },
       ],
     });
   }

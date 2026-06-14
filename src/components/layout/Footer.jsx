@@ -10,7 +10,7 @@ import { getActiveSocialLinks, getSocialIcon } from "@/lib/socialLinks";
 const quickLinks = [
   { href: "/", label: "হোম" },
   { href: "/orders-traking", label: "অর্ডার ট্র্যাক" },
-  { href: "/thankyou", label: "ধন্যবাদ" },
+  // { href: "/thankyou", label: "ধন্যবাদ" },
   // { href: "/admin/login", label: "অ্যাডমিন লগইন" },
 ];
 
@@ -27,6 +27,12 @@ export default function Footer() {
   const contactPhone = settings?.contactPhone || "+8801815131040";
   const contactEmail = settings?.contactEmail || "support@nexa.com";
   const contactAddress = settings?.contactAddress || "ঢাকা, বাংলাদেশ";
+  const shortDescription =
+    settings?.shopShortDescription ||
+    "আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। মানসম্মত পণ্য, দ্রুত ডেলিভারি এবং সহজ অর্ডার ট্র্যাকিং।";
+  const tagline = settings?.shopTagline || "আধুনিক ই-কমার্সের জন্য তৈরি";
+  const copyrightText = settings?.copyrightText || "© {year} Nexa. সর্বস্বত্ব সংরক্ষিত।";
+  const renderedCopyright = copyrightText.replace("{year}", new Date().getFullYear());
 
   return (
     <footer className="border-t border-zinc-200 bg-white">
@@ -46,8 +52,7 @@ export default function Footer() {
               <span className="text-lg font-bold text-zinc-900">Nexa</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-zinc-500">
-              আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। মানসম্মত পণ্য, দ্রুত ডেলিভারি
-              এবং সহজ অর্ডার ট্র্যাকিং।
+              {shortDescription}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {socialLinks.length > 0 ? (
@@ -151,7 +156,7 @@ export default function Footer() {
             viewport={{ once: true }}
             className="text-xs text-zinc-400"
           >
-            © {new Date().getFullYear()} Nexa. সর্বস্বত্ব সংরক্ষিত।
+            {renderedCopyright}
           </motion.p>
           <motion.p
             initial={{ opacity: 0 }}
@@ -160,7 +165,7 @@ export default function Footer() {
             transition={{ delay: 0.1 }}
             className="text-xs text-zinc-400"
           >
-            আধুনিক ই-কমার্সের জন্য তৈরি
+            {tagline}
           </motion.p>
         </div>
       </div>
