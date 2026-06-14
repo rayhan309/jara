@@ -11,7 +11,7 @@ const quickLinks = [
   { href: "/", label: "হোম" },
   { href: "/orders-traking", label: "অর্ডার ট্র্যাক" },
   { href: "/thankyou", label: "ধন্যবাদ" },
-  { href: "/admin/login", label: "অ্যাডমিন লগইন" },
+  // { href: "/admin/login", label: "অ্যাডমিন লগইন" },
 ];
 
 const supportLinks = [
