@@ -29,6 +29,14 @@ export function useProducts(options = {}) {
   });
 }
 
+export function useProductsList(options = {}) {
+  const query = useProducts(options);
+  return {
+    ...query,
+    products: query.data ?? [],
+  };
+}
+
 export function useCreateProduct() {
   const queryClient = useQueryClient();
 

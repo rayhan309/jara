@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdminPermission } from "@/lib/adminAuthServer";
 import { PERMISSIONS } from "@/lib/adminRoles";
+import { revalidateCategoriesCache } from "@/lib/categoriesServer";
 import { dbConnect } from "@/lib/dbConnect";
 import { serializeCategory, sortCategoriesList } from "@/lib/categorySort";
 import { parseObjectId } from "@/lib/mongodbHelpers";
@@ -38,6 +39,8 @@ export async function PATCH(request) {
     await categories.bulkWrite(operations);
 
     const list = await categories.find({}).toArray();
+
+    revalidateCategoriesCache();
 
     return NextResponse.json({
       success: true,

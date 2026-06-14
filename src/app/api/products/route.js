@@ -3,59 +3,12 @@ import { requireAdminPermission } from "@/lib/adminAuthServer";
 import { PERMISSIONS } from "@/lib/adminRoles";
 import { dbConnect } from "@/lib/dbConnect";
 import imagekit from "@/lib/imagekit";
-import { parseObjectId } from "@/lib/mongodbHelpers";
 import { calculateDiscountPercentage, parseNumber } from "@/lib/productHelpers";
 import { slugify } from "@/lib/slugify";
 import { buildProductInventory, parseVariantStockPayload } from "@/lib/variantStock";
+import { getProducts, revalidateProductsCache, serializeProduct } from "@/lib/productsServer";
 
 const COLLECTION = "products";
-const CATEGORIES_COLLECTION = "categories";
-
-function escapeRegex(value) {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-async function buildProductFilter(search, categoryId) {
-  const conditions = [];
-
-  if (categoryId && categoryId !== "all") {
-    const categoryConditions = [{ category_id: categoryId }];
-    const objectId = parseObjectId(categoryId);
-
-    if (objectId) {
-      const categories = await dbConnect(CATEGORIES_COLLECTION);
-      const category = await categories.findOne({ _id: objectId });
-
-      if (category?.name) {
-        categoryConditions.push({ category: category.name });
-      }
-
-      if (category?.slug) {
-        categoryConditions.push({ category_slug: category.slug });
-      }
-    }
-
-    conditions.push({ $or: categoryConditions });
-  }
-
-  const term = search?.trim();
-  if (term) {
-    const regex = new RegExp(escapeRegex(term), "i");
-    conditions.push({
-      $or: [
-        { title_en: regex },
-        { title_bn: regex },
-        { brand_or_vendor: regex },
-        { slug: regex },
-        { category: regex },
-      ],
-    });
-  }
-
-  if (!conditions.length) return {};
-  if (conditions.length === 1) return conditions[0];
-  return { $and: conditions };
-}
 
 function getImageKitConfigError() {
   if (
@@ -103,26 +56,16 @@ async function uploadProductImages(imageFiles, slug) {
   return uploads;
 }
 
-function serializeProduct(product) {
-  return {
-    ...product,
-    _id: product._id.toString(),
-  };
-}
-
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category") || "all";
-    const filter = await buildProductFilter(search, category);
-
-    const products = await dbConnect(COLLECTION);
-    const list = await products.find(filter).sort({ createdAt: -1 }).toArray();
+    const products = await getProducts({ search, category });
 
     return NextResponse.json({
       success: true,
-      products: list.map(serializeProduct),
+      products,
     });
   } catch (error) {
     console.error("GET /api/products error:", error);
@@ -244,6 +187,8 @@ export async function POST(request) {
     };
 
     const result = await products.insertOne(doc);
+
+    revalidateProductsCache();
 
     return NextResponse.json(
       {

@@ -11,6 +11,7 @@ import { ALL_VALID_ORDER_STATUSES } from "@/lib/orderHelpers";
 import { DELIVERY_OPTIONS, validateCustomerDetails } from "@/lib/orderValidation";
 import { parseObjectId } from "@/lib/mongodbHelpers";
 import { applyProductStockChange, parseOrderStockKey } from "@/lib/productInventoryServer";
+import { revalidateAdminOrdersCache } from "@/lib/adminOrdersServer";
 import { getProductMaxStock } from "@/lib/variantStock";
 
 const ORDERS_COLLECTION = "orders";
@@ -206,6 +207,8 @@ export async function PUT(request, { params }) {
     await ordersCol.updateOne({ _id: objectId }, { $set: updates });
     const order = await ordersCol.findOne({ _id: objectId });
 
+    revalidateAdminOrdersCache();
+
     return NextResponse.json({ success: true, order: serializeOrder(order) });
   } catch (error) {
     console.error("PUT /api/admin/orders/[id] error:", error);
@@ -245,6 +248,8 @@ export async function DELETE(request, { params }) {
     }
 
     await ordersCol.deleteOne({ _id: objectId });
+
+    revalidateAdminOrdersCache();
 
     return NextResponse.json({ success: true, id });
   } catch (error) {

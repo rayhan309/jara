@@ -9,6 +9,12 @@ import {
   sendOrderToSteadfast,
   updateAdminOrder,
 } from "@/lib/api/adminOrders";
+import { adminCustomerKeys, dashboardSummaryKeys } from "@/lib/api/dashboard";
+
+function invalidateDashboardCaches(queryClient) {
+  queryClient.invalidateQueries({ queryKey: dashboardSummaryKeys.all });
+  queryClient.invalidateQueries({ queryKey: adminCustomerKeys.all });
+}
 
 export function useAdminOrders(options = {}) {
   return useQuery({
@@ -17,6 +23,14 @@ export function useAdminOrders(options = {}) {
     staleTime: 30 * 1000,
     ...options,
   });
+}
+
+export function useAdminOrdersList(options = {}) {
+  const query = useAdminOrders(options);
+  return {
+    ...query,
+    orders: query.data ?? [],
+  };
 }
 
 export function useUpdateAdminOrder() {
@@ -28,6 +42,7 @@ export function useUpdateAdminOrder() {
       queryClient.setQueryData(adminOrderKeys.list(), (current = []) =>
         current.map((item) => (item._id === order._id ? order : item))
       );
+      invalidateDashboardCaches(queryClient);
     },
   });
 }
@@ -41,6 +56,7 @@ export function useDeleteAdminOrder() {
       queryClient.setQueryData(adminOrderKeys.list(), (current = []) =>
         current.filter((item) => item._id !== id)
       );
+      invalidateDashboardCaches(queryClient);
     },
   });
 }
@@ -59,6 +75,7 @@ export function useSendOrderToSteadfast() {
       queryClient.setQueryData(adminOrderKeys.list(), (current = []) =>
         current.map((item) => (item._id === order._id ? order : item))
       );
+      invalidateDashboardCaches(queryClient);
     },
   });
 }
@@ -78,6 +95,7 @@ export function useSendBulkOrdersToSteadfast() {
       queryClient.setQueryData(adminOrderKeys.list(), (current = []) =>
         mergeOrdersIntoList(current, updatedOrders)
       );
+      invalidateDashboardCaches(queryClient);
     },
   });
 }

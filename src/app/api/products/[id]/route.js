@@ -7,6 +7,7 @@ import { calculateDiscountPercentage, parseNumber } from "@/lib/productHelpers";
 import { ensureUniqueSlug, parseObjectId } from "@/lib/mongodbHelpers";
 import { slugify } from "@/lib/slugify";
 import { buildProductInventory, parseVariantStockPayload } from "@/lib/variantStock";
+import { revalidateProductsCache, serializeProduct } from "@/lib/productsServer";
 
 const COLLECTION = "products";
 
@@ -42,13 +43,6 @@ async function uploadProductImages(imageFiles, slug) {
   }
 
   return uploads;
-}
-
-function serializeProduct(product) {
-  return {
-    ...product,
-    _id: product._id.toString(),
-  };
 }
 
 function parseExistingImages(value) {
@@ -220,6 +214,8 @@ export async function PUT(request, { params }) {
 
     await products.updateOne({ _id: objectId }, { $set: updateDoc });
 
+    revalidateProductsCache();
+
     return NextResponse.json({
       success: true,
       product: serializeProduct({ ...existing, ...updateDoc, _id: objectId }),
@@ -251,6 +247,8 @@ export async function DELETE(request, { params }) {
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Product not found." }, { status: 404 });
     }
+
+    revalidateProductsCache();
 
     return NextResponse.json({ success: true, id });
   } catch (error) {

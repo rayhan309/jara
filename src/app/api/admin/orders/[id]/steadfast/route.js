@@ -4,6 +4,7 @@ import { PERMISSIONS } from "@/lib/adminRoles";
 import { dbConnect } from "@/lib/dbConnect";
 import { parseObjectId } from "@/lib/mongodbHelpers";
 import { createSteadfastOrder } from "@/lib/steadfastCourier";
+import { revalidateAdminOrdersCache } from "@/lib/adminOrdersServer";
 
 const ORDERS_COLLECTION = "orders";
 
@@ -63,6 +64,8 @@ export async function POST(request, { params }) {
     );
 
     const updated = await ordersCol.findOne({ _id: objectId });
+
+    revalidateAdminOrdersCache();
 
     return NextResponse.json({
       success: true,

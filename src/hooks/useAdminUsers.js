@@ -15,6 +15,7 @@ export function useAdminUsers() {
   return useQuery({
     queryKey: adminUserKeys.list(),
     queryFn: fetchAdminUsers,
+    staleTime: 60 * 1000,
   });
 }
 
@@ -46,6 +47,7 @@ export function useAdminProfile() {
   return useQuery({
     queryKey: ["admin-profile"],
     queryFn: fetchAdminProfile,
+    staleTime: 60 * 1000,
   });
 }
 

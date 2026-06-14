@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -25,15 +24,8 @@ import {
   MobileDashCard,
   MobileDashRow,
 } from "@/components/shared/ResponsiveTable";
-import { useAdminOrders } from "@/hooks/useAdminOrders";
-import { useProducts } from "@/hooks/useProducts";
-import {
-  buildDashboardStats,
-  buildMonthlyChartData,
-  buildRecentActivities,
-  formatCurrency,
-  formatRelativeTime,
-} from "@/lib/dashboardStats";
+import { useDashboardSummary } from "@/hooks/useDashboard";
+import { formatCurrency, formatRelativeTime } from "@/lib/dashboardStats";
 import {
   formatDisplayOrderNumber,
   getOrderStatusClass,
@@ -84,15 +76,22 @@ function SectionHeader({ title, subtitle, action }) {
 }
 
 export default function DashboardOverview() {
-  const { data: orders = [], isLoading: ordersLoading } = useAdminOrders();
-  const { data: products = [], isLoading: productsLoading } = useProducts();
+  const { data, isLoading } = useDashboardSummary();
 
-  const isLoading = ordersLoading || productsLoading;
-
-  const stats = useMemo(() => buildDashboardStats(orders, products), [orders, products]);
-  const chartData = useMemo(() => buildMonthlyChartData(orders), [orders]);
-  const activities = useMemo(() => buildRecentActivities(orders, products), [orders, products]);
-  const recentOrders = useMemo(() => orders.slice(0, 5), [orders]);
+  const stats = data?.stats || {
+    totalRevenue: 0,
+    totalOrders: 0,
+    pendingOrders: 0,
+    deliveredOrders: 0,
+    totalProducts: 0,
+    lowStockProducts: 0,
+    outOfStock: 0,
+    uniqueCustomers: 0,
+    avgOrderValue: 0,
+  };
+  const chartData = data?.chartData || [];
+  const activities = data?.activities || [];
+  const recentOrders = data?.recentOrders || [];
 
   if (isLoading) {
     return (

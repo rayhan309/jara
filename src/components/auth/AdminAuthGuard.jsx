@@ -8,7 +8,7 @@ import { fetchAdminProfile } from "@/lib/api/adminUsers";
 import { getAdminAuth, setAdminAuth, clearAdminAuth, isAdminAuthenticated } from "@/lib/auth";
 import { getDefaultDashboardPath } from "@/lib/adminRoles";
 
-export default function AdminAuthGuard({ children }) {
+export default function AdminAuthGuard({ children, initialProfile = null }) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
 
@@ -16,6 +16,12 @@ export default function AdminAuthGuard({ children }) {
     async function verifySession() {
       if (!isAdminAuthenticated()) {
         router.replace("/admin/login");
+        return;
+      }
+
+      if (initialProfile) {
+        setAdminAuth(initialProfile);
+        setReady(true);
         return;
       }
 
@@ -30,7 +36,7 @@ export default function AdminAuthGuard({ children }) {
     }
 
     verifySession();
-  }, [router]);
+  }, [router, initialProfile]);
 
   if (!ready) {
     return (

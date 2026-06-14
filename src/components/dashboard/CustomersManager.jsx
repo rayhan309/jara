@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { HiOutlineUsers } from "react-icons/hi2";
-import { useAdminOrders } from "@/hooks/useAdminOrders";
+import { useAdminCustomers } from "@/hooks/useDashboard";
 import { usePagination } from "@/hooks/usePagination";
 import TablePagination from "@/components/dashboard/TablePagination";
 import {
@@ -25,8 +25,6 @@ import {
   mobileDashModalClass,
 } from "@/components/shared/ResponsiveTable";
 import {
-  buildCustomerProfiles,
-  buildCustomerStats,
   formatCustomerSpent,
 } from "@/lib/customerHelpers";
 import { formatRelativeTime } from "@/lib/dashboardStats";
@@ -213,12 +211,12 @@ function CustomerRowActions({ customer, onView }) {
 }
 
 export default function CustomersManager() {
-  const { data: orders = [], isLoading, isError, error, refetch } = useAdminOrders();
+  const { data, isLoading, isError, error, refetch } = useAdminCustomers();
   const [search, setSearch] = useState("");
   const [viewCustomer, setViewCustomer] = useState(null);
 
-  const customers = useMemo(() => buildCustomerProfiles(orders), [orders]);
-  const stats = useMemo(() => buildCustomerStats(customers), [customers]);
+  const customers = data?.customers ?? [];
+  const stats = data?.stats ?? { totalCustomers: 0, repeatCustomers: 0, totalSpent: 0 };
 
   const filteredCustomers = useMemo(() => {
     const term = search.trim().toLowerCase();

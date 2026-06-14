@@ -1,8 +1,10 @@
 import { hindSiliguri } from "@/lib/fonts";
 import QueryProvider from "@/components/providers/QueryProvider";
+import CategoriesProvider from "@/components/providers/CategoriesProvider";
 import ToastProvider from "@/components/providers/ToastProvider";
 import SiteSettingsProvider from "@/components/providers/SiteSettingsProvider";
 import SiteSettingsHead from "@/components/layout/SiteSettingsHead";
+import { getCategories } from "@/lib/categoriesServer";
 import { getSiteSettings } from "@/lib/siteSettingsServer";
 import { getThemeCssProperties } from "@/lib/siteSettings";
 import "./globals.css";
@@ -19,7 +21,7 @@ export const viewport = {
 };
 
 export default async function RootLayout({ children }) {
-  const settings = await getSiteSettings();
+  const [settings, categories] = await Promise.all([getSiteSettings(), getCategories()]);
   const themeStyle = getThemeCssProperties(settings);
 
   return (
@@ -32,11 +34,13 @@ export default async function RootLayout({ children }) {
         <SiteSettingsHead settings={settings} />
       </head>
       <body className={`${hindSiliguri.className} min-h-full flex flex-col`}>
-        <QueryProvider>
-          <SiteSettingsProvider initialSettings={settings}>
-            {children}
-            <ToastProvider />
-          </SiteSettingsProvider>
+        <QueryProvider initialCategories={categories}>
+          <CategoriesProvider initialCategories={categories}>
+            <SiteSettingsProvider initialSettings={settings}>
+              {children}
+              <ToastProvider />
+            </SiteSettingsProvider>
+          </CategoriesProvider>
         </QueryProvider>
       </body>
     </html>

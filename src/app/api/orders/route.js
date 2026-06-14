@@ -8,6 +8,7 @@ import {
   validateDeliveryMethod,
   validateOrderItems,
 } from "@/lib/orderValidation";
+import { revalidateAdminOrdersCache } from "@/lib/adminOrdersServer";
 import { getProductVariantConfig } from "@/lib/productVariants";
 import { applyProductStockChange, getOrderStockKey } from "@/lib/productInventoryServer";
 import { getProductMaxStock, isVariantOutOfStock } from "@/lib/variantStock";
@@ -269,6 +270,8 @@ export async function POST(request) {
         );
       }
     }
+
+    revalidateAdminOrdersCache();
 
     return NextResponse.json(
       {

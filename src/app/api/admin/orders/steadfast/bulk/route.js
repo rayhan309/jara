@@ -4,6 +4,7 @@ import { PERMISSIONS } from "@/lib/adminRoles";
 import { dbConnect } from "@/lib/dbConnect";
 import { parseObjectId } from "@/lib/mongodbHelpers";
 import { createSteadfastOrder } from "@/lib/steadfastCourier";
+import { revalidateAdminOrdersCache } from "@/lib/adminOrdersServer";
 
 const ORDERS_COLLECTION = "orders";
 
@@ -92,6 +93,10 @@ export async function POST(request) {
 
     const successCount = results.filter((entry) => entry.success).length;
     const failedCount = results.length - successCount;
+
+    if (successCount > 0) {
+      revalidateAdminOrdersCache();
+    }
 
     return NextResponse.json({
       success: failedCount === 0,

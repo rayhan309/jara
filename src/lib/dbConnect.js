@@ -1,4 +1,5 @@
 const { MongoClient, ServerApiVersion } = require("mongodb");
+import { ensureMongoIndexes } from "@/lib/mongodbIndexes";
 
 const uri = process.env.MONGODB_URI;
 const dbname = process.env.BDNAME || process.env.DBNAME;
@@ -74,7 +75,13 @@ async function getClient() {
   }
 }
 
-export async function dbConnect(collectionName) {
+export async function dbConnect(collectionName, options = {}) {
+  const { skipIndexes = false } = options;
+
+  if (!skipIndexes) {
+    await ensureMongoIndexes();
+  }
+
   const client = await getClient();
   return client.db(dbname).collection(collectionName);
 }

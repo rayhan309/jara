@@ -27,6 +27,15 @@ export function useCategories(options = {}) {
   });
 }
 
+/** Returns categories array with query state — uses server-prefetched data from root layout */
+export function useCategoriesList(options = {}) {
+  const query = useCategories(options);
+  return {
+    ...query,
+    categories: query.data ?? [],
+  };
+}
+
 export function useCreateCategory() {
   const queryClient = useQueryClient();
 

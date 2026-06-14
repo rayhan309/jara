@@ -6,7 +6,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { Loader2, Plus, ShoppingBag, X } from "lucide-react";
 import { FieldError } from "@/components/dashboard/DashboardFormUi";
 import { useUpdateAdminOrder } from "@/hooks/useAdminOrders";
-import { useProducts } from "@/hooks/useProducts";
+import { useProductPicker } from "@/hooks/useDashboard";
+import { useDebouncedValue } from "@/hooks/useDebounce";
 import {
   calculateAdminOrderPricing,
   formatVariantDisplay,
@@ -94,7 +95,11 @@ function buildProductLine(product) {
 
 export default function OrderEditModal({ open, onClose, order }) {
   const { mutate: updateOrder, isPending } = useUpdateAdminOrder();
-  const { data: products = [] } = useProducts();
+  const [productSearch, setProductSearch] = useState("");
+  const debouncedProductSearch = useDebouncedValue(productSearch, 300);
+  const { data: pickerProducts = [] } = useProductPicker(debouncedProductSearch, {
+    enabled: open,
+  });
 
   const [status, setStatus] = useState(DEFAULT_ORDER_STATUS);
   const [name, setName] = useState("");
@@ -122,6 +127,7 @@ export default function OrderEditModal({ open, onClose, order }) {
     setOrderDiscount(order.pricing?.discount ?? 0);
     setItems((order.items || []).map(mapOrderItemToDraft));
     setAddProductId("");
+    setProductSearch("");
     setSubmitError("");
     setFieldErrors({});
   }, [open, order]);
@@ -131,7 +137,7 @@ export default function OrderEditModal({ open, onClose, order }) {
     [items, shippingFee, orderDiscount]
   );
 
-  const availableProducts = products;
+  const availableProducts = pickerProducts;
 
   function updateItem(index, patch) {
     setItems((current) =>
@@ -146,7 +152,7 @@ export default function OrderEditModal({ open, onClose, order }) {
   }
 
   function handleAddProduct() {
-    const product = products.find((entry) => entry._id === addProductId);
+    const product = pickerProducts.find((entry) => entry._id === addProductId);
     if (!product) return;
 
     const line = buildProductLine(product);
@@ -419,6 +425,13 @@ export default function OrderEditModal({ open, onClose, order }) {
             ) : null}
 
             <div className="flex flex-col gap-2 border-t border-dash-border bg-slate-50 p-3 sm:flex-row sm:items-center">
+              <input
+                type="search"
+                value={productSearch}
+                onChange={(event) => setProductSearch(event.target.value)}
+                placeholder="Search products..."
+                className={`${inputClass} sm:max-w-xs`}
+              />
               <select
                 value={addProductId}
                 onChange={(event) => setAddProductId(event.target.value)}

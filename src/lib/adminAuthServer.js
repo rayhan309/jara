@@ -1,4 +1,5 @@
 import { randomBytes } from "crypto";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/dbConnect";
 import { hasPermission } from "@/lib/adminRoles";
@@ -115,8 +116,7 @@ export async function deleteAdminSession(token) {
   await collection.deleteOne({ token });
 }
 
-export async function getAdminSessionFromRequest(request) {
-  const token = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+async function resolveAdminSession(token) {
   if (!token) return null;
 
   const sessionsCol = await dbConnect(SESSIONS_COLLECTION);
@@ -142,6 +142,17 @@ export async function getAdminSessionFromRequest(request) {
     role: user.role,
     user,
   };
+}
+
+export async function getAdminSessionFromRequest(request) {
+  const token = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+  return resolveAdminSession(token);
+}
+
+export async function getAdminSession() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
+  return resolveAdminSession(token);
 }
 
 export function setAdminSessionCookie(response, token) {

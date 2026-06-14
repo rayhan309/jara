@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdminPermission } from "@/lib/adminAuthServer";
 import { PERMISSIONS } from "@/lib/adminRoles";
+import { revalidateCategoriesCache } from "@/lib/categoriesServer";
 import { dbConnect } from "@/lib/dbConnect";
 import imagekit from "@/lib/imagekit";
 import { ensureUniqueSlug, parseObjectId } from "@/lib/mongodbHelpers";
@@ -106,6 +107,8 @@ export async function PUT(request, { params }) {
 
     const updated = await categories.findOne({ _id: objectId });
 
+    revalidateCategoriesCache();
+
     return NextResponse.json({
       success: true,
       category: serializeCategory(updated),
@@ -137,6 +140,8 @@ export async function DELETE(request, { params }) {
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Category not found." }, { status: 404 });
     }
+
+    revalidateCategoriesCache();
 
     return NextResponse.json({ success: true, id });
   } catch (error) {
