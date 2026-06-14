@@ -130,13 +130,15 @@ export function useCart() {
   );
 
   const updateVariant = useCallback(
-    (productId, oldVariant, newVariant, title) => {
-      const result = updateProductCartVariant(productId, oldVariant, newVariant);
+    (productId, oldVariant, newVariant, title, product) => {
+      const result = updateProductCartVariant(productId, oldVariant, newVariant, product);
       syncCart();
 
       if (!result.ok) {
         if (result.reason === "max_stock") {
           toast.error(stockLimitMessage(result.maxStock));
+        } else if (result.reason === "out_of_stock") {
+          toast.error("এই পণ্যটি স্টকে নেই");
         }
         return false;
       }

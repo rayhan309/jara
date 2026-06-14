@@ -185,7 +185,7 @@ export function updateCartQuantity(productId, quantity, selectedVariant = "") {
   return { ok: true, cart, quantity: cappedQty, maxStock };
 }
 
-export function updateCartVariant(productId, oldVariant, newVariant) {
+export function updateCartVariant(productId, oldVariant, newVariant, product) {
   if ((oldVariant || "") === (newVariant || "")) {
     return { ok: true, cart: readCart() };
   }
@@ -198,21 +198,48 @@ export function updateCartVariant(productId, oldVariant, newVariant) {
   }
 
   const line = { ...cart[index] };
+  const normalized = product ? normalizeCartProduct(product, newVariant) : null;
+  const nextMaxStock = normalized?.max_stock ?? line.max_stock ?? UNTRACKED_STOCK_LIMIT;
+
+  if (nextMaxStock <= 0) {
+    return { ok: false, reason: "out_of_stock", maxStock: nextMaxStock };
+  }
   const mergeIndex = findCartLineIndex(cart, productId, newVariant);
 
   if (mergeIndex >= 0 && mergeIndex !== index) {
-    const maxStock = line.max_stock ?? UNTRACKED_STOCK_LIMIT;
     const mergedQty = cart[mergeIndex].quantity + line.quantity;
-    const cappedQty = capQuantity(mergedQty, maxStock);
+    const cappedQty = capQuantity(mergedQty, nextMaxStock);
 
     if (cappedQty <= cart[mergeIndex].quantity) {
-      return { ok: false, reason: "max_stock", maxStock };
+      return { ok: false, reason: "max_stock", maxStock: nextMaxStock };
     }
 
-    cart[mergeIndex].quantity = cappedQty;
+    cart[mergeIndex] = {
+      ...cart[mergeIndex],
+      quantity: cappedQty,
+      max_stock: nextMaxStock,
+      price: normalized?.price ?? cart[mergeIndex].price,
+      regular_price: normalized?.regular_price ?? cart[mergeIndex].regular_price,
+      stock_status: normalized?.stock_status ?? cart[mergeIndex].stock_status,
+      variant_type: normalized?.variant_type ?? cart[mergeIndex].variant_type,
+      variant_label: normalized?.variant_label ?? cart[mergeIndex].variant_label,
+      variant_options: normalized?.variant_options ?? cart[mergeIndex].variant_options,
+    };
     cart.splice(index, 1);
   } else {
-    cart[index] = { ...line, selected_variant: newVariant || "" };
+    const cappedQty = capQuantity(line.quantity, nextMaxStock);
+    cart[index] = {
+      ...line,
+      selected_variant: newVariant || "",
+      quantity: cappedQty,
+      max_stock: nextMaxStock,
+      price: normalized?.price ?? line.price,
+      regular_price: normalized?.regular_price ?? line.regular_price,
+      stock_status: normalized?.stock_status ?? line.stock_status,
+      variant_type: normalized?.variant_type ?? line.variant_type,
+      variant_label: normalized?.variant_label ?? line.variant_label,
+      variant_options: normalized?.variant_options ?? line.variant_options,
+    };
   }
 
   writeCart(cart);

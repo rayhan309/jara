@@ -244,7 +244,8 @@ export default function CheckoutView() {
   }
 
   function handleUpdateVariant(item, newVariant) {
-    updateVariant(item._id, item.selected_variant, newVariant, item.title);
+    const product = products.find((entry) => entry._id === item._id);
+    updateVariant(item._id, item.selected_variant, newVariant, item.title, product);
   }
 
   function handleRemove(item) {
