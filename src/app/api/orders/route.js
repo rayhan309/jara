@@ -9,6 +9,8 @@ import {
   validateOrderItems,
 } from "@/lib/orderValidation";
 import { getProductVariantConfig } from "@/lib/productVariants";
+import { applyProductStockChange, getOrderStockKey } from "@/lib/productInventoryServer";
+import { getProductMaxStock, isVariantOutOfStock } from "@/lib/variantStock";
 import { parseObjectId } from "@/lib/mongodbHelpers";
 import { buildOrderNumberLookupFilter } from "@/lib/orderHelpers";
 
@@ -164,30 +166,35 @@ export async function POST(request) {
         );
       }
 
-      const stockStatus = product.inventory?.stock_status;
-      if (stockStatus === "out_of_stock") {
-        return NextResponse.json(
-          { error: `"${product.title_bn || product.title_en}" স্টকে নেই` },
-          { status: 400 }
-        );
-      }
+      const maxStock = getProductMaxStock(product, selectedVariant);
 
-      const quantity = Math.floor(Number(cartItem.quantity));
-      const maxStock = typeof product.inventory?.quantity === "number" ? product.inventory.quantity : 99;
-
-      const prevQty = stockUpdates.get(cartItem._id) || 0;
-      const totalRequested = prevQty + quantity;
-
-      if (totalRequested > maxStock) {
+      if (isVariantOutOfStock(product, selectedVariant)) {
         return NextResponse.json(
           {
-            error: `"${product.title_bn || product.title_en}" — সর্বোচ্চ ${maxStock}টি অর্ডার করা যাবে`,
+            error: selectedVariant
+              ? `"${product.title_bn || product.title_en}" (${selectedVariant}) স্টকে নেই`
+              : `"${product.title_bn || product.title_en}" স্টকে নেই`,
           },
           { status: 400 }
         );
       }
 
-      stockUpdates.set(cartItem._id, totalRequested);
+      const quantity = Math.floor(Number(cartItem.quantity));
+
+      const stockKey = getOrderStockKey(cartItem._id, selectedVariant);
+      const prevQty = stockUpdates.get(stockKey) || 0;
+      const totalRequested = prevQty + quantity;
+
+      if (totalRequested > maxStock) {
+        return NextResponse.json(
+          {
+            error: `"${product.title_bn || product.title_en}"${selectedVariant ? ` (${selectedVariant})` : ""} — সর্বোচ্চ ${maxStock}টি অর্ডার করা যাবে`,
+          },
+          { status: 400 }
+        );
+      }
+
+      stockUpdates.set(stockKey, totalRequested);
 
       const salePrice = product.pricing?.sale_price ?? 0;
       const regularPrice = product.pricing?.regular_price ?? salePrice;
@@ -245,17 +252,22 @@ export async function POST(request) {
 
     const result = await ordersCol.insertOne(orderDoc);
 
-    for (const [productId, orderedQty] of stockUpdates.entries()) {
-      const objectId = parseObjectId(productId);
-      if (!objectId) continue;
-
-      await productsCol.updateOne(
-        { _id: objectId, "inventory.quantity": { $gte: orderedQty } },
-        {
-          $inc: { "inventory.quantity": -orderedQty },
-          $set: { updatedAt: now },
-        }
+    for (const [stockKey, orderedQty] of stockUpdates.entries()) {
+      const [productId, ...variantParts] = stockKey.split("::");
+      const selectedVariant = variantParts.join("::");
+      const result = await applyProductStockChange(
+        productsCol,
+        productId,
+        selectedVariant,
+        -orderedQty
       );
+
+      if (!result.ok && result.reason === "insufficient_stock") {
+        return NextResponse.json(
+          { error: "এক বা একাধিক পণ্যের স্টক আপডেট করা যায়নি" },
+          { status: 400 }
+        );
+      }
     }
 
     return NextResponse.json(

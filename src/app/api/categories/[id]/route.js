@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { requireAdminPermission } from "@/lib/adminAuthServer";
+import { PERMISSIONS } from "@/lib/adminRoles";
 import { dbConnect } from "@/lib/dbConnect";
 import imagekit from "@/lib/imagekit";
 import { ensureUniqueSlug, parseObjectId } from "@/lib/mongodbHelpers";
@@ -26,6 +28,9 @@ function serializeCategory(category) {
 
 export async function PUT(request, { params }) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.PRODUCTS);
+    if (auth.error) return auth.error;
+
     const { id } = await params;
     const objectId = parseObjectId(id);
 
@@ -114,8 +119,11 @@ export async function PUT(request, { params }) {
   }
 }
 
-export async function DELETE(_request, { params }) {
+export async function DELETE(request, { params }) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.PRODUCTS);
+    if (auth.error) return auth.error;
+
     const { id } = await params;
     const objectId = parseObjectId(id);
 

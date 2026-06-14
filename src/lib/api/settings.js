@@ -1,3 +1,5 @@
+import { adminFetch } from "@/lib/adminFetch";
+
 export const settingsKeys = {
   all: ["settings"],
   detail: () => [...settingsKeys.all, "detail"],
@@ -19,7 +21,7 @@ export async function uploadHeroBanner(file) {
   const formData = new FormData();
   formData.append("image", file);
 
-  const response = await fetch("/api/settings/hero-banners", {
+  const response = await adminFetch("/api/settings/hero-banners", {
     method: "POST",
     body: formData,
   });
@@ -34,7 +36,7 @@ export async function uploadHeroBanner(file) {
 }
 
 export async function updateSettings(payload) {
-  const response = await fetch("/api/settings", {
+  const response = await adminFetch("/api/settings", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

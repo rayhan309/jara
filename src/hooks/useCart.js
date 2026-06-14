@@ -45,7 +45,7 @@ export function useCart() {
   const addToCart = useCallback(
     (product, quantity = 1, selectedVariant = "") => {
       const variant = resolveProductVariant(product, selectedVariant);
-      const maxStock = getProductMaxStock(product);
+      const maxStock = getProductMaxStock(product, variant);
 
       if (maxStock <= 0) {
         toast.error("এই পণ্যটি স্টকে নেই");
@@ -77,7 +77,7 @@ export function useCart() {
   const toggleCart = useCallback(
     (product) => {
       const variant = resolveProductVariant(product);
-      const maxStock = getProductMaxStock(product);
+      const maxStock = getProductMaxStock(product, variant);
 
       if (maxStock <= 0) {
         toast.error("এই পণ্যটি স্টকে নেই");
@@ -162,7 +162,7 @@ export function useCart() {
   const buyNow = useCallback(
     (product, quantity = 1, selectedVariant = "") => {
       const variant = resolveProductVariant(product, selectedVariant);
-      const maxStock = getProductMaxStock(product);
+      const maxStock = getProductMaxStock(product, variant);
 
       if (maxStock <= 0) {
         toast.error("এই পণ্যটি স্টকে নেই");

@@ -7,6 +7,7 @@ import { Check, Package, ShoppingCart, Zap } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
 import { resolveProductVariant } from "@/lib/productVariants";
+import { isProductFullyOutOfStock } from "@/lib/variantStock";
 import { getProductCardImageUrl } from "@/lib/imageUrl";
 
 export default function StoreProductCard({ product, index = 0 }) {
@@ -17,7 +18,7 @@ export default function StoreProductCard({ product, index = 0 }) {
   const title = product.title_bn || product.title_en;
   const salePrice = product.pricing?.sale_price;
   const regularPrice = product.pricing?.regular_price;
-  const outOfStock = product.inventory?.stock_status === "out_of_stock";
+  const outOfStock = isProductFullyOutOfStock(product);
   const inCart = items.some(
     (item) =>
       item._id === product._id &&

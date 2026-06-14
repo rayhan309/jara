@@ -8,6 +8,12 @@ import { ImagePlus, Loader2, Package, Pencil, Plus, Trash2, Upload, X } from "lu
 import { FieldError } from "@/components/dashboard/DashboardFormUi";
 import { calculateDiscountPercentage } from "@/lib/productHelpers";
 import { slugify } from "@/lib/slugify";
+import { parseVariantOptions } from "@/lib/productVariants";
+import {
+  mergeVariantStockWithOptions,
+  VARIANT_STOCK_OPTIONS,
+  getProductStockSummary,
+} from "@/lib/variantStock";
 import { useCategories } from "@/hooks/useCategories";
 import { useDebouncedValue } from "@/hooks/useDebounce";
 import {
@@ -94,10 +100,17 @@ function ProductFormModal({ open, onClose, product }) {
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [submitError, setSubmitError] = useState("");
+  const [variantStock, setVariantStock] = useState([]);
 
   const regularPrice = watch("regular_price");
   const salePrice = watch("sale_price");
   const variantType = watch("variant_type");
+  const variantOptionsValue = watch("variant_options");
+  const stockStatus = watch("stock_status");
+  const parsedVariantOptions = useMemo(
+    () => (variantType ? parseVariantOptions(variantOptionsValue) : []),
+    [variantType, variantOptionsValue]
+  );
   const discountPreview = useMemo(
     () => calculateDiscountPercentage(regularPrice, salePrice),
     [regularPrice, salePrice]
@@ -136,6 +149,7 @@ function ProductFormModal({ open, onClose, product }) {
     setSlugEdited(false);
     resetImages();
     setSubmitError("");
+    setVariantStock([]);
   }
 
   function handleClose() {
@@ -202,8 +216,16 @@ function ProductFormModal({ open, onClose, product }) {
     formData.append("currency", "BDT");
     formData.append("regular_price", values.regular_price);
     formData.append("sale_price", values.sale_price);
-    formData.append("quantity", values.quantity || "0");
-    formData.append("stock_status", values.stock_status);
+
+    if (parsedVariantOptions.length > 0) {
+      formData.append("variant_stock", JSON.stringify(variantStock));
+      formData.append("quantity", "0");
+      formData.append("stock_status", "in_stock");
+    } else {
+      formData.append("quantity", values.quantity || "0");
+      formData.append("stock_status", values.stock_status);
+    }
+
     formData.append("variant_type", values.variant_type);
     formData.append("variant_options", values.variant_options.trim());
     formData.append("attribute_material", (values.attribute_material || "").trim());
@@ -258,11 +280,35 @@ function ProductFormModal({ open, onClose, product }) {
       setImageFiles([]);
       setImagePreviews([]);
       setSubmitError("");
+      const options = parseVariantOptions(
+        product.attributes?.variant_options || product.attributes?.size || ""
+      );
+      setVariantStock(
+        mergeVariantStockWithOptions(
+          options,
+          product.inventory?.variant_stock || [],
+          product.inventory || {}
+        )
+      );
       if (fileInputRef.current) fileInputRef.current.value = "";
     } else {
       resetAll();
     }
   }, [open, product, reset]);
+
+  useEffect(() => {
+    if (!open || !variantType) {
+      setVariantStock([]);
+      return;
+    }
+
+    if (!parsedVariantOptions.length) {
+      setVariantStock([]);
+      return;
+    }
+
+    setVariantStock((current) => mergeVariantStockWithOptions(parsedVariantOptions, current));
+  }, [open, variantType, parsedVariantOptions.join("|")]);
 
   useEffect(() => {
     if (!open || slugEdited) return;
@@ -414,18 +460,35 @@ function ProductFormModal({ open, onClose, product }) {
                         {discountPreview > 0 ? `${discountPreview}% OFF` : "—"}
                       </div>
                     </div>
-                    <div>
-                      <label htmlFor="quantity" className={labelClass}>Quantity</label>
-                      <input id="quantity" type="number" min="0" {...register("quantity")} className={inputClass} />
-                    </div>
-                    <div>
-                      <label htmlFor="stock-status" className={labelClass}>Stock Status</label>
-                      <select id="stock-status" {...register("stock_status")} className={inputClass}>
-                        <option value="in_stock">In Stock</option>
-                        <option value="out_of_stock">Out of Stock</option>
-                        <option value="low_stock">Low Stock</option>
-                      </select>
-                    </div>
+                    {!variantType ? (
+                      <>
+                        <div>
+                          <label htmlFor="quantity" className={labelClass}>Stock Quantity</label>
+                          <input
+                            id="quantity"
+                            type="number"
+                            min="0"
+                            disabled={stockStatus !== "stock"}
+                            {...register("quantity")}
+                            className={`${inputClass} disabled:cursor-not-allowed disabled:bg-slate-50`}
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="stock-status" className={labelClass}>Stock Status</label>
+                          <select id="stock-status" {...register("stock_status")} className={inputClass}>
+                            {VARIANT_STOCK_OPTIONS.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="sm:col-span-2 rounded-md border border-indigo-100 bg-indigo-50/50 px-3 py-2.5 text-xs text-indigo-700">
+                        Variant stock is managed under Attributes & Ratings below.
+                      </div>
+                    )}
                   </div>
                 </section>
 
@@ -467,6 +530,72 @@ function ProductFormModal({ open, onClose, product }) {
                         <p className="mt-1 text-[11px] text-dash-muted">Comma separated values</p>
                       ) : null}
                     </div>
+                    {parsedVariantOptions.length > 0 ? (
+                      <div className="sm:col-span-2 lg:col-span-4">
+                        <label className={labelClass}>Variant Stock</label>
+                        <div className="overflow-hidden rounded-md border border-dash-border">
+                          <div className="hidden grid-cols-[1.2fr_1fr_120px] gap-3 border-b border-dash-border bg-slate-50 px-3 py-2 text-[11px] font-semibold tracking-wide text-dash-muted uppercase sm:grid">
+                            <span>Variant</span>
+                            <span>Status</span>
+                            <span>Quantity</span>
+                          </div>
+                          <div className="divide-y divide-dash-border">
+                            {variantStock.map((entry) => (
+                              <div
+                                key={entry.option}
+                                className="grid gap-3 px-3 py-3 sm:grid-cols-[1.2fr_1fr_120px] sm:items-center"
+                              >
+                                <span className="text-sm font-semibold text-dash-text">{entry.option}</span>
+                                <select
+                                  value={entry.stock_status}
+                                  onChange={(event) => {
+                                    const nextStatus = event.target.value;
+                                    setVariantStock((current) =>
+                                      current.map((item) =>
+                                        item.option === entry.option
+                                          ? {
+                                              ...item,
+                                              stock_status: nextStatus,
+                                              quantity: nextStatus === "stock" ? item.quantity || 0 : 0,
+                                            }
+                                          : item
+                                      )
+                                    );
+                                  }}
+                                  className={inputClass}
+                                >
+                                  {VARIANT_STOCK_OPTIONS.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                      {option.label}
+                                    </option>
+                                  ))}
+                                </select>
+                                {entry.stock_status === "stock" ? (
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={entry.quantity}
+                                    onChange={(event) => {
+                                      const nextQty = Math.max(0, Number(event.target.value) || 0);
+                                      setVariantStock((current) =>
+                                        current.map((item) =>
+                                          item.option === entry.option
+                                            ? { ...item, quantity: nextQty }
+                                            : item
+                                        )
+                                      );
+                                    }}
+                                    className={inputClass}
+                                  />
+                                ) : (
+                                  <span className="text-xs text-dash-muted sm:px-1">—</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
                     <div>
                       <label htmlFor="rating" className={labelClass}>Average Rating</label>
                       <input id="rating" type="number" min="0" max="5" step="0.1" {...register("average_rating")} className={inputClass} />
@@ -601,11 +730,18 @@ function ProductPriceCell({ pricing }) {
   );
 }
 
-function ProductStockCell({ inventory }) {
-  const quantity = inventory?.quantity ?? 0;
+function ProductStockCell({ product }) {
+  const summary = getProductStockSummary(product);
 
   return (
-    <span className="text-sm font-medium tabular-nums text-dash-text">{quantity}</span>
+    <div className="text-sm text-dash-text">
+      <span className="font-medium tabular-nums">{summary.quantity}</span>
+      {summary.hasVariants ? (
+        <span className="mt-0.5 block text-[11px] text-dash-muted">{summary.label}</span>
+      ) : summary.label !== String(summary.quantity) ? (
+        <span className="mt-0.5 block text-[11px] text-dash-muted">{summary.label}</span>
+      ) : null}
+    </div>
   );
 }
 
@@ -788,7 +924,7 @@ export default function ProductsManager({ embedded = false }) {
                       <MobileDashRow label="Price" value={<ProductPriceCell pricing={product.pricing} />} />
                       <MobileDashRow
                         label="Qty"
-                        value={product.inventory?.quantity ?? 0}
+                        value={<ProductStockCell product={product} />}
                       />
                     </div>
                     <div className="mt-3 flex justify-end border-t border-dash-border pt-3">
@@ -869,7 +1005,7 @@ export default function ProductsManager({ embedded = false }) {
                         <ProductPriceCell pricing={product.pricing} />
                       </td>
                       <td className="px-4 py-2.5">
-                        <ProductStockCell inventory={product.inventory} />
+                        <ProductStockCell product={product} />
                       </td>
                       <td className="px-4 py-2.5">
                         <div className="opacity-80 transition-opacity group-hover:opacity-100">

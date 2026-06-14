@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import toast from "react-hot-toast";
-import { Copy, Eye, Loader2, Pencil, Phone, ShoppingBag, Trash2, Truck, X } from "lucide-react";
+import { Copy, ExternalLink, Eye, Loader2, Pencil, Phone, ShoppingBag, Trash2, Truck, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import OrderEditModal from "@/components/dashboard/OrderEditModal";
 import {
@@ -30,6 +30,7 @@ import {
   getOrderItemSummary,
   getOrderStatusClass,
   getOrderStatusLabel,
+  getSteadfastTrackingUrl,
   getWhatsAppPhoneUrl,
   isOrderInDateRange,
   normalizeOrderStatus,
@@ -45,6 +46,74 @@ function SectionTitle({ children }) {
     <h3 className="border-b border-dash-border pb-2 text-xs font-bold tracking-[0.14em] text-dash-muted uppercase">
       {children}
     </h3>
+  );
+}
+
+function CopyableValue({ label, value }) {
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success(`${label} কপি হয়েছে`);
+    } catch {
+      toast.error("কপি করা যায়নি");
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title={`${label} কপি করুন`}
+      className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-left text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
+    >
+      <span>
+        {label}: {value}
+      </span>
+      <Copy className="h-3.5 w-3.5 shrink-0" />
+    </button>
+  );
+}
+
+function SteadfastTrackingActions({ trackingCode }) {
+  const code = String(trackingCode || "").trim();
+  const trackingUrl = getSteadfastTrackingUrl(code);
+  const iconBtn =
+    "inline-flex h-7 w-7 items-center justify-center rounded-md border transition-colors";
+
+  if (!code || !trackingUrl) return null;
+
+  async function copyTrackingCode() {
+    try {
+      await navigator.clipboard.writeText(code);
+      toast.success("Tracking code কপি হয়েছে");
+    } catch {
+      toast.error("কপি করা যায়নি");
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <a
+        href={trackingUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Steadfast tracking খুলুন"
+        className="inline-flex items-center gap-1.5 rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 transition-colors hover:bg-indigo-100"
+      >
+        <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+        Tracking খুলুন
+      </a>
+      <button
+        type="button"
+        onClick={copyTrackingCode}
+        title="Tracking code কপি"
+        aria-label="Tracking code কপি করুন"
+        className={`${iconBtn} border-slate-200 bg-white text-dash-muted hover:border-indigo-200 hover:text-indigo-700`}
+      >
+        <Copy className="h-3.5 w-3.5" />
+      </button>
+      <span className="text-xs font-medium text-dash-muted">{code}</span>
+    </div>
   );
 }
 
@@ -217,12 +286,15 @@ function OrderViewModal({ open, onClose, order }) {
               {order.steadfast?.tracking_code || order.steadfast?.consignment_id ? (
                 <div>
                   <dt className="text-xs text-dash-muted">Steadfast</dt>
-                  <dd className="space-y-1 font-semibold text-dash-text">
+                  <dd className="space-y-2 font-semibold text-dash-text">
                     {order.steadfast.tracking_code ? (
-                      <p>Tracking: {order.steadfast.tracking_code}</p>
+                      <SteadfastTrackingActions trackingCode={String(order.steadfast.tracking_code)} />
                     ) : null}
                     {order.steadfast.consignment_id ? (
-                      <p>Consignment ID: {order.steadfast.consignment_id}</p>
+                      <CopyableValue
+                        label="Consignment ID"
+                        value={String(order.steadfast.consignment_id)}
+                      />
                     ) : null}
                   </dd>
                 </div>
@@ -289,6 +361,16 @@ function OrderViewModal({ open, onClose, order }) {
   );
 }
 
+function getSteadfastConsignmentId(order) {
+  const id = order?.steadfast?.consignment_id;
+  return id != null && id !== "" ? String(id) : null;
+}
+
+function getSteadfastTrackingCode(order) {
+  const code = order?.steadfast?.tracking_code;
+  return code != null && code !== "" ? String(code) : null;
+}
+
 function OrderRowActions({
   order,
   onView,
@@ -300,30 +382,68 @@ function OrderRowActions({
 }) {
   const iconBtn =
     "inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors";
-  const alreadySent = Boolean(order.steadfast?.tracking_code || order.steadfast?.consignment_id);
+  const consignmentId = getSteadfastConsignmentId(order);
+  const trackingCode = getSteadfastTrackingCode(order);
+  const trackingUrl = getSteadfastTrackingUrl(trackingCode);
+  const alreadySent = Boolean(consignmentId || trackingCode);
+
+  async function copyConsignmentId() {
+    if (!consignmentId) return;
+
+    try {
+      await navigator.clipboard.writeText(consignmentId);
+      toast.success("Consignment ID কপি হয়েছে");
+    } catch {
+      toast.error("কপি করা যায়নি");
+    }
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <button
-        type="button"
-        onClick={() => onCourier(order)}
-        disabled={isSendingCourier || alreadySent}
-        title={alreadySent ? "Steadfast-এ পাঠানো হয়েছে" : "Steadfast-এ পাঠান"}
-        className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-[11px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-          alreadySent
-            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-            : "border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100"
-        }`}
-      >
-        {isSendingCourier ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-        ) : (
-          <Truck className="h-3.5 w-3.5" />
-        )}
-        <span className="hidden xl:inline">
-          {alreadySent ? "পাঠানো হয়েছে" : "কুরিয়ারে পাঠান"}
-        </span>
-      </button>
+      {alreadySent ? (
+        <>
+          {consignmentId ? (
+            <button
+              type="button"
+              onClick={copyConsignmentId}
+              title="Consignment ID কপি করুন"
+              aria-label="Consignment ID কপি করুন"
+              className="inline-flex h-8 max-w-[140px] items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 text-[11px] font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 sm:max-w-[160px]"
+            >
+              <Copy className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{consignmentId}</span>
+            </button>
+          ) : null}
+          {trackingUrl ? (
+            <a
+              href={trackingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Steadfast tracking খুলুন"
+              aria-label="Steadfast tracking খুলুন"
+              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-indigo-200 bg-indigo-50 px-2.5 text-[11px] font-semibold text-indigo-700 transition-colors hover:bg-indigo-100"
+            >
+              <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+              <span>Tracking</span>
+            </a>
+          ) : null}
+        </>
+      ) : (
+        <button
+          type="button"
+          onClick={() => onCourier(order)}
+          disabled={isSendingCourier}
+          title="Steadfast-এ পাঠান"
+          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50 px-2.5 text-[11px] font-semibold text-violet-700 transition-colors hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isSendingCourier ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Truck className="h-3.5 w-3.5" />
+          )}
+          <span className="hidden xl:inline">কুরিয়ারে পাঠান</span>
+        </button>
+      )}
       <button
         type="button"
         aria-label="View order"

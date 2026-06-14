@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { requireAdminPermission } from "@/lib/adminAuthServer";
+import { PERMISSIONS } from "@/lib/adminRoles";
 import { dbConnect } from "@/lib/dbConnect";
 import { serializeCategory, sortCategoriesList } from "@/lib/categorySort";
 import { parseObjectId } from "@/lib/mongodbHelpers";
@@ -7,6 +9,9 @@ const COLLECTION = "categories";
 
 export async function PATCH(request) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.PRODUCTS);
+    if (auth.error) return auth.error;
+
     const body = await request.json();
     const orderedIds = body?.orderedIds;
 

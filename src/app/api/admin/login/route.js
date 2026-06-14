@@ -1,22 +1,32 @@
+import { NextResponse } from "next/server";
+import {
+  authenticateAdminUser,
+  createAdminSession,
+  serializeAdminUser,
+  setAdminSessionCookie,
+} from "@/lib/adminAuthServer";
+
 export async function POST(request) {
-  const { username, password } = await request.json();
+  try {
+    const { username, password } = await request.json();
 
-  const adminUsername = process.env.ADMINUSERNAME;
-  const adminPassword = process.env.ADMINPASS;
+    const user = await authenticateAdminUser(username, password);
+    if (!user) {
+      return NextResponse.json({ error: "Invalid username or password." }, { status: 401 });
+    }
 
-  // console.log(adminUsername, adminPassword);
-  // console.log(username, password);
+    const { token } = await createAdminSession(user);
+    const payload = serializeAdminUser(user);
 
-  if (!adminUsername || !adminPassword) {
-    return Response.json(
-      { error: "Admin credentials are not configured on the server." },
-      { status: 500 }
-    );
+    const response = NextResponse.json({
+      success: true,
+      ...payload,
+    });
+
+    setAdminSessionCookie(response, token);
+    return response;
+  } catch (error) {
+    console.error("POST /api/admin/login error:", error);
+    return NextResponse.json({ error: "Login failed." }, { status: 500 });
   }
-
-  if (username === adminUsername && password === adminPassword) {
-    return Response.json({ success: true, role: "admin", username });
-  }
-
-  return Response.json({ error: "Invalid admin username or password." }, { status: 401 });
 }

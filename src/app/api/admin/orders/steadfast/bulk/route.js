@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { requireAdminPermission } from "@/lib/adminAuthServer";
+import { PERMISSIONS } from "@/lib/adminRoles";
 import { dbConnect } from "@/lib/dbConnect";
 import { parseObjectId } from "@/lib/mongodbHelpers";
 import { createSteadfastOrder } from "@/lib/steadfastCourier";
@@ -14,6 +16,9 @@ function serializeOrder(order) {
 
 export async function POST(request) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.ORDERS);
+    if (auth.error) return auth.error;
+
     const body = await request.json();
     const orderIds = Array.isArray(body?.orderIds) ? body.orderIds : [];
 

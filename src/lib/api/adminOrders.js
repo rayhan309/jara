@@ -1,3 +1,5 @@
+import { adminFetch } from "@/lib/adminFetch";
+
 export const adminOrderKeys = {
   all: ["admin-orders"],
   list: () => [...adminOrderKeys.all, "list"],
@@ -5,7 +7,7 @@ export const adminOrderKeys = {
 };
 
 export async function fetchAdminOrders() {
-  const response = await fetch("/api/admin/orders");
+  const response = await adminFetch("/api/admin/orders");
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
@@ -17,7 +19,7 @@ export async function fetchAdminOrders() {
 }
 
 export async function fetchAdminOrder(id) {
-  const response = await fetch(`/api/admin/orders/${id}`);
+  const response = await adminFetch(`/api/admin/orders/${id}`);
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
@@ -29,7 +31,7 @@ export async function fetchAdminOrder(id) {
 }
 
 export async function updateAdminOrder(id, payload) {
-  const response = await fetch(`/api/admin/orders/${id}`, {
+  const response = await adminFetch(`/api/admin/orders/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -45,7 +47,7 @@ export async function updateAdminOrder(id, payload) {
 }
 
 export async function deleteAdminOrder(id) {
-  const response = await fetch(`/api/admin/orders/${id}`, { method: "DELETE" });
+  const response = await adminFetch(`/api/admin/orders/${id}`, { method: "DELETE" });
   const data = await response.json();
 
   if (!response.ok) {
@@ -56,7 +58,7 @@ export async function deleteAdminOrder(id) {
 }
 
 export async function sendOrderToSteadfast(id) {
-  const response = await fetch(`/api/admin/orders/${id}/steadfast`, {
+  const response = await adminFetch(`/api/admin/orders/${id}/steadfast`, {
     method: "POST",
   });
   const data = await response.json();
@@ -69,7 +71,7 @@ export async function sendOrderToSteadfast(id) {
 }
 
 export async function sendBulkOrdersToSteadfast(orderIds) {
-  const response = await fetch("/api/admin/orders/steadfast/bulk", {
+  const response = await adminFetch("/api/admin/orders/steadfast/bulk", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ orderIds }),

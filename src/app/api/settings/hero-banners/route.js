@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
+import { requireAdminPermission } from "@/lib/adminAuthServer";
+import { PERMISSIONS } from "@/lib/adminRoles";
 import imagekit, { getImageKitConfigError } from "@/lib/imagekit";
 
 export async function POST(request) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.SETTINGS);
+    if (auth.error) return auth.error;
+
     const imageKitError = getImageKitConfigError();
     if (imageKitError) {
       return NextResponse.json({ error: imageKitError }, { status: 500 });

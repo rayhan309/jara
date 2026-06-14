@@ -1,9 +1,14 @@
 import { parseVariantOptions } from "./productVariants";
+import {
+  getProductMaxStock as resolveProductMaxStock,
+  UNTRACKED_STOCK_LIMIT,
+} from "./variantStock";
+
+export { UNTRACKED_STOCK_LIMIT };
 
 const CART_KEY = "nexa_cart";
 const CHECKOUT_KEY = "nexa_checkout_items";
 const CART_EVENT = "nexa-cart-updated";
-const UNTRACKED_STOCK_LIMIT = 99;
 
 function dispatchCartUpdate() {
   if (typeof window === "undefined") return;
@@ -35,18 +40,8 @@ function findCartLineIndex(cart, productId, selectedVariant = "") {
   );
 }
 
-export function getProductMaxStock(product) {
-  const stockStatus = product.inventory?.stock_status ?? product.stock_status;
-
-  if (stockStatus === "out_of_stock") return 0;
-
-  const qty = product.inventory?.quantity ?? product.max_stock;
-
-  if (typeof qty === "number") {
-    return qty > 0 ? qty : 0;
-  }
-
-  return UNTRACKED_STOCK_LIMIT;
+export function getProductMaxStock(product, selectedVariant = "") {
+  return resolveProductMaxStock(product, selectedVariant);
 }
 
 export function getCartItems() {
@@ -58,13 +53,20 @@ export function getCartCount() {
 }
 
 export function normalizeCartProduct(product, selectedVariant = "") {
-  const maxStock = getProductMaxStock(product);
+  const maxStock = getProductMaxStock(product, selectedVariant);
   const attrs = product.attributes || {};
   const variantType = attrs.variant_type || "";
   let variantOptions = parseVariantOptions(attrs.variant_options);
   if (!variantOptions.length && attrs.size) {
     variantOptions = parseVariantOptions(attrs.size);
   }
+
+  const entry = product.inventory?.variant_stock?.find((item) => item.option === selectedVariant);
+  const stockStatus =
+    entry?.stock_status ??
+    product.inventory?.stock_status ??
+    product.stock_status ??
+    "in_stock";
 
   return {
     _id: product._id,
@@ -76,7 +78,7 @@ export function normalizeCartProduct(product, selectedVariant = "") {
     regular_price: product.pricing?.regular_price ?? product.regular_price ?? 0,
     quantity: 1,
     max_stock: maxStock,
-    stock_status: product.inventory?.stock_status ?? product.stock_status ?? "in_stock",
+    stock_status: stockStatus,
     selected_variant: selectedVariant || "",
     variant_type: variantType,
     variant_options: variantOptions,
@@ -281,4 +283,4 @@ export function getMaxLineQuantity(item, cartItems) {
   return maxStock - totalForProduct + item.quantity;
 }
 
-export { CART_EVENT, UNTRACKED_STOCK_LIMIT };
+export { CART_EVENT };

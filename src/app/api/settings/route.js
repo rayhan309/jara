@@ -1,7 +1,9 @@
-import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
+import { NextResponse } from "next/server";
+import { requireAdminPermission } from "@/lib/adminAuthServer";
+import { PERMISSIONS } from "@/lib/adminRoles";
 import { dbConnect } from "@/lib/dbConnect";
-import { normalizeSettings, SETTINGS_ID } from "@/lib/siteSettings";
+import { normalizeSettings, sanitizePublicSettings, SETTINGS_ID } from "@/lib/siteSettings";
 import { getSiteSettings } from "@/lib/siteSettingsServer";
 
 const COLLECTION = "site_settings";
@@ -12,7 +14,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      settings,
+      settings: sanitizePublicSettings(settings),
     });
   } catch (error) {
     console.error("GET /api/settings error:", error);
@@ -25,11 +27,30 @@ export async function GET() {
 
 export async function PUT(request) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.SETTINGS);
+    if (auth.error) return auth.error;
+
     const body = await request.json();
+    const collection = await dbConnect(COLLECTION);
+    const existing = await collection.findOne({ _id: SETTINGS_ID });
+    const steadfastSecretKey = String(body.steadfastSecretKey || "").trim()
+      ? String(body.steadfastSecretKey).trim()
+      : String(existing?.steadfastSecretKey || "").trim();
+    const steadfastApiKey = String(body.steadfastApiKey ?? existing?.steadfastApiKey ?? "").trim();
+    const steadfastBaseUrl = body.steadfastBaseUrl ?? existing?.steadfastBaseUrl;
+    const steadfastEnabled =
+      body.steadfastEnabled !== undefined
+        ? body.steadfastEnabled
+        : existing?.steadfastEnabled;
+
     const settings = normalizeSettings({
       primaryColor: body.primaryColor,
       metaPixelId: body.metaPixelId,
       metaPixelEnabled: body.metaPixelEnabled,
+      steadfastBaseUrl,
+      steadfastApiKey,
+      steadfastSecretKey,
+      steadfastEnabled,
       contactPhone: body.contactPhone,
       contactEmail: body.contactEmail,
       contactAddress: body.contactAddress,
@@ -37,7 +58,6 @@ export async function PUT(request) {
       socialLinks: body.socialLinks,
     });
 
-    const collection = await dbConnect(COLLECTION);
     const now = new Date();
 
     await collection.updateOne(
@@ -58,7 +78,7 @@ export async function PUT(request) {
 
     return NextResponse.json({
       success: true,
-      settings,
+      settings: sanitizePublicSettings(settings),
     });
   } catch (error) {
     console.error("PUT /api/settings error:", error);

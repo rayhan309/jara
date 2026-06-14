@@ -6,41 +6,44 @@ import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ChevronDown,
+  ImageIcon,
   Layers,
   LayoutDashboard,
   LogOut,
+  Mail,
   Package,
+  Palette,
   Settings,
   ShoppingBag,
+  Target,
+  Truck,
+  UserCircle,
+  UserCog,
   Users,
   X,
 } from "lucide-react";
 import { RiStore2Fill } from "react-icons/ri";
+import { logoutAdmin } from "@/lib/api/adminUsers";
 import { clearAdminAuth, getAdminAuth } from "@/lib/auth";
+import { getNavItemsForRole, getRoleLabel } from "@/lib/adminRoles";
 
-const navItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
-  {
-    label: "Products",
-    icon: Package,
-    children: [
-      { href: "/dashboard/products", label: "Products", icon: Package },
-      { href: "/dashboard/categories", label: "Categories", icon: Layers },
-    ],
-  },
-  { href: "/dashboard/customers", label: "Customers", icon: Users },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
-];
+const ICONS = {
+  overview: LayoutDashboard,
+  orders: ShoppingBag,
+  products: Package,
+  categories: Layers,
+  customers: Users,
+  settings: Settings,
+  palette: Palette,
+  target: Target,
+  truck: Truck,
+  mail: Mail,
+  image: ImageIcon,
+  users: UserCog,
+  account: UserCircle,
+};
 
 const iconProps = { className: "h-4 w-4 shrink-0", strokeWidth: 1.75 };
-
-function isCatalogPath(pathname) {
-  return (
-    pathname.startsWith("/dashboard/products") ||
-    pathname.startsWith("/dashboard/categories")
-  );
-}
 
 function NavLink({ href, active, icon: Icon, label, onClose }) {
   return (
@@ -70,21 +73,38 @@ function NavLink({ href, active, icon: Icon, label, onClose }) {
   );
 }
 
+function getInitialOpenGroups(pathname, navItems) {
+  return navItems.reduce((groups, item) => {
+    if (item.type === "group") {
+      groups[item.label] = item.match?.(pathname) || false;
+    }
+    return groups;
+  }, {});
+}
+
 export default function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname();
   const router = useRouter();
   const auth = getAdminAuth();
-  const [productsOpen, setProductsOpen] = useState(() => isCatalogPath(pathname));
+  const navItems = getNavItemsForRole(auth?.role);
+  const [openGroups, setOpenGroups] = useState(() => getInitialOpenGroups(pathname, navItems));
 
   useEffect(() => {
     onClose();
   }, [pathname, onClose]);
 
   useEffect(() => {
-    if (isCatalogPath(pathname)) {
-      setProductsOpen(true);
-    }
-  }, [pathname]);
+    setOpenGroups((current) => {
+      const next = { ...current };
+      navItems.forEach((item) => {
+        if (item.type === "group" && item.match?.(pathname)) {
+          next[item.label] = true;
+        }
+      });
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- navItems derived from auth.role
+  }, [pathname, auth?.role]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -102,9 +122,19 @@ export default function Sidebar({ isOpen, onClose }) {
     };
   }, [isOpen, onClose]);
 
-  function handleLogout() {
-    clearAdminAuth();
-    router.replace("/admin/login");
+  function toggleGroup(label) {
+    setOpenGroups((current) => ({ ...current, [label]: !current[label] }));
+  }
+
+  async function handleLogout() {
+    try {
+      await logoutAdmin();
+    } catch {
+      // ignore network errors during logout
+    } finally {
+      clearAdminAuth();
+      router.replace("/admin/login");
+    }
   }
 
   return (
@@ -167,9 +197,10 @@ export default function Sidebar({ isOpen, onClose }) {
           </p>
           <nav className="space-y-0.5">
             {navItems.map((item, index) => {
-              if (item.children) {
-                const groupActive = isCatalogPath(pathname);
-                const Icon = item.icon;
+              if (item.type === "group") {
+                const groupActive = item.match?.(pathname);
+                const groupOpen = openGroups[item.label];
+                const Icon = ICONS[item.icon] || Settings;
 
                 return (
                   <motion.div
@@ -180,7 +211,7 @@ export default function Sidebar({ isOpen, onClose }) {
                   >
                     <button
                       type="button"
-                      onClick={() => setProductsOpen((open) => !open)}
+                      onClick={() => toggleGroup(item.label)}
                       className={`group relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors ${
                         groupActive
                           ? "bg-white/[0.08] text-white"
@@ -204,14 +235,14 @@ export default function Sidebar({ isOpen, onClose }) {
                       <span className="flex-1 text-left">{item.label}</span>
                       <ChevronDown
                         className={`h-3.5 w-3.5 shrink-0 text-slate-500 transition-transform duration-200 ${
-                          productsOpen ? "rotate-180" : ""
+                          groupOpen ? "rotate-180" : ""
                         }`}
                         strokeWidth={2}
                       />
                     </button>
 
                     <AnimatePresence initial={false}>
-                      {productsOpen ? (
+                      {groupOpen ? (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
@@ -222,9 +253,8 @@ export default function Sidebar({ isOpen, onClose }) {
                           <div className="mt-0.5 ml-4 space-y-0.5 border-l border-slate-700/60 pl-2">
                             {item.children.map((child) => {
                               const childActive =
-                                pathname === child.href ||
-                                pathname.startsWith(`${child.href}/`);
-                              const ChildIcon = child.icon;
+                                pathname === child.href || pathname.startsWith(`${child.href}/`);
+                              const ChildIcon = ICONS[child.icon] || Package;
 
                               return (
                                 <Link
@@ -253,6 +283,7 @@ export default function Sidebar({ isOpen, onClose }) {
               const active =
                 pathname === item.href ||
                 (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
+              const Icon = ICONS[item.icon] || LayoutDashboard;
 
               return (
                 <motion.div
@@ -264,7 +295,7 @@ export default function Sidebar({ isOpen, onClose }) {
                   <NavLink
                     href={item.href}
                     active={active}
-                    icon={item.icon}
+                    icon={Icon}
                     label={item.label}
                     onClose={onClose}
                   />
@@ -281,9 +312,11 @@ export default function Sidebar({ isOpen, onClose }) {
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-[12px] font-medium text-slate-200">
-                {auth?.username || "Admin"}
+                {auth?.name || auth?.username || "Admin"}
               </p>
-              <p className="truncate text-[10px] text-slate-500">Store Administrator</p>
+              <p className="truncate text-[10px] text-slate-500">
+                {getRoleLabel(auth?.role)}
+              </p>
             </div>
           </div>
           <button

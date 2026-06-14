@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { isAdminAuthenticated, setAdminAuth } from "@/lib/auth";
+import { getAdminAuth, isAdminAuthenticated, setAdminAuth } from "@/lib/auth";
+import { getDefaultDashboardPath } from "@/lib/adminRoles";
 
 const inputClass =
   "w-full rounded-md border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
@@ -19,7 +20,7 @@ export default function AdminLoginForm() {
 
   useEffect(() => {
     if (isAdminAuthenticated()) {
-      router.replace("/dashboard");
+      router.replace(getDefaultDashboardPath(getAdminAuth()?.role));
       return;
     }
 
@@ -34,6 +35,7 @@ export default function AdminLoginForm() {
     try {
       const response = await fetch("/api/admin/login", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
@@ -45,8 +47,8 @@ export default function AdminLoginForm() {
         return;
       }
 
-      setAdminAuth(data.username);
-      router.replace("/dashboard");
+      setAdminAuth(data);
+      router.replace(getDefaultDashboardPath(data.role));
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {

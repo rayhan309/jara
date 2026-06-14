@@ -96,8 +96,7 @@ export function computeStockAdjustments(oldItems = [], newItems = []) {
     const diff = newQty - oldQty;
 
     if (diff !== 0) {
-      const productId = key.split("::")[0];
-      adjustments.set(productId, (adjustments.get(productId) || 0) - diff);
+      adjustments.set(key, (adjustments.get(key) || 0) - diff);
     }
   }
 

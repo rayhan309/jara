@@ -170,6 +170,17 @@ export function buildOrderNumberLookupFilter(query) {
   return { $or: conditions };
 }
 
+/** Public Steadfast parcel tracking page */
+export function getSteadfastTrackingUrl(trackingCode) {
+  const code = String(trackingCode || "").trim();
+  if (!code) return null;
+  return `https://steadfast.com.bd/t/${encodeURIComponent(code)}`;
+}
+
+export function getOrderSteadfastTrackingUrl(order) {
+  return getSteadfastTrackingUrl(order?.steadfast?.tracking_code);
+}
+
 export function buildCourierClipboardText(order) {
   const items = (order.items || [])
     .map((item) => `${item.title}${item.selected_variant ? ` (${item.selected_variant})` : ""} x${item.quantity}`)

@@ -1,5 +1,5 @@
-import SettingsManager from "@/components/dashboard/SettingsManager";
+import { redirect } from "next/navigation";
 
 export default function DashboardSettingsPage() {
-  return <SettingsManager />;
+  redirect("/dashboard/settings/general");
 }

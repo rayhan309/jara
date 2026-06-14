@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
+import { requireAdminPermission } from "@/lib/adminAuthServer";
+import { PERMISSIONS } from "@/lib/adminRoles";
 import { dbConnect } from "@/lib/dbConnect";
 import imagekit from "@/lib/imagekit";
 import { calculateDiscountPercentage, parseNumber } from "@/lib/productHelpers";
 import { ensureUniqueSlug, parseObjectId } from "@/lib/mongodbHelpers";
 import { slugify } from "@/lib/slugify";
+import { buildProductInventory, parseVariantStockPayload } from "@/lib/variantStock";
 
 const COLLECTION = "products";
 
@@ -86,6 +89,9 @@ export async function GET(_request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.PRODUCTS);
+    if (auth.error) return auth.error;
+
     const { id } = await params;
     const decodedId = decodeURIComponent(id);
     const objectId = parseObjectId(decodedId);
@@ -120,6 +126,7 @@ export async function PUT(request, { params }) {
     const attributeMaterial = String(formData.get("attribute_material") || "").trim();
     const averageRating = parseNumber(formData.get("average_rating"));
     const totalReviews = parseNumber(formData.get("total_reviews"));
+    const variantStockPayload = parseVariantStockPayload(formData.get("variant_stock"));
     const keptImages = parseExistingImages(formData.get("existing_images"));
     const imageFiles = formData.getAll("images").filter((file) => typeof file !== "string");
 
@@ -190,10 +197,13 @@ export async function PUT(request, { params }) {
         sale_price: salePrice,
         discount_percentage: calculateDiscountPercentage(regularPrice, salePrice),
       },
-      inventory: {
-        stock_status: stockStatus,
+      inventory: buildProductInventory({
         quantity,
-      },
+        stockStatus,
+        variantType: attributeVariantType,
+        variantOptions: attributeVariantOptions,
+        variantStockPayload,
+      }),
       images: finalImages,
       attributes: {
         variant_type: attributeVariantType,
@@ -223,8 +233,11 @@ export async function PUT(request, { params }) {
   }
 }
 
-export async function DELETE(_request, { params }) {
+export async function DELETE(request, { params }) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.PRODUCTS);
+    if (auth.error) return auth.error;
+
     const { id } = await params;
     const objectId = parseObjectId(id);
 

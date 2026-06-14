@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
+import { requireAdminPermission } from "@/lib/adminAuthServer";
+import { PERMISSIONS } from "@/lib/adminRoles";
 import { dbConnect } from "@/lib/dbConnect";
 import imagekit from "@/lib/imagekit";
 import { parseObjectId } from "@/lib/mongodbHelpers";
 import { calculateDiscountPercentage, parseNumber } from "@/lib/productHelpers";
 import { slugify } from "@/lib/slugify";
+import { buildProductInventory, parseVariantStockPayload } from "@/lib/variantStock";
 
 const COLLECTION = "products";
 const CATEGORIES_COLLECTION = "categories";
@@ -129,6 +132,9 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.PRODUCTS);
+    if (auth.error) return auth.error;
+
     const imageKitError = getImageKitConfigError();
     if (imageKitError) {
       return NextResponse.json({ error: imageKitError }, { status: 500 });
@@ -154,6 +160,7 @@ export async function POST(request) {
     const attributeMaterial = String(formData.get("attribute_material") || "").trim();
     const averageRating = parseNumber(formData.get("average_rating"));
     const totalReviews = parseNumber(formData.get("total_reviews"));
+    const variantStockPayload = parseVariantStockPayload(formData.get("variant_stock"));
     const imageFiles = formData.getAll("images").filter((file) => typeof file !== "string");
 
     if (!titleBn) {
@@ -214,10 +221,13 @@ export async function POST(request) {
         sale_price: salePrice,
         discount_percentage: calculateDiscountPercentage(regularPrice, salePrice),
       },
-      inventory: {
-        stock_status: stockStatus,
+      inventory: buildProductInventory({
         quantity,
-      },
+        stockStatus,
+        variantType: attributeVariantType,
+        variantOptions: attributeVariantOptions,
+        variantStockPayload,
+      }),
       images: uploadedImages,
       attributes: {
         variant_type: attributeVariantType,

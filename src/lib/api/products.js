@@ -1,3 +1,5 @@
+import { adminFetch } from "@/lib/adminFetch";
+
 export const productKeys = {
   all: ["products"],
   list: (filters = {}) => [...productKeys.all, "list", filters],
@@ -27,7 +29,7 @@ export async function fetchProducts(filters = {}) {
 }
 
 export async function createProduct(formData) {
-  const response = await fetch("/api/products", {
+  const response = await adminFetch("/api/products", {
     method: "POST",
     body: formData,
   });
@@ -42,7 +44,7 @@ export async function createProduct(formData) {
 }
 
 export async function updateProduct(id, formData) {
-  const response = await fetch(`/api/products/${id}`, {
+  const response = await adminFetch(`/api/products/${id}`, {
     method: "PUT",
     body: formData,
   });
@@ -57,7 +59,7 @@ export async function updateProduct(id, formData) {
 }
 
 export async function deleteProduct(id) {
-  const response = await fetch(`/api/products/${id}`, { method: "DELETE" });
+  const response = await adminFetch(`/api/products/${id}`, { method: "DELETE" });
   const data = await response.json();
 
   if (!response.ok) {

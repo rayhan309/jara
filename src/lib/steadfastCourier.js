@@ -1,17 +1,27 @@
 import { normalizePhone } from "@/lib/orderValidation";
+import {
+  getSteadfastConfigFromSettings,
+  normalizeSteadfastBaseUrl,
+} from "@/lib/siteSettings";
+import { getFreshSiteSettings } from "@/lib/siteSettingsServer";
 
-const DEFAULT_BASE_URL = "https://portal.packzy.com/api/v1";
+async function resolveConfig(override, options = {}) {
+  if (override?.apiKey && override?.secretKey) {
+    return {
+      baseUrl: normalizeSteadfastBaseUrl(override.baseUrl),
+      apiKey: String(override.apiKey).trim(),
+      secretKey: String(override.secretKey).trim(),
+    };
+  }
 
-function getConfig() {
-  const apiKey = process.env.STEADFAST_API_KEY;
-  const secretKey = process.env.STEADFAST_SECRET_KEY;
-  const baseUrl = (process.env.STEADFAST_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, "");
+  const settings = await getFreshSiteSettings();
+  const config = getSteadfastConfigFromSettings(settings, options);
 
-  if (!apiKey || !secretKey) {
+  if (!config?.apiKey || !config?.secretKey) {
     throw new Error("Steadfast API credentials are not configured.");
   }
 
-  return { apiKey, secretKey, baseUrl };
+  return config;
 }
 
 function sanitizeInvoice(value, fallback) {
@@ -68,8 +78,10 @@ export function mapOrderToSteadfastPayload(order) {
   };
 }
 
-async function steadfastRequest(path, options = {}) {
-  const { apiKey, secretKey, baseUrl } = getConfig();
+async function steadfastRequest(path, options = {}, configOverride) {
+  const { apiKey, secretKey, baseUrl } = await resolveConfig(configOverride, {
+    requireEnabled: !configOverride,
+  });
   const url = `${baseUrl}/${String(path).replace(/^\//, "")}`;
 
   const response = await fetch(url, {
@@ -110,10 +122,14 @@ async function steadfastRequest(path, options = {}) {
 
 export async function createSteadfastOrder(order) {
   const payload = mapOrderToSteadfastPayload(order);
-  const data = await steadfastRequest("create_order", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+  const data = await steadfastRequest(
+    "create_order",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+    null
+  );
 
   const consignment = data?.consignment || data?.data?.consignment || {};
 
@@ -129,6 +145,10 @@ export async function createSteadfastOrder(order) {
   };
 }
 
-export async function getSteadfastBalance() {
-  return steadfastRequest("get_balance", { method: "GET" });
+export async function getSteadfastBalance(configOverride) {
+  return steadfastRequest("get_balance", { method: "GET" }, configOverride);
+}
+
+export async function testSteadfastConnection(configOverride) {
+  return getSteadfastBalance(configOverride);
 }

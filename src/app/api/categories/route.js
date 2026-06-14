@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { requireAdminPermission } from "@/lib/adminAuthServer";
+import { PERMISSIONS } from "@/lib/adminRoles";
 import { dbConnect } from "@/lib/dbConnect";
 import imagekit from "@/lib/imagekit";
 import { serializeCategory, sortCategoriesList } from "@/lib/categorySort";
@@ -49,6 +51,9 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.PRODUCTS);
+    if (auth.error) return auth.error;
+
     const imageKitError = getImageKitConfigError();
     if (imageKitError) {
       return NextResponse.json({ error: imageKitError }, { status: 500 });

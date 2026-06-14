@@ -2,21 +2,34 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
 import { Loader2 } from "lucide-react";
-import { isAdminAuthenticated } from "@/lib/auth";
+import { motion } from "motion/react";
+import { fetchAdminProfile } from "@/lib/api/adminUsers";
+import { getAdminAuth, setAdminAuth, clearAdminAuth, isAdminAuthenticated } from "@/lib/auth";
+import { getDefaultDashboardPath } from "@/lib/adminRoles";
 
 export default function AdminAuthGuard({ children }) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!isAdminAuthenticated()) {
-      router.replace("/admin/login");
-      return;
+    async function verifySession() {
+      if (!isAdminAuthenticated()) {
+        router.replace("/admin/login");
+        return;
+      }
+
+      try {
+        const user = await fetchAdminProfile();
+        setAdminAuth(user);
+        setReady(true);
+      } catch {
+        clearAdminAuth();
+        router.replace("/admin/login");
+      }
     }
 
-    setReady(true);
+    verifySession();
   }, [router]);
 
   if (!ready) {
@@ -27,11 +40,9 @@ export default function AdminAuthGuard({ children }) {
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center gap-5"
         >
-          <div className="rounded-md relative flex h-14 w-14 items-center justify-center border border-indigo-200 bg-white">
-            <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
-          </div>
+          <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
           <p className="text-xs font-semibold tracking-[0.2em] text-dash-muted uppercase">
-            Verifying admin session
+            Verifying session
           </p>
         </motion.div>
       </div>
@@ -39,4 +50,9 @@ export default function AdminAuthGuard({ children }) {
   }
 
   return children;
+}
+
+export function getPostLoginPath() {
+  const auth = getAdminAuth();
+  return getDefaultDashboardPath(auth?.role);
 }

@@ -25,3 +25,13 @@ export const getSiteSettings = cache(async () => {
     return normalizeSettings(DEFAULT_SETTINGS);
   }
 });
+
+/** Bypass cache — use after settings update or for credential checks */
+export async function getFreshSiteSettings() {
+  try {
+    return await readSiteSettingsFromDb();
+  } catch (error) {
+    console.error("getFreshSiteSettings error:", error);
+    return normalizeSettings(DEFAULT_SETTINGS);
+  }
+}

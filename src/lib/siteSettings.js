@@ -16,6 +16,10 @@ export const DEFAULT_SETTINGS = {
   primaryColor: "#4f46e5",
   metaPixelId: "",
   metaPixelEnabled: false,
+  steadfastBaseUrl: "https://portal.packzy.com/api/v1",
+  steadfastApiKey: "",
+  steadfastSecretKey: "",
+  steadfastEnabled: false,
   contactPhone: "+8801815131040",
   contactEmail: "support@nexa.com",
   contactAddress: "ঢাকা, বাংলাদেশ",
@@ -135,6 +139,58 @@ export function getMetaPixelIdFromSettings(settings, envFallback = "") {
   return String(envFallback || "").trim().replace(/\D/g, "");
 }
 
+const DEFAULT_STEADFAST_BASE_URL = "https://portal.packzy.com/api/v1";
+
+export function normalizeSteadfastBaseUrl(value) {
+  const url = String(value || DEFAULT_STEADFAST_BASE_URL).trim();
+  return url.replace(/\/$/, "") || DEFAULT_STEADFAST_BASE_URL;
+}
+
+/** Admin settings first; env fallback when dashboard-এ configure করা নেই */
+export function getSteadfastConfigFromSettings(settings, options = {}) {
+  const { requireEnabled = true } = options;
+  const envFallback = {
+    baseUrl: normalizeSteadfastBaseUrl(process.env.STEADFAST_BASE_URL),
+    apiKey: String(process.env.STEADFAST_API_KEY || "").trim(),
+    secretKey: String(process.env.STEADFAST_SECRET_KEY || "").trim(),
+  };
+
+  const hasAdminKeys = Boolean(settings?.steadfastApiKey && settings?.steadfastSecretKey);
+
+  if (hasAdminKeys) {
+    if (requireEnabled && !settings?.steadfastEnabled) {
+      return null;
+    }
+
+    return {
+      baseUrl: normalizeSteadfastBaseUrl(settings.steadfastBaseUrl),
+      apiKey: settings.steadfastApiKey,
+      secretKey: settings.steadfastSecretKey,
+    };
+  }
+
+  if (settings?.steadfastApiKey || settings?.steadfastSecretKey) {
+    return null;
+  }
+
+  if (envFallback.apiKey && envFallback.secretKey) {
+    return envFallback;
+  }
+
+  return null;
+}
+
+/** Strip secret keys before sending settings to the browser */
+export function sanitizePublicSettings(settings) {
+  if (!settings) return settings;
+
+  return {
+    ...settings,
+    steadfastSecretKey: "",
+    steadfastSecretKeySet: Boolean(settings.steadfastSecretKey),
+  };
+}
+
 export function normalizeSettings(input = {}) {
   const primaryColor = normalizeHexColor(input.primaryColor);
   const theme = deriveThemeColors(primaryColor);
@@ -146,6 +202,13 @@ export function normalizeSettings(input = {}) {
   const contactPhone = String(input.contactPhone || DEFAULT_SETTINGS.contactPhone || "").trim();
   const contactEmail = String(input.contactEmail || DEFAULT_SETTINGS.contactEmail || "").trim();
   const contactAddress = String(input.contactAddress || DEFAULT_SETTINGS.contactAddress || "").trim();
+  const steadfastBaseUrl = normalizeSteadfastBaseUrl(input.steadfastBaseUrl);
+  const steadfastApiKey = String(input.steadfastApiKey || "").trim();
+  const steadfastSecretKey = String(input.steadfastSecretKey || "").trim();
+  const steadfastEnabled =
+    Boolean(input.steadfastEnabled) &&
+    Boolean(steadfastApiKey) &&
+    Boolean(steadfastSecretKey);
 
   return {
     primaryColor: theme.primaryColor,
@@ -155,6 +218,10 @@ export function normalizeSettings(input = {}) {
     primaryColorBorder: theme.primaryColorBorder,
     metaPixelId,
     metaPixelEnabled,
+    steadfastBaseUrl,
+    steadfastApiKey,
+    steadfastSecretKey,
+    steadfastEnabled,
     contactPhone,
     contactEmail,
     contactAddress,

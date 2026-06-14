@@ -1,3 +1,5 @@
+import { adminFetch } from "@/lib/adminFetch";
+
 export const categoryKeys = {
   all: ["categories"],
   list: () => [...categoryKeys.all, "list"],
@@ -16,7 +18,7 @@ export async function fetchCategories() {
 }
 
 export async function createCategory(formData) {
-  const response = await fetch("/api/categories", {
+  const response = await adminFetch("/api/categories", {
     method: "POST",
     body: formData,
   });
@@ -31,7 +33,7 @@ export async function createCategory(formData) {
 }
 
 export async function updateCategory(id, formData) {
-  const response = await fetch(`/api/categories/${id}`, {
+  const response = await adminFetch(`/api/categories/${id}`, {
     method: "PUT",
     body: formData,
   });
@@ -46,7 +48,7 @@ export async function updateCategory(id, formData) {
 }
 
 export async function deleteCategory(id) {
-  const response = await fetch(`/api/categories/${id}`, { method: "DELETE" });
+  const response = await adminFetch(`/api/categories/${id}`, { method: "DELETE" });
   const data = await response.json();
 
   if (!response.ok) {
@@ -57,7 +59,7 @@ export async function deleteCategory(id) {
 }
 
 export async function reorderCategories(orderedIds) {
-  const response = await fetch("/api/categories/reorder", {
+  const response = await adminFetch("/api/categories/reorder", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ orderedIds }),

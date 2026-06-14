@@ -1,4 +1,5 @@
 import { formatDisplayOrderNumber } from "@/lib/orderHelpers";
+import { isProductFullyOutOfStock } from "@/lib/variantStock";
 
 export function formatRelativeTime(value) {
   if (!value) return "—";
@@ -43,9 +44,7 @@ export function buildDashboardStats(orders = [], products = []) {
     const qty = product.inventory?.quantity ?? 0;
     return qty <= 5 || product.inventory?.stock_status === "low_stock";
   }).length;
-  const outOfStock = products.filter(
-    (product) => product.inventory?.stock_status === "out_of_stock"
-  ).length;
+  const outOfStock = products.filter((product) => isProductFullyOutOfStock(product)).length;
 
   const uniqueCustomers = new Set(
     orders.map((order) => order.customer?.phone).filter(Boolean)

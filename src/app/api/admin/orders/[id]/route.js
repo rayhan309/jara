@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { requireAdminPermission } from "@/lib/adminAuthServer";
+import { PERMISSIONS } from "@/lib/adminRoles";
 import { dbConnect } from "@/lib/dbConnect";
 import {
   calculateAdminOrderPricing,
@@ -8,6 +10,8 @@ import {
 import { ALL_VALID_ORDER_STATUSES } from "@/lib/orderHelpers";
 import { DELIVERY_OPTIONS, validateCustomerDetails } from "@/lib/orderValidation";
 import { parseObjectId } from "@/lib/mongodbHelpers";
+import { applyProductStockChange, parseOrderStockKey } from "@/lib/productInventoryServer";
+import { getProductMaxStock } from "@/lib/variantStock";
 
 const ORDERS_COLLECTION = "orders";
 const PRODUCTS_COLLECTION = "products";
@@ -19,8 +23,11 @@ function serializeOrder(order) {
   };
 }
 
-export async function GET(_request, { params }) {
+export async function GET(request, { params }) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.ORDERS);
+    if (auth.error) return auth.error;
+
     const { id } = await params;
     const objectId = parseObjectId(id);
     if (!objectId) {
@@ -43,6 +50,9 @@ export async function GET(_request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.ORDERS);
+    if (auth.error) return auth.error;
+
     const { id } = await params;
     const objectId = parseObjectId(id);
     if (!objectId) {
@@ -105,32 +115,36 @@ export async function PUT(request, { params }) {
 
       const stockAdjustments = computeStockAdjustments(existing.items || [], nextItems);
 
-      for (const [productId, quantityChange] of stockAdjustments.entries()) {
+      for (const [stockKey, quantityChange] of stockAdjustments.entries()) {
+        const { productId, selectedVariant } = parseOrderStockKey(stockKey);
         const productObjectId = parseObjectId(productId);
         if (!productObjectId || quantityChange === 0) continue;
 
         if (quantityChange < 0) {
           const requiredQty = Math.abs(quantityChange);
           const product = await productsCol.findOne({ _id: productObjectId });
-          const available = product?.inventory?.quantity ?? 0;
+          const available = getProductMaxStock(product, selectedVariant);
 
           if (available < requiredQty) {
             return NextResponse.json(
               {
-                error: `Not enough stock for "${product?.title_bn || product?.title_en || "product"}". Available: ${available}`,
+                error: `Not enough stock for "${product?.title_bn || product?.title_en || "product"}${selectedVariant ? ` (${selectedVariant})` : ""}". Available: ${available}`,
               },
               { status: 400 }
             );
           }
         }
 
-        await productsCol.updateOne(
-          { _id: productObjectId },
-          {
-            $inc: { "inventory.quantity": quantityChange },
-            $set: { updatedAt: new Date() },
-          }
+        const result = await applyProductStockChange(
+          productsCol,
+          productId,
+          selectedVariant,
+          quantityChange
         );
+
+        if (!result.ok && result.reason === "insufficient_stock") {
+          return NextResponse.json({ error: "Insufficient stock for one or more items." }, { status: 400 });
+        }
       }
 
       updates.items = nextItems;
@@ -199,8 +213,11 @@ export async function PUT(request, { params }) {
   }
 }
 
-export async function DELETE(_request, { params }) {
+export async function DELETE(request, { params }) {
   try {
+    const auth = await requireAdminPermission(request, PERMISSIONS.ORDERS);
+    if (auth.error) return auth.error;
+
     const { id } = await params;
     const objectId = parseObjectId(id);
     if (!objectId) {
@@ -219,12 +236,11 @@ export async function DELETE(_request, { params }) {
       const productId = parseObjectId(item.product_id);
       if (!productId) continue;
 
-      await productsCol.updateOne(
-        { _id: productId },
-        {
-          $inc: { "inventory.quantity": item.quantity },
-          $set: { updatedAt: new Date() },
-        }
+      await applyProductStockChange(
+        productsCol,
+        productId.toString(),
+        item.selected_variant || "",
+        item.quantity
       );
     }
 

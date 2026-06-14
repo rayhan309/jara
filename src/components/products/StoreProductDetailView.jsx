@@ -25,6 +25,7 @@ import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
 import { getProductMaxStock } from "@/lib/cart";
 import { getProductVariantConfig } from "@/lib/productVariants";
+import { isProductFullyOutOfStock, isVariantOutOfStock } from "@/lib/variantStock";
 import StoreProductCard from "@/components/products/StoreProductCard";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import { buildProductPixelPayload, trackMetaEvent } from "@/lib/metaPixel";
@@ -67,8 +68,12 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
   const salePrice = product.pricing?.sale_price || 0;
   const regularPrice = product.pricing?.regular_price || 0;
   const discount = product.pricing?.discount_percentage || 0;
-  const outOfStock = product.inventory?.stock_status === "out_of_stock";
-  const maxStock = getProductMaxStock(product);
+  const outOfStock = variantConfig.required
+    ? selectedVariant
+      ? isVariantOutOfStock(product, selectedVariant)
+      : isProductFullyOutOfStock(product)
+    : isVariantOutOfStock(product);
+  const maxStock = getProductMaxStock(product, selectedVariant);
   const totalCartQty = items
     .filter((item) => item._id === product._id)
     .reduce((sum, item) => sum + item.quantity, 0);
@@ -78,7 +83,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
   );
   const inCart = Boolean(cartLine);
   const cartQty = cartLine?.quantity || 0;
-  const remainingStock = Math.max(0, maxStock - totalCartQty);
+  const remainingStock = Math.max(0, maxStock - cartQty);
   const hasAnyInCart = productCartLines.length > 0;
 
   const savings = useMemo(() => {
@@ -87,7 +92,14 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
   }, [regularPrice, salePrice, quantity]);
 
   useEffect(() => {
-    setQuantity((q) => clampQty(q));
+    setQuantity(1);
+  }, [selectedVariant]);
+
+  useEffect(() => {
+    setQuantity((current) => {
+      const limit = Math.max(1, remainingStock || 1);
+      return Math.min(limit, Math.max(1, current));
+    });
   }, [remainingStock]);
 
   useEffect(() => {
@@ -378,22 +390,29 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                 {variantConfig.label} বেছে নিন <span className="text-rose-500">*</span>
               </p>
               <div className="flex flex-wrap gap-2">
-                {variantConfig.options.map((option) => (
+                {variantConfig.options.map((option) => {
+                  const optionOutOfStock = isVariantOutOfStock(product, option);
+                  return (
                   <button
                     key={option}
                     type="button"
+                    disabled={optionOutOfStock}
                     onClick={() => {
                       setSelectedVariant(option);
                     }}
-                    className={`rounded-md border px-3.5 py-2 text-sm font-semibold transition-colors ${
+                    className={`rounded-md border px-3.5 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                       selectedVariant === option
                         ? "border-indigo-600 bg-indigo-600 text-white"
-                        : "border-zinc-200 bg-white text-zinc-700 hover:border-indigo-200 hover:text-indigo-700"
+                        : optionOutOfStock
+                          ? "border-zinc-200 bg-zinc-100 text-zinc-400"
+                          : "border-zinc-200 bg-white text-zinc-700 hover:border-indigo-200 hover:text-indigo-700"
                     }`}
                   >
                     {option}
+                    {optionOutOfStock ? " (স্টক নেই)" : ""}
                   </button>
-                ))}
+                );
+                })}
               </div>
             </div>
           ) : null}

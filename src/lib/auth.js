@@ -1,12 +1,14 @@
 const ADMIN_AUTH_KEY = "nexa_admin_session";
 
-export function setAdminAuth(username) {
+export function setAdminAuth(user) {
   localStorage.setItem(
     ADMIN_AUTH_KEY,
     JSON.stringify({
-      role: "admin",
       authenticated: true,
-      username,
+      userId: user.userId || user._id,
+      username: user.username,
+      name: user.name || user.username,
+      role: user.role,
       loggedInAt: Date.now(),
     })
   );
@@ -29,5 +31,16 @@ export function clearAdminAuth() {
 
 export function isAdminAuthenticated() {
   const auth = getAdminAuth();
-  return auth?.authenticated === true && auth?.role === "admin";
+  return auth?.authenticated === true && Boolean(auth?.role);
+}
+
+export function updateAdminAuthProfile(user) {
+  const current = getAdminAuth();
+  if (!current) return;
+
+  setAdminAuth({
+    ...current,
+    ...user,
+    userId: user._id || user.userId || current.userId,
+  });
 }

@@ -7,6 +7,7 @@ import { ArrowRight, Package } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
 import { getProductVariantConfig } from "@/lib/productVariants";
+import { isProductFullyOutOfStock } from "@/lib/variantStock";
 
 export default function HomeProductCard({ product }) {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function HomeProductCard({ product }) {
   const image = product.images?.[0]?.url;
   const title = product.title_bn || product.title_en;
   const salePrice = product.pricing?.sale_price;
-  const outOfStock = product.inventory?.stock_status === "out_of_stock";
+  const outOfStock = isProductFullyOutOfStock(product);
 
   function handleOrder(event) {
     event.preventDefault();
