@@ -281,6 +281,7 @@ export default function ProductForm({ product = null }) {
   const variantType = watch("variant_type");
   const variantOptionsValue = watch("variant_options");
   const stockStatus = watch("stock_status");
+  const quantity = watch("quantity");
   const titleEnValue = watch("title_en");
   const titleBnValue = watch("title_bn");
   const isVariable = productType === PRODUCT_TYPES.VARIABLE;
@@ -501,25 +502,11 @@ export default function ProductForm({ product = null }) {
     setImagePreviews([]);
     setSubmitError("");
     setVariantStock(
-      mergeVariantStockWithOptions(
-        options,
-        product.inventory?.variant_stock || [],
-        product.inventory || {}
-      ).map((entry) => ({
-        ...entry,
-        regular_price:
-          entry.regular_price != null && entry.regular_price !== ""
-            ? entry.regular_price
-            : inferredType === PRODUCT_TYPES.VARIABLE
-              ? product.pricing?.regular_price || ""
-              : "",
-        sale_price:
-          entry.sale_price != null && entry.sale_price !== ""
-            ? entry.sale_price
-            : inferredType === PRODUCT_TYPES.VARIABLE
-              ? product.pricing?.sale_price || ""
-              : "",
-      }))
+      mergeVariantStockWithOptions(options, product.inventory?.variant_stock || [], {
+        ...product.inventory,
+        regular_price: product.pricing?.regular_price ?? "",
+        sale_price: product.pricing?.sale_price ?? "",
+      })
     );
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [product, reset]);
@@ -533,8 +520,15 @@ export default function ProductForm({ product = null }) {
       setVariantStock([]);
       return;
     }
-    setVariantStock((current) => mergeVariantStockWithOptions(parsedVariantOptions, current));
-  }, [isVariable, variantType, parsedVariantOptions.join("|")]);
+    setVariantStock((current) =>
+      mergeVariantStockWithOptions(parsedVariantOptions, current, {
+        stock_status: stockStatus,
+        quantity,
+        regular_price: regularPrice,
+        sale_price: salePrice,
+      })
+    );
+  }, [isVariable, variantType, parsedVariantOptions.join("|"), stockStatus, quantity, regularPrice, salePrice]);
 
   useEffect(() => {
     if (slugEdited) return;
@@ -553,6 +547,19 @@ export default function ProductForm({ product = null }) {
       setValue("variant_type", "");
       setValue("variant_options", "");
       setVariantStock([]);
+      return;
+    }
+
+    const options = parseVariantOptions(variantOptionsValue);
+    if (options.length && variantType) {
+      setVariantStock((current) =>
+        mergeVariantStockWithOptions(options, current, {
+          stock_status: stockStatus,
+          quantity,
+          regular_price: regularPrice,
+          sale_price: salePrice,
+        })
+      );
     }
   }
 

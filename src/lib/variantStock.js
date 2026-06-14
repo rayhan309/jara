@@ -101,16 +101,46 @@ export function mergeVariantStockWithOptions(options = [], existingList = [], fa
         ? "stock"
         : "in_stock";
 
+  const pricingTemplate = (existingList || []).find(
+    (entry) =>
+      (entry.regular_price != null && entry.regular_price !== "") ||
+      (entry.sale_price != null && entry.sale_price !== "")
+  );
+
+  const defaultRegular =
+    pricingTemplate?.regular_price != null && pricingTemplate.regular_price !== ""
+      ? pricingTemplate.regular_price
+      : fallbackInventory.regular_price != null && fallbackInventory.regular_price !== ""
+        ? fallbackInventory.regular_price
+        : "";
+
+  const defaultSale =
+    pricingTemplate?.sale_price != null && pricingTemplate.sale_price !== ""
+      ? pricingTemplate.sale_price
+      : fallbackInventory.sale_price != null && fallbackInventory.sale_price !== ""
+        ? fallbackInventory.sale_price
+        : "";
+
   return options.map((option) => {
     const existing = existingMap.get(option);
     if (existing) {
-      return { option, ...existing };
+      const row = { option, ...existing };
+      if (
+        (row.regular_price == null || row.regular_price === "") &&
+        defaultRegular !== ""
+      ) {
+        row.regular_price = defaultRegular;
+      }
+      if ((row.sale_price == null || row.sale_price === "") && defaultSale !== "") {
+        row.sale_price = defaultSale;
+      }
+      return row;
     }
 
     return {
       option,
-      regular_price: "",
-      sale_price: "",
+      regular_price: defaultRegular,
+      sale_price: defaultSale,
       stock_status: defaultStatus,
       quantity: defaultStatus === "stock" ? fallbackQty : 0,
     };

@@ -346,7 +346,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
           <div className="mt-4.5 rounded-md">
             <div className="flex flex-wrap items-end gap-3">
               {showFromPrice ? (
-                <span className="pb-1 text-sm font-semibold text-indigo-600">থেকে</span>
+                <span className="pb-1 text-sm font-semibold text-indigo-600"></span>
               ) : null}
               <p className="text-2xl font-bold text-zinc-900 sm:text-3xl lg:text-4xl">
                 ৳{salePrice.toLocaleString()}

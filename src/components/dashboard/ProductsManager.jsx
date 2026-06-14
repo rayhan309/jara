@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Loader2, Package, Pencil, Plus, Trash2 } from "lucide-react";
-import { isVariableProduct } from "@/lib/productPricing";
 import { getProductStockSummary } from "@/lib/variantStock";
 import { useCategories } from "@/hooks/useCategories";
 import { useDebouncedValue } from "@/hooks/useDebounce";
@@ -67,13 +66,9 @@ function ProductPriceCell({ product }) {
   const regularPrice = pricing.regular_price ?? 0;
   const discount = pricing.discount_percentage || 0;
   const hasDiscount = regularPrice > salePrice;
-  const isVariable = isVariableProduct(product);
 
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      {isVariable ? (
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-indigo-600">From</span>
-      ) : null}
       <span className="text-sm font-semibold tabular-nums text-dash-text">
         ৳{salePrice.toLocaleString()}
       </span>
