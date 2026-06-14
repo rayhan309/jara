@@ -15,6 +15,7 @@ import {
   ShoppingBag,
   Trash2,
 } from "lucide-react";
+import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
 import { useProducts } from "@/hooks/useProducts";
 import { createOrder } from "@/lib/api/orders";
@@ -294,8 +295,9 @@ export default function CheckoutView() {
         })
       );
 
-      toast.success("অর্ডার সফলভাবে গ্রহণ করা হয়েছে!");
       router.push("/thankyou");
+      clearCart();
+      toast.success("অর্ডার সফলভাবে গ্রহণ করা হয়েছে!");
     } catch (error) {
       toast.error(error.message || "অর্ডার প্লেস করা যায়নি");
     } finally {
