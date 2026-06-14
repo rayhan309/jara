@@ -27,7 +27,7 @@ export default function RepeatCustomerReport() {
         </div>
       </div>
 
-      <OrdersManager initialSearch={phone} />
+      <OrdersManager initialSearch={phone} reportMode />
     </div>
   );
 }

@@ -679,7 +679,38 @@ function RepeatCustomerBadge({ phone, count }) {
   );
 }
 
-export default function OrdersManager({ initialSearch = "" }) {
+function CourierIdCell({ order }) {
+  const courierId = getCourierId(order);
+  if (!courierId) {
+    return (
+      <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold text-slate-400">
+        No CN
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
+      {courierId}
+    </span>
+  );
+}
+
+function ReportViewAction({ order, onView }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onView(order)}
+      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-dash-text transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+      title="View"
+      aria-label="View order"
+    >
+      <Eye className="h-4 w-4" />
+    </button>
+  );
+}
+
+export default function OrdersManager({ initialSearch = "", reportMode = false }) {
   const { data: orders = [], isLoading, isError, error, refetch } = useAdminOrders();
   const { mutate: deleteOrder, isPending: isDeleting, variables: deletingId } = useDeleteAdminOrder();
   const { mutateAsync: sendToSteadfast } = useSendOrderToSteadfast();
@@ -834,45 +865,47 @@ export default function OrdersManager({ initialSearch = "" }) {
 
   return (
     <div className="space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-      >
-        <div>
-          <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">
-            Fulfillment
-          </p>
-          <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Orders</h1>
-          <p className="mt-1 text-sm text-dash-muted">
-            View, update status, and manage customer orders.
-          </p>
-        </div>
-        <div className="flex flex-col items-stretch gap-2 sm:items-end">
-          <label htmlFor="order-date-filter" className="sr-only">
-            Filter by date
-          </label>
-          <select
-            id="order-date-filter"
-            value={dateFilter}
-            onChange={(event) => setDateFilter(event.target.value)}
-            className={`${inputClass} w-full min-w-[180px] sm:w-52`}
-          >
-            {ORDER_DATE_FILTERS.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <p className="text-sm font-semibold text-dash-muted">
-            {filteredOrders.length === orders.length
-              ? `${orders.length} total orders`
-              : `${filteredOrders.length} of ${orders.length} orders`}
-          </p>
-        </div>
-      </motion.div>
+      {!reportMode ? (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">
+              Fulfillment
+            </p>
+            <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Orders</h1>
+            <p className="mt-1 text-sm text-dash-muted">
+              View, update status, and manage customer orders.
+            </p>
+          </div>
+          <div className="flex flex-col items-stretch gap-2 sm:items-end">
+            <label htmlFor="order-date-filter" className="sr-only">
+              Filter by date
+            </label>
+            <select
+              id="order-date-filter"
+              value={dateFilter}
+              onChange={(event) => setDateFilter(event.target.value)}
+              className={`${inputClass} w-full min-w-[180px] sm:w-52`}
+            >
+              {ORDER_DATE_FILTERS.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-sm font-semibold text-dash-muted">
+              {filteredOrders.length === orders.length
+                ? `${orders.length} total orders`
+                : `${filteredOrders.length} of ${orders.length} orders`}
+            </p>
+          </div>
+        </motion.div>
+      ) : null}
 
-      {dateFilter === "custom" ? (
+      {!reportMode && dateFilter === "custom" ? (
         <div className="flex flex-col gap-3 rounded-md border border-dash-border bg-white p-3 sm:flex-row sm:items-end sm:p-4">
           <div className="flex-1">
             <label htmlFor="order-date-from" className="mb-1.5 block text-xs font-semibold text-dash-muted">
@@ -912,7 +945,8 @@ export default function OrdersManager({ initialSearch = "" }) {
         </div>
       ) : null}
 
-      <div className="space-y-3">
+      {!reportMode ? (
+        <div className="space-y-3">
         <input
           type="search"
           value={search}
@@ -921,7 +955,7 @@ export default function OrdersManager({ initialSearch = "" }) {
           className={`${inputClass} w-full`}
         />
 
-        <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             type="button"
             onClick={() => setStatusFilter("all")}
@@ -952,7 +986,8 @@ export default function OrdersManager({ initialSearch = "" }) {
             );
           })}
         </div>
-      </div>
+        </div>
+      ) : null}
 
       {selectedCount > 0 ? (
         <div className="flex flex-col gap-3 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1006,6 +1041,90 @@ export default function OrdersManager({ initialSearch = "" }) {
               ? "Customer orders will appear here after checkout."
               : "Try a different search or filter."}
           </p>
+        </div>
+      ) : reportMode ? (
+        <div className="dash-card overflow-hidden">
+          <MobileCardList className="divide-y divide-dash-border p-0">
+            {paginatedItems.map((order, index) => (
+              <motion.div
+                key={order._id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.02 }}
+              >
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-base font-bold text-indigo-600">
+                        #{formatDisplayOrderNumber(order.order_number)}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-dash-text">
+                        {order.customer?.name || "—"}
+                      </p>
+                      <p className="mt-0.5 text-xs text-dash-muted">
+                        {order.customer?.phone || "—"}
+                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <CourierIdCell order={order} />
+                        <span className="text-[11px] text-dash-muted">
+                          {formatOrderDate(order.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                    <ReportViewAction order={order} onView={setViewOrder} />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </MobileCardList>
+
+          <DesktopTable>
+            <table className="min-w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-dash-border bg-slate-50/90 text-[11px] font-semibold tracking-wide text-dash-muted uppercase">
+                  <th className="px-3 py-2.5">Order</th>
+                  <th className="px-3 py-2.5">Customer</th>
+                  <th className="px-3 py-2.5">Courier ID</th>
+                  <th className="px-3 py-2.5">Date</th>
+                  <th className="px-3 py-2.5 text-right">View</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedItems.map((order, index) => (
+                  <tr
+                    key={order._id}
+                    className={`border-b border-dash-border last:border-b-0 ${
+                      index % 2 === 0 ? "bg-white" : "bg-slate-50/40"
+                    }`}
+                  >
+                    <td className="px-3 py-2.5 font-semibold text-indigo-600">
+                      #{formatDisplayOrderNumber(order.order_number)}
+                    </td>
+                    <td className="px-3 py-2.5 text-dash-text">
+                      <p className="font-semibold">{order.customer?.name || "—"}</p>
+                      <p className="text-xs text-dash-muted">{order.customer?.phone || "—"}</p>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <CourierIdCell order={order} />
+                    </td>
+                    <td className="px-3 py-2.5 text-xs text-dash-muted whitespace-nowrap">
+                      {formatOrderDate(order.createdAt)}
+                    </td>
+                    <td className="px-3 py-2.5 text-right">
+                      <ReportViewAction order={order} onView={setViewOrder} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </DesktopTable>
+          <TablePagination
+            page={page}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onPageChange={setPage}
+          />
         </div>
       ) : (
         <div className="dash-card overflow-hidden">
