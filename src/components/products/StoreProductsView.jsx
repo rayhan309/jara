@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Package } from "lucide-react";
 import { filterProductsByCategory } from "@/lib/categoryFilter";
@@ -73,6 +73,11 @@ function StoreProductsContent() {
     pageSize,
     paginatedItems,
   } = usePagination(filteredProducts, 15);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]);
 
   const pageTitle = searchQuery
     ? `"${searchQuery}" — অনুসন্ধান`
