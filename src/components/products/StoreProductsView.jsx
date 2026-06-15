@@ -2,10 +2,11 @@
 
 import { Suspense, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Package } from "lucide-react";
+import { ChevronLeft, ChevronRight, Package } from "lucide-react";
 import { filterProductsByCategory } from "@/lib/categoryFilter";
 import { filterProductsBySearch } from "@/lib/productSearch";
 import { useCategoryFilter } from "@/hooks/useCategoryFilter";
+import { usePagination } from "@/hooks/usePagination";
 import { useProducts } from "@/hooks/useProducts";
 import StoreProductCard from "@/components/products/StoreProductCard";
 
@@ -38,7 +39,7 @@ function StoreProductsFallback() {
         <div className="mx-auto mt-2.5 h-0.5 w-12 animate-pulse rounded-full bg-zinc-100" />
       </div>
       <div className="store-product-grid mt-6 sm:mt-8">
-        {Array.from({ length: 12 }).map((_, index) => (
+        {Array.from({ length: 15 }).map((_, index) => (
           <ProductSkeleton key={index} />
         ))}
       </div>
@@ -63,6 +64,15 @@ function StoreProductsContent() {
     const byCategory = filterProductsByCategory(products, selectedCategory);
     return filterProductsBySearch(byCategory, searchQuery);
   }, [products, selectedCategory, searchQuery]);
+
+  const {
+    page,
+    setPage,
+    totalPages,
+    totalItems,
+    pageSize,
+    paginatedItems,
+  } = usePagination(filteredProducts, 15);
 
   const pageTitle = searchQuery
     ? `"${searchQuery}" — অনুসন্ধান`
@@ -128,12 +138,39 @@ function StoreProductsContent() {
           </div>
         ) : (
           <div className="store-product-grid">
-            {filteredProducts.map((product, index) => (
+            {paginatedItems.map((product, index) => (
               <StoreProductCard key={product._id} product={product} index={index} />
             ))}
           </div>
         )}
       </div>
+      {!isLoadingContent && !isError && totalItems > pageSize ? (
+        <div className="mt-8 flex items-center justify-center">
+          <div className="flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-2 text-xs font-semibold text-zinc-600 shadow-sm">
+            <button
+              type="button"
+              onClick={() => setPage(page - 1)}
+              disabled={page <= 1}
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 text-zinc-500 transition-colors hover:border-indigo-200 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="min-w-[86px] text-center">
+              Page {page} / {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage(page + 1)}
+              disabled={page >= totalPages}
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 text-zinc-500 transition-colors hover:border-indigo-200 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Next page"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
