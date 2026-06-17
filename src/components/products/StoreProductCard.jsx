@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Check, Package, ShoppingCart, Zap } from "lucide-react";
+import { ArrowRight, Check, Package, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
 import { resolveProductVariant } from "@/lib/productVariants";
@@ -11,7 +11,7 @@ import { isProductFullyOutOfStock } from "@/lib/variantStock";
 import { getProductCardImageUrl } from "@/lib/imageUrl";
 
 export default function StoreProductCard({ product, index = 0 }) {
-  const { toggleCart, buyNow, items } = useCart();
+  const { toggleCart, items } = useCart();
   const defaultVariant = resolveProductVariant(product);
   const image = getProductCardImageUrl(product.images?.[0]?.url);
   const discount = product.pricing?.discount_percentage || 0;
@@ -33,16 +33,6 @@ export default function StoreProductCard({ product, index = 0 }) {
       return;
     }
     toggleCart(product);
-  }
-
-  function handleBuy(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    if (outOfStock) {
-      toast.error("এই পণ্যটি স্টকে নেই");
-      return;
-    }
-    buyNow(product, 1, defaultVariant);
   }
 
   return (
@@ -114,15 +104,13 @@ export default function StoreProductCard({ product, index = 0 }) {
         >
           {inCart ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
         </button>
-        <button
-          type="button"
-          onClick={handleBuy}
-          className="flex h-8 min-w-0 items-center justify-center gap-1 rounded-md bg-indigo-600 px-2 text-[16px] cursor-pointer font-semibold text-white transition-colors hover:bg-indigo-800 sm:h-9"
+        <Link
+          href={`/products/${product.slug}`}
+          className="flex h-8 min-w-0 items-center justify-center gap-1 rounded-md bg-indigo-600 px-2 text-[16px] font-semibold text-white transition-colors hover:bg-indigo-800 sm:h-9"
         >
-          <Zap className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate sm:hidden">কিনুন</span>
-          <span className="hidden truncate sm:inline">এখনই কিনুন</span>
-        </button>
+          <span className="truncate">অর্ডার করুন</span>
+          <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+        </Link>
       </div>
     </motion.article>
   );
