@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { ImagePlus, Loader2, Plus, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   DEFAULT_SETTINGS,
   deriveThemeColors,
+  getFaviconUrl,
+  getShopLogoUrl,
   normalizeHexColor,
   SOCIAL_PLATFORMS,
 } from "@/lib/siteSettings";
+import { uploadBrandAsset } from "@/lib/api/settings";
 import SettingsPageShell from "@/components/dashboard/settings/SettingsPageShell";
 import { inputClass } from "@/components/dashboard/settings/settingsShared";
 import { useSettingsEditor } from "@/components/dashboard/settings/useSettingsEditor";
@@ -36,13 +40,19 @@ function createSocialLink(platform = "facebook") {
 
 export default function GeneralSettings() {
   const { settings, isLoading, isError, error, refetch, save, isPending } = useSettingsEditor();
+  const logoInputRef = useRef(null);
+  const faviconInputRef = useRef(null);
   const [primaryColor, setPrimaryColor] = useState(DEFAULT_SETTINGS.primaryColor);
   const [shopShortDescription, setShopShortDescription] = useState(
     DEFAULT_SETTINGS.shopShortDescription
   );
   const [shopTagline, setShopTagline] = useState(DEFAULT_SETTINGS.shopTagline);
   const [copyrightText, setCopyrightText] = useState(DEFAULT_SETTINGS.copyrightText);
+  const [shopLogo, setShopLogo] = useState(null);
+  const [favicon, setFavicon] = useState(null);
   const [socialLinks, setSocialLinks] = useState(DEFAULT_SETTINGS.socialLinks);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
 
   useEffect(() => {
     if (!settings) return;
@@ -52,13 +62,41 @@ export default function GeneralSettings() {
     );
     setShopTagline(settings.shopTagline || DEFAULT_SETTINGS.shopTagline);
     setCopyrightText(settings.copyrightText || DEFAULT_SETTINGS.copyrightText);
+    setShopLogo(settings.shopLogo || null);
+    setFavicon(settings.favicon || null);
     setSocialLinks(settings.socialLinks || DEFAULT_SETTINGS.socialLinks);
   }, [settings]);
 
-  const previewTheme = useMemo(
-    () => deriveThemeColors(normalizeHexColor(primaryColor)),
-    [primaryColor]
-  );
+  const previewTheme = deriveThemeColors(normalizeHexColor(primaryColor));
+
+  async function handleAssetUpload(event, type) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("শুধু image file দিন");
+      return;
+    }
+
+    const setUploading = type === "logo" ? setIsUploadingLogo : setIsUploadingFavicon;
+    const setAsset = type === "logo" ? setShopLogo : setFavicon;
+
+    setUploading(true);
+
+    try {
+      const asset = await uploadBrandAsset(file, type);
+      setAsset(asset);
+      toast.success(
+        type === "logo" ? "লোগো আপলোড হয়েছে — Save চাপুন" : "Favicon আপলোড হয়েছে — Save চাপুন"
+      );
+    } catch (uploadError) {
+      toast.error(uploadError.message || "আপলোড ব্যর্থ");
+    } finally {
+      setUploading(false);
+      if (type === "logo" && logoInputRef.current) logoInputRef.current.value = "";
+      if (type === "favicon" && faviconInputRef.current) faviconInputRef.current.value = "";
+    }
+  }
 
   function handleSocialChange(id, field, value) {
     setSocialLinks((current) =>
@@ -93,6 +131,8 @@ export default function GeneralSettings() {
       shopShortDescription: shopShortDescription.trim(),
       shopTagline: shopTagline.trim(),
       copyrightText: copyrightText.trim(),
+      shopLogo,
+      favicon,
       socialLinks: socialLinks.map((link) => ({
         ...link,
         url: link.url.trim(),
@@ -104,7 +144,7 @@ export default function GeneralSettings() {
   return (
     <SettingsPageShell
       title="General"
-      description="Brand color ar footer social links manage korun."
+      description="Logo, favicon, brand color ar footer content manage korun."
       onSubmit={handleSubmit}
       isPending={isPending}
       isLoading={isLoading}
@@ -112,6 +152,127 @@ export default function GeneralSettings() {
       error={error}
       onRetry={refetch}
     >
+      <section className="dash-card mb-6 p-5 sm:p-6">
+        <h2 className="text-lg font-bold text-dash-text">Logo & Favicon</h2>
+        <p className="mt-1 text-sm text-dash-muted">
+          Navbar, footer ar browser tab e show hobe. Upload korar por Save চাপুন।
+        </p>
+
+        <div className="mt-5 grid gap-6 md:grid-cols-2">
+          <div className="rounded-md border border-dash-border bg-slate-50/70 p-4">
+            <p className="text-xs font-semibold tracking-wide text-dash-muted uppercase">
+              Shop Logo
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-4">
+              <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-md border border-dash-border bg-white">
+                {getShopLogoUrl({ shopLogo }) ? (
+                  <Image
+                    src={getShopLogoUrl({ shopLogo })}
+                    alt="Logo preview"
+                    fill
+                    sizes="64px"
+                    className="object-contain p-1"
+                  />
+                ) : (
+                  <span className="text-[11px] text-dash-muted">No logo</span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleAssetUpload(event, "logo")}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={isUploadingLogo || isPending}
+                  className="inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 disabled:opacity-60"
+                >
+                  {isUploadingLogo ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <ImagePlus className="h-3.5 w-3.5" />
+                  )}
+                  {shopLogo ? "Change Logo" : "Upload Logo"}
+                </button>
+                {shopLogo ? (
+                  <button
+                    type="button"
+                    onClick={() => setShopLogo(null)}
+                    disabled={isPending}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-60"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Remove
+                  </button>
+                ) : null}
+              </div>
+            </div>
+            <p className="mt-2 text-[11px] text-dash-muted">
+              PNG, JPG, SVG — transparent background ভালো।
+            </p>
+          </div>
+
+          <div className="rounded-md border border-dash-border bg-slate-50/70 p-4">
+            <p className="text-xs font-semibold tracking-wide text-dash-muted uppercase">Favicon</p>
+            <div className="mt-3 flex flex-wrap items-center gap-4">
+              <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-md border border-dash-border bg-white">
+                {getFaviconUrl({ favicon }) ? (
+                  <Image
+                    src={getFaviconUrl({ favicon })}
+                    alt="Favicon preview"
+                    fill
+                    sizes="64px"
+                    className="object-contain p-2"
+                  />
+                ) : (
+                  <span className="text-[11px] text-dash-muted">Default</span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <input
+                  ref={faviconInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleAssetUpload(event, "favicon")}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => faviconInputRef.current?.click()}
+                  disabled={isUploadingFavicon || isPending}
+                  className="inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 disabled:opacity-60"
+                >
+                  {isUploadingFavicon ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <ImagePlus className="h-3.5 w-3.5" />
+                  )}
+                  {favicon ? "Change Favicon" : "Upload Favicon"}
+                </button>
+                {favicon ? (
+                  <button
+                    type="button"
+                    onClick={() => setFavicon(null)}
+                    disabled={isPending}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-60"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Remove
+                  </button>
+                ) : null}
+              </div>
+            </div>
+            <p className="mt-2 text-[11px] text-dash-muted">
+              32×32 বা 64×64 PNG/ICO recommended — browser tab icon।
+            </p>
+          </div>
+        </div>
+      </section>
+
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="dash-card p-5 sm:p-6">
           <h2 className="text-lg font-bold text-dash-text">Brand Color</h2>
@@ -229,7 +390,7 @@ export default function GeneralSettings() {
           </div>
         </section>
 
-        <section className="dash-card p-5 sm:p-6">
+        <section className="dash-card p-5 sm:p-6 lg:col-span-2">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h2 className="text-lg font-bold text-dash-text">Social Links</h2>

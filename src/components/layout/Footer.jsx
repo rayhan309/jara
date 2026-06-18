@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
-import { RiStore2Fill } from "react-icons/ri";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
+import ShopLogo from "@/components/layout/ShopLogo";
 import { getActiveSocialLinks, getSocialIcon } from "@/lib/socialLinks";
+import { getShopLogoUrl } from "@/lib/siteSettings";
 
 const quickLinks = [
   { href: "/", label: "হোম" },
@@ -33,6 +34,7 @@ export default function Footer() {
   const tagline = settings?.shopTagline || "আধুনিক ই-কমার্সের জন্য তৈরি";
   const copyrightText = settings?.copyrightText || "© {year} Nexa. সর্বস্বত্ব সংরক্ষিত।";
   const renderedCopyright = copyrightText.replace("{year}", new Date().getFullYear());
+  const logoUrl = getShopLogoUrl(settings);
 
   return (
     <footer className="border-t border-zinc-200 bg-white">
@@ -46,9 +48,7 @@ export default function Footer() {
             className="sm:col-span-2 lg:col-span-1"
           >
             <Link href="/" className="inline-flex items-center gap-3">
-              <div className="rounded-md flex h-10 w-10 items-center justify-center bg-indigo-600">
-                <RiStore2Fill className="h-5 w-5 text-white" />
-              </div>
+              <ShopLogo logoUrl={logoUrl} size="md" fallbackClassName="bg-indigo-600" />
               <span className="text-lg font-bold text-zinc-900">Nexa</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-zinc-500">

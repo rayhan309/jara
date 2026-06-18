@@ -17,6 +17,25 @@ export async function fetchSettings() {
   return data.settings;
 }
 
+export async function uploadBrandAsset(file, type) {
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("type", type);
+
+  const response = await adminFetch("/api/settings/brand-assets", {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to upload brand asset.");
+  }
+
+  return data.asset;
+}
+
 export async function uploadHeroBanner(file) {
   const formData = new FormData();
   formData.append("image", file);

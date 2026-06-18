@@ -60,6 +60,8 @@ export async function PUT(request) {
       shopShortDescription: body.shopShortDescription,
       shopTagline: body.shopTagline,
       copyrightText: body.copyrightText,
+      shopLogo: body.shopLogo,
+      favicon: body.favicon,
       metaPixelId: body.metaPixelId,
       metaPixelEnabled: body.metaPixelEnabled,
       steadfastBaseUrl,

@@ -4,9 +4,25 @@ import DashboardShell from "@/components/dashboard/DashboardShell";
 import DashboardDataProvider from "@/components/providers/DashboardDataProvider";
 import { getAdminSession } from "@/lib/adminAuthServer";
 import { getDashboardPrefetch } from "@/lib/dashboardPrefetch";
+import { getSiteSettings } from "@/lib/siteSettingsServer";
+import { getFaviconUrl } from "@/lib/siteSettings";
 import { adminRootMetadata } from "@/lib/siteMetadata";
 
-export const metadata = adminRootMetadata;
+export async function generateMetadata() {
+  const settings = await getSiteSettings();
+  const faviconUrl = getFaviconUrl(settings);
+
+  if (!faviconUrl) {
+    return adminRootMetadata;
+  }
+
+  return {
+    ...adminRootMetadata,
+    icons: {
+      icon: [{ url: faviconUrl }],
+    },
+  };
+}
 
 export default async function DashboardLayout({ children }) {
   const session = await getAdminSession();

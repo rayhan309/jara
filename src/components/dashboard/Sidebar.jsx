@@ -24,10 +24,12 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { RiStore2Fill } from "react-icons/ri";
 import { logoutAdmin } from "@/lib/api/adminUsers";
 import { clearAdminAuth, getAdminAuth } from "@/lib/auth";
 import { getNavItemsForRole, getRoleLabel } from "@/lib/adminRoles";
+import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
+import ShopLogo from "@/components/layout/ShopLogo";
+import { getShopLogoUrl } from "@/lib/siteSettings";
 
 const ICONS = {
   overview: LayoutDashboard,
@@ -90,6 +92,8 @@ export default function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname();
   const router = useRouter();
   const auth = getAdminAuth();
+  const settings = useStoreSettings();
+  const logoUrl = getShopLogoUrl(settings);
   const navItems = getNavItemsForRole(auth?.role);
   const [openGroups, setOpenGroups] = useState(() => getInitialOpenGroups(pathname, navItems));
 
@@ -172,9 +176,15 @@ export default function Sidebar({ isOpen, onClose }) {
               animate={{ opacity: 1, x: 0 }}
               className="flex min-w-0 items-center gap-2.5"
             >
-              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600">
-                <RiStore2Fill className="h-3.5 w-3.5 text-white" />
-                <span className="absolute -right-0.5 -bottom-0.5 h-1.5 w-1.5 rounded-full border border-dash-sidebar bg-emerald-400" />
+              <div className="relative shrink-0">
+                <ShopLogo
+                  logoUrl={logoUrl}
+                  size="xs"
+                  fallbackClassName="bg-gradient-to-br from-indigo-500 to-violet-600"
+                />
+                {!logoUrl ? (
+                  <span className="absolute -right-0.5 -bottom-0.5 h-1.5 w-1.5 rounded-full border border-dash-sidebar bg-emerald-400" />
+                ) : null}
               </div>
               <div className="min-w-0">
                 <p className="truncate text-[13px] font-semibold tracking-tight">Nexa</p>

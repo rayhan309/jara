@@ -15,13 +15,14 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { RiStore2Fill } from "react-icons/ri";
 import { clearSelectedCategoryId, setSelectedCategoryId } from "@/lib/categoryFilter";
 import { useCart } from "@/hooks/useCart";
 import { useCategories } from "@/hooks/useCategories";
 import CartSidebar from "@/components/cart/CartSidebar";
 import { FaWhatsapp } from "react-icons/fa";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
+import ShopLogo from "@/components/layout/ShopLogo";
+import { getShopLogoUrl } from "@/lib/siteSettings";
 
 const navLinks = [
   { href: "/", label: "হোম" },
@@ -114,6 +115,7 @@ function NavbarFallback() {
 
 function NavbarContent() {
   const settings = useStoreSettings();
+  const logoUrl = getShopLogoUrl(settings);
   const CONTACT_PHONE = settings.contactPhone || "+8801815131040";
   const whatsappPhone = CONTACT_PHONE.replace(/\+/g, "").trim();
   const pathname = usePathname();
@@ -147,9 +149,7 @@ function NavbarContent() {
           <div className="store-container py-4 sm:py-5">
             <div className="flex items-center justify-between gap-3 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:gap-8">
               <Link href="/" className="group flex shrink-0 items-center gap-2.5 sm:gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-indigo-600 shadow-md shadow-indigo-200 sm:h-11 sm:w-11">
-                  <RiStore2Fill className="h-5 w-5 text-white sm:h-5 sm:w-5" />
-                </div>
+                <ShopLogo logoUrl={logoUrl} size="md" />
                 <div>
                   <p className="text-sm font-bold tracking-tight text-zinc-900 transition-colors group-hover:text-indigo-600 min-[360px]:text-base sm:text-xl">
                     Nexa

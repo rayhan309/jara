@@ -17,6 +17,8 @@ export const DEFAULT_SETTINGS = {
   shopShortDescription: "আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। মানসম্মত পণ্য, দ্রুত ডেলিভারি এবং সহজ অর্ডার ট্র্যাকিং।",
   shopTagline: "আধুনিক ই-কমার্সের জন্য তৈরি",
   copyrightText: "© {year} Nexa. সর্বস্বত্ব সংরক্ষিত।",
+  shopLogo: null,
+  favicon: null,
   primaryColor: "#4f46e5",
   metaPixelId: "",
   metaPixelEnabled: false,
@@ -117,6 +119,25 @@ export function deriveThemeColors(primaryColor) {
     primaryColorSoft: rgbToHex(soft),
     primaryColorBorder: rgbToHex(border),
   };
+}
+
+function normalizeBrandAsset(asset) {
+  const url = String(asset?.url || "").trim();
+  if (!url) return null;
+
+  return {
+    url,
+    fileId: String(asset?.fileId || "").trim(),
+    name: String(asset?.name || "").trim(),
+  };
+}
+
+export function getShopLogoUrl(settings) {
+  return settings?.shopLogo?.url || "";
+}
+
+export function getFaviconUrl(settings) {
+  return settings?.favicon?.url || "";
 }
 
 function normalizeSocialLink(link, index) {
@@ -286,6 +307,8 @@ export function normalizeSettings(input = {}) {
     shopShortDescription,
     shopTagline,
     copyrightText,
+    shopLogo: normalizeBrandAsset(input.shopLogo),
+    favicon: normalizeBrandAsset(input.favicon),
     metaPixelId,
     metaPixelEnabled,
     steadfastBaseUrl,

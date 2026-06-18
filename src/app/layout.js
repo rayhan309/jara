@@ -6,11 +6,26 @@ import SiteSettingsProvider from "@/components/providers/SiteSettingsProvider";
 import SiteSettingsHead from "@/components/layout/SiteSettingsHead";
 import { getCategories } from "@/lib/categoriesServer";
 import { getSiteSettings } from "@/lib/siteSettingsServer";
-import { getThemeCssProperties } from "@/lib/siteSettings";
+import { getFaviconUrl, getThemeCssProperties } from "@/lib/siteSettings";
 import { rootMetadata } from "@/lib/siteMetadata";
 import "./globals.css";
 
-export const metadata = rootMetadata;
+export async function generateMetadata() {
+  const settings = await getSiteSettings();
+  const faviconUrl = getFaviconUrl(settings);
+
+  if (!faviconUrl) {
+    return rootMetadata;
+  }
+
+  return {
+    ...rootMetadata,
+    icons: {
+      icon: [{ url: faviconUrl }],
+      apple: [{ url: faviconUrl }],
+    },
+  };
+}
 
 export const viewport = {
   width: "device-width",

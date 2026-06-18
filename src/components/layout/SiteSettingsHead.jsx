@@ -1,9 +1,10 @@
 import { getHeroBannerPreloadUrls } from "@/lib/heroBanners";
-import { getThemeInlineCss } from "@/lib/siteSettings";
+import { getFaviconUrl, getThemeInlineCss } from "@/lib/siteSettings";
 
 export default function SiteSettingsHead({ settings }) {
   const themeCss = getThemeInlineCss(settings);
   const bannerUrls = getHeroBannerPreloadUrls(settings.heroBanners, 2);
+  const faviconUrl = getFaviconUrl(settings);
 
   return (
     <>
@@ -12,6 +13,12 @@ export default function SiteSettingsHead({ settings }) {
           id="store-theme-vars"
           dangerouslySetInnerHTML={{ __html: themeCss }}
         />
+      ) : null}
+      {faviconUrl ? (
+        <>
+          <link rel="icon" href={faviconUrl} />
+          <link rel="apple-touch-icon" href={faviconUrl} />
+        </>
       ) : null}
       {bannerUrls.map((url, index) => (
         <link
