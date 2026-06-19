@@ -226,6 +226,7 @@ export default function CheckoutView() {
 
   const deliveryCharge =
     deliveryOptions.find((option) => option.id === delivery)?.charge ?? 0;
+  const isFreeDelivery = deliveryOptions.some((option) => option.isFree);
   const payable = subtotal + deliveryCharge;
   const initiateCheckoutTracked = useRef(false);
 
@@ -404,7 +405,7 @@ export default function CheckoutView() {
             </div>
 
             <div className="border-t border-zinc-100 pt-5 sm:pt-4">
-              <p className={fieldLabelClass}>ডেলিভারি এরিয়া</p>
+              <p className={fieldLabelClass}>ডেলিভারি চার্জ</p>
               <div className="space-y-2.5">
                 {deliveryOptions.map((option) => (
                   <label
@@ -424,7 +425,7 @@ export default function CheckoutView() {
                       className="h-4 w-4 shrink-0 accent-indigo-600 sm:h-4 sm:w-4"
                     />
                     <span className="min-w-0 text-base font-medium text-zinc-800 sm:text-sm">
-                      {option.label} — ৳{option.charge}
+                      {option.isFree ? option.label : `${option.label} — ৳${option.charge}`}
                     </span>
                   </label>
                 ))}
@@ -491,7 +492,11 @@ export default function CheckoutView() {
               ) : null}
               <div className="flex justify-between text-zinc-600">
                 <span>ডেলিভারি চার্জ</span>
-                <span className="font-semibold text-zinc-900">৳{deliveryCharge.toLocaleString()}</span>
+                <span
+                  className={`font-semibold ${isFreeDelivery ? "text-emerald-600" : "text-zinc-900"}`}
+                >
+                  {isFreeDelivery ? "ফ্রী ডেলিভারি" : `৳${deliveryCharge.toLocaleString()}`}
+                </span>
               </div>
             </div>
             <div className="flex justify-between pt-3">

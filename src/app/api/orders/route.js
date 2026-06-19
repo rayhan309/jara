@@ -226,8 +226,11 @@ export async function POST(request) {
       0
     );
     const deliveryOptions = buildDeliveryOptions(orderLines, settings);
-    const selectedDelivery = deliveryOptions.find((option) => option.id === deliveryResult.delivery);
-    const deliveryCharge = selectedDelivery?.charge ?? 0;
+    const selectedDelivery = deliveryOptions.find((option) => option.id === delivery);
+    if (!selectedDelivery) {
+      return NextResponse.json({ error: "ডেলিভারি মেথড বেছে নিন" }, { status: 400 });
+    }
+    const deliveryCharge = selectedDelivery.charge ?? 0;
     const total = subtotal + deliveryCharge;
 
     const now = new Date();

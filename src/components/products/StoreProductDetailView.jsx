@@ -250,7 +250,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                   fill
                   unoptimized
                   priority
-                  className="object-fill object-center"
+                  className="object-contain object-center"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-zinc-300">

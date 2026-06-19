@@ -1,5 +1,7 @@
 import { DEFAULT_SETTINGS } from "@/lib/siteSettings";
 
+export const FREE_DELIVERY_OPTION_ID = "free_delivery";
+
 export function getDeliveryAreas(settings = DEFAULT_SETTINGS) {
   return settings?.deliveryAreas?.length ? settings.deliveryAreas : DEFAULT_SETTINGS.deliveryAreas;
 }
@@ -20,7 +22,28 @@ export function getShippingChargeForClass(shippingClass, areaId) {
   return Math.max(0, Number(charge) || 0);
 }
 
+export function isCartFreeDelivery(items = [], settings = DEFAULT_SETTINGS) {
+  if (!items.length) return false;
+
+  return items.every((item) => {
+    const classId = item.shipping_class || item?.attributes?.shipping_class;
+    const shippingClass = getShippingClass(settings, classId);
+    return Boolean(shippingClass?.freeDelivery);
+  });
+}
+
 export function buildDeliveryOptions(items = [], settings = DEFAULT_SETTINGS) {
+  if (isCartFreeDelivery(items, settings)) {
+    return [
+      {
+        id: FREE_DELIVERY_OPTION_ID,
+        label: "ডেলিভারি চার্জ ফ্রী",
+        charge: 0,
+        isFree: true,
+      },
+    ];
+  }
+
   const deliveryAreas = getDeliveryAreas(settings);
   const defaultClass = getShippingClass(settings);
 

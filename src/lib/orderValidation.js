@@ -1,4 +1,4 @@
-import { getDeliveryAreas } from "@/lib/shipping";
+import { FREE_DELIVERY_OPTION_ID, getDeliveryAreas } from "@/lib/shipping";
 
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 const NAME_REGEX = /^[\p{L}\s.'-]{2,80}$/u;
@@ -53,6 +53,14 @@ export function validateCustomerDetails({ name, phone, address }) {
 }
 
 export function validateDeliveryMethod(delivery, settings) {
+  if (delivery === FREE_DELIVERY_OPTION_ID) {
+    return {
+      ok: true,
+      delivery,
+      area: { id: FREE_DELIVERY_OPTION_ID, label: "ফ্রী ডেলিভারি" },
+    };
+  }
+
   const areas = getDeliveryAreas(settings);
   const match = areas.find((area) => area.id === delivery);
   if (!match) {
