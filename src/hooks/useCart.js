@@ -19,11 +19,11 @@ import {
 import { resolveProductVariant } from "@/lib/productVariants";
 
 function productTitle(product) {
-  return product.title_bn || product.title_en || product.title || "পণ্য";
+  return product.title_bn || product.title_en || product.title || "Product";
 }
 
 function stockLimitMessage(maxStock) {
-  return `স্টকে সর্বোচ্চ ${maxStock}টি আছে`;
+  return `Only ${maxStock} in stock`;
 }
 
 export function useCart() {
@@ -48,7 +48,7 @@ export function useCart() {
       const maxStock = getProductMaxStock(product, variant);
 
       if (maxStock <= 0) {
-        toast.error("এই পণ্যটি স্টকে নেই");
+        toast.error("This product is out of stock");
         return false;
       }
 
@@ -65,9 +65,9 @@ export function useCart() {
       const title = productTitle(product);
       const variantNote = variant ? ` (${variant})` : "";
       if (result.limited) {
-        toast.success(`${title}${variantNote} কার্টে যোগ হয়েছে (${stockLimitMessage(result.maxStock)})`);
+        toast.success(`${title}${variantNote} added to cart (${stockLimitMessage(result.maxStock)})`);
       } else {
-        toast.success(`${title}${variantNote} কার্টে যোগ হয়েছে`);
+        toast.success(`${title}${variantNote} added to cart`);
       }
       return true;
     },
@@ -80,14 +80,14 @@ export function useCart() {
       const maxStock = getProductMaxStock(product, variant);
 
       if (maxStock <= 0) {
-        toast.error("এই পণ্যটি স্টকে নেই");
+        toast.error("This product is out of stock");
         return false;
       }
 
       if (isProductInCart(product._id, variant)) {
         removeProductFromCart(product._id, variant);
         syncCart();
-        toast(`${productTitle(product)} কার্ট থেকে সরানো হয়েছে`);
+        toast(`${productTitle(product)} removed from cart`);
         return true;
       }
 
@@ -101,9 +101,9 @@ export function useCart() {
       removeProductFromCart(productId, selectedVariant);
       syncCart();
       if (title) {
-        toast(`${title} কার্ট থেকে সরানো হয়েছে`);
+        toast(`${title} removed from cart`);
       } else {
-        toast("কার্ট থেকে সরানো হয়েছে");
+        toast("Removed from cart");
       }
     },
     [syncCart]
@@ -122,7 +122,7 @@ export function useCart() {
       }
 
       if (result.removed && title) {
-        toast(`${title} কার্ট থেকে সরানো হয়েছে`);
+        toast(`${title} removed from cart`);
       }
       return true;
     },
@@ -138,13 +138,13 @@ export function useCart() {
         if (result.reason === "max_stock") {
           toast.error(stockLimitMessage(result.maxStock));
         } else if (result.reason === "out_of_stock") {
-          toast.error("এই পণ্যটি স্টকে নেই");
+          toast.error("This product is out of stock");
         }
         return false;
       }
 
       if (title && oldVariant !== newVariant) {
-        toast.success(`${title} — ${newVariant || "variant"} আপডেট হয়েছে`);
+        toast.success(`${title} — ${newVariant || "variant"} updated`);
       }
       return true;
     },
@@ -167,7 +167,7 @@ export function useCart() {
       const maxStock = getProductMaxStock(product, variant);
 
       if (maxStock <= 0) {
-        toast.error("এই পণ্যটি স্টকে নেই");
+        toast.error("This product is out of stock");
         return false;
       }
 

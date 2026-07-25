@@ -3,15 +3,15 @@ import HomeView from "@/components/home/HomeView";
 import { createPageMetadata } from "@/lib/siteMetadata";
 
 export const metadata = createPageMetadata({
-  title: "হোম",
+  title: "Home",
   description:
-    "Raisa's Glam Nest-এ সেরা দামে পণ্য কিনুন। দ্রুত ডেলিভারি, ক্যাশ অন ডেলিভারি ও নিরাপদ অনলাইন শপিং অভিজ্ঞতা।",
+    "Shop quality products at Raisa's Glam Nest. Fast delivery, cash on delivery, and a secure online shopping experience.",
   path: "/",
 });
 
 export default function Home() {
   return (
-    <StoreShell className="bg-zinc-50">
+    <StoreShell sx={{ bgcolor: "grey.50" }}>
       <HomeView />
     </StoreShell>
   );

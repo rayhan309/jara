@@ -2,20 +2,58 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Paper from "@mui/material/Paper";
+import Skeleton from "@mui/material/Skeleton";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { motion, AnimatePresence } from "motion/react";
-import { Check, Clock3, Copy, Package, Phone, Search, ShieldCheck, Truck } from "lucide-react";
 import toast from "react-hot-toast";
+import StoreContainer from "@/components/container/StoreContainer";
 import StoreShell from "@/components/layout/StoreShell";
 import { fetchOrdersByPhone } from "@/lib/api/orders";
 import { isValidBdPhone, normalizePhone } from "@/lib/orderValidation";
 import {
   formatDisplayOrderNumber,
-  getOrderStatusClass,
   getOrderTrackingInfo,
+  normalizeOrderStatus,
   ORDER_TRACKING_STEPS,
 } from "@/lib/orderHelpers";
 
 const TRACKING_ORDER_LIMIT = 5;
+
+const STATUS_CHIP_SX = {
+  new: { bgcolor: "grey.100", color: "grey.800" },
+  confirmed: { bgcolor: "info.50", color: "info.dark" },
+  steadfast_entered: { bgcolor: "primary.50", color: "primary.dark" },
+  no_response: { bgcolor: "warning.50", color: "warning.dark" },
+  will_inform_later: { bgcolor: "warning.50", color: "warning.dark" },
+  color_code_pending: { bgcolor: "#f5f3ff", color: "#6d28d9" },
+  out_for_delivery: { bgcolor: "success.50", color: "success.dark" },
+  scammer: { bgcolor: "error.50", color: "error.main" },
+  pending: { bgcolor: "grey.100", color: "grey.800" },
+  processing: { bgcolor: "info.50", color: "info.dark" },
+  shipped: { bgcolor: "primary.50", color: "primary.dark" },
+  delivered: { bgcolor: "success.50", color: "success.dark" },
+  cancelled: { bgcolor: "error.50", color: "error.main" },
+};
 
 function mapOrderToView(order) {
   const statusInfo = getOrderTrackingInfo(order.status);
@@ -27,7 +65,7 @@ function mapOrderToView(order) {
     customer: order.customer?.name || "—",
     phone: order.customer?.phone || "",
     items: items.map((item) => ({
-      title: item.title || "পণ্য",
+      title: item.title || "Product",
       quantity: item.quantity || 1,
       line_total: item.line_total || (item.price || 0) * (item.quantity || 1),
     })),
@@ -52,49 +90,63 @@ function mapOrderToView(order) {
 }
 
 function StatusBadge({ status, label }) {
-  return (
-    <span
-      className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold sm:text-xs ${getOrderStatusClass(status)}`}
-    >
-      {label}
-    </span>
-  );
+  const normalized = normalizeOrderStatus(status);
+  const chipSx = STATUS_CHIP_SX[normalized] || STATUS_CHIP_SX.new;
+
+  return <Chip label={label} size="small" sx={{ fontWeight: 600, fontSize: 11, ...chipSx }} />;
 }
 
 function OrderProgressStepper({ currentStep }) {
   if (currentStep <= 0) return null;
 
   return (
-    <div className="relative mt-6 border-t border-zinc-100 pt-6">
-      <div className="absolute top-[calc(1.5rem+0.75rem)] right-[10%] left-[10%] hidden h-0.5 bg-zinc-200 sm:block" />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-2">
+    <Box sx={{ position: "relative", mt: 3, pt: 3, borderTop: 1, borderColor: "grey.100" }}>
+      <Box
+        sx={{
+          display: { xs: "none", sm: "block" },
+          position: "absolute",
+          top: "calc(1.5rem + 0.75rem)",
+          left: "10%",
+          right: "10%",
+          height: 2,
+          bgcolor: "grey.200",
+        }}
+      />
+      <Grid container spacing={1}>
         {ORDER_TRACKING_STEPS.map((label, index) => {
           const stepNum = index + 1;
           const done = stepNum <= currentStep;
 
           return (
-            <div key={label} className="relative flex flex-col items-center text-center">
-              <div
-                className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full border-2 sm:h-7 sm:w-7 ${
-                  done
-                    ? "border-indigo-600 bg-indigo-600 text-white"
-                    : "border-zinc-300 bg-white text-zinc-300"
-                }`}
-              >
-                {done ? <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={3} /> : null}
-              </div>
-              <p
-                className={`mt-2 text-[10px] leading-snug font-medium sm:text-[11px] ${
-                  done ? "text-zinc-800" : "text-zinc-400"
-                }`}
-              >
-                {label}
-              </p>
-            </div>
+            <Grid key={label} size={{ xs: 6, sm: 3 }}>
+              <Stack sx={{ alignItems: "center", textAlign: "center" }}>
+                <Box
+                  sx={{
+                    position: "relative",
+                    zIndex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: { xs: 24, sm: 28 },
+                    height: { xs: 24, sm: 28 },
+                    borderRadius: 1,
+                    border: 2,
+                    borderColor: done ? "primary.main" : "grey.300",
+                    bgcolor: done ? "primary.main" : "background.paper",
+                    color: done ? "common.white" : "grey.300",
+                  }}
+                >
+                  {done ? <CheckRoundedIcon sx={{ fontSize: { xs: 14, sm: 16 } }} /> : null}
+                </Box>
+                <Typography variant="caption" fontWeight={500} color={done ? "text.primary" : "text.disabled"} sx={{ mt: 1, lineHeight: 1.3 }}>
+                  {label}
+                </Typography>
+              </Stack>
+            </Grid>
           );
         })}
-      </div>
-    </div>
+      </Grid>
+    </Box>
   );
 }
 
@@ -102,107 +154,132 @@ function OrderTrackingCard({ order, index }) {
   async function copyOrderId() {
     try {
       await navigator.clipboard.writeText(order.id);
-      toast.success("অর্ডার আইডি কপি হয়েছে");
+      toast.success("Order ID copied");
     } catch {
-      toast.error("কপি করা যায়নি");
+      toast.error("Could not copy");
     }
   }
 
   return (
-    <motion.article
+    <Paper
+      component={motion.article}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      className="overflow-hidden rounded-md border border-zinc-200 bg-white shadow-sm"
+      variant="outlined"
+      sx={{ overflow: "hidden" }}
     >
-      <div className="flex flex-col gap-3 border-b border-zinc-100 px-3 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-base font-bold text-zinc-900 sm:text-lg">Order {order.id}</h3>
-            <button
-              type="button"
-              onClick={copyOrderId}
-              aria-label="অর্ডার আইডি কপি করুন"
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md text-indigo-600 transition-colors hover:bg-indigo-50"
-            >
-              <Copy className="h-3.5 w-3.5" />
-            </button>
-          </div>
-          <p className="mt-1 text-xs text-zinc-500 sm:text-sm">{order.dateTime}</p>
-        </div>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        alignItems={{ sm: "flex-start" }}
+        justifyContent="space-between"
+        spacing={1.5}
+        sx={{ borderBottom: 1, borderColor: "grey.100", px: { xs: 1.5, sm: 2.5 }, py: 2 }}
+      >
+        <Box>
+          <Stack direction="row" alignItems="center" flexWrap="wrap" spacing={1}>
+            <Typography variant="h6" fontWeight={700}>
+              Order {order.id}
+            </Typography>
+            <IconButton size="small" onClick={copyOrderId} aria-label="Copy order ID" color="primary">
+              <ContentCopyRoundedIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+          </Stack>
+          <Typography variant="caption" color="text.secondary">
+            {order.dateTime}
+          </Typography>
+        </Box>
         <StatusBadge status={order.status} label={order.statusLabel} />
-      </div>
+      </Stack>
 
-      <div className="grid gap-4 border-b border-zinc-100 px-3 py-4 sm:grid-cols-3 sm:px-5 sm:py-5">
-        <div>
-          <p className="text-[10px] font-bold tracking-[0.14em] text-zinc-400 uppercase">Customer</p>
-          <p className="mt-1.5 text-sm font-bold text-zinc-900">{order.customer}</p>
-          <p className="mt-0.5 text-sm text-zinc-600">{order.phone}</p>
-        </div>
-        <div>
-          <p className="text-[10px] font-bold tracking-[0.14em] text-zinc-400 uppercase">
+      <Grid container spacing={2} sx={{ borderBottom: 1, borderColor: "grey.100", px: { xs: 1.5, sm: 2.5 }, py: 2 }}>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <Typography variant="caption" fontWeight={700} color="text.disabled" sx={{ letterSpacing: "0.14em", textTransform: "uppercase" }}>
+            Customer
+          </Typography>
+          <Typography variant="body2" fontWeight={700} sx={{ mt: 0.75 }}>
+            {order.customer}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {order.phone}
+          </Typography>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <Typography variant="caption" fontWeight={700} color="text.disabled" sx={{ letterSpacing: "0.14em", textTransform: "uppercase" }}>
             Shipping Address
-          </p>
-          <p className="mt-1.5 text-sm leading-relaxed text-zinc-700">{order.address}</p>
-        </div>
-        <div>
-          <p className="text-[10px] font-bold tracking-[0.14em] text-zinc-400 uppercase">Payment</p>
-          <p className="mt-1.5 text-sm text-zinc-700">{order.paymentLabel}</p>
-          <p className="mt-1 text-base font-bold text-zinc-900">{order.totalFormatted}</p>
-        </div>
-      </div>
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 0.75, lineHeight: 1.6 }}>
+            {order.address}
+          </Typography>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <Typography variant="caption" fontWeight={700} color="text.disabled" sx={{ letterSpacing: "0.14em", textTransform: "uppercase" }}>
+            Payment
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 0.75 }}>
+            {order.paymentLabel}
+          </Typography>
+          <Typography variant="body1" fontWeight={700} sx={{ mt: 0.5 }}>
+            {order.totalFormatted}
+          </Typography>
+        </Grid>
+      </Grid>
 
-      <div className="divide-y divide-zinc-100 md:hidden">
+      <Box sx={{ display: { xs: "block", md: "none" } }}>
         {order.items.map((item, itemIndex) => (
-          <div
+          <Stack
             key={`${item.title}-${itemIndex}`}
-            className="flex items-start justify-between gap-3 px-4 py-3"
+            direction="row"
+            justifyContent="space-between"
+            spacing={1.5}
+            sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: "grey.100" }}
           >
-            <p className="min-w-0 flex-1 line-clamp-2 text-sm font-medium text-zinc-800">
+            <Typography variant="body2" fontWeight={500} sx={{ flex: 1, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
               {item.title}
-            </p>
-            <div className="shrink-0 text-right">
-              <p className="text-xs text-zinc-500">×{item.quantity}</p>
-              <p className="text-sm font-semibold text-zinc-900">
+            </Typography>
+            <Box sx={{ textAlign: "right", flexShrink: 0 }}>
+              <Typography variant="caption" color="text.secondary">
+                ×{item.quantity}
+              </Typography>
+              <Typography variant="body2" fontWeight={600}>
                 ৳{item.line_total.toLocaleString()}
-              </p>
-            </div>
-          </div>
+              </Typography>
+            </Box>
+          </Stack>
         ))}
-      </div>
+      </Box>
 
-      <div className="hidden overflow-x-auto md:block">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold tracking-wide text-zinc-500 uppercase">
-              <th className="px-4 py-2.5 text-left sm:px-5">Product</th>
-              <th className="w-16 px-4 py-2.5 text-center sm:w-20">Qty</th>
-              <th className="w-24 px-4 py-2.5 text-left sm:w-28 sm:px-5">Total</th>
-            </tr>
-          </thead>
-          <tbody>
+      <Box sx={{ display: { xs: "none", md: "block" }, overflowX: "auto" }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow sx={{ bgcolor: "grey.50" }}>
+              <TableCell>Product</TableCell>
+              <TableCell align="center" sx={{ width: 80 }}>
+                Qty
+              </TableCell>
+              <TableCell sx={{ width: 112 }}>Total</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {order.items.map((item, itemIndex) => (
-              <tr
-                key={`${item.title}-${itemIndex}`}
-                className="border-b border-zinc-100 last:border-b-0"
-              >
-                <td className="max-w-0 px-4 py-3 font-medium text-zinc-800 sm:px-5">
-                  <span className="line-clamp-2">{item.title}</span>
-                </td>
-                <td className="px-4 py-3 text-center text-zinc-700">{item.quantity}</td>
-                <td className="px-4 py-3 font-semibold text-zinc-900 sm:px-5">
-                  ৳ {item.line_total.toLocaleString()}
-                </td>
-              </tr>
+              <TableRow key={`${item.title}-${itemIndex}`}>
+                <TableCell sx={{ fontWeight: 500, maxWidth: 0 }}>
+                  <Typography variant="body2" sx={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    {item.title}
+                  </Typography>
+                </TableCell>
+                <TableCell align="center">{item.quantity}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>৳ {item.line_total.toLocaleString()}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </Box>
 
-      <div className="px-4 pb-5 sm:px-5">
+      <Box sx={{ px: { xs: 2, sm: 2.5 }, pb: 2.5 }}>
         <OrderProgressStepper currentStep={order.currentStep} />
-      </div>
-    </motion.article>
+      </Box>
+    </Paper>
   );
 }
 
@@ -216,16 +293,16 @@ export default function OrdersTrackingView() {
 
 function OrdersTrackingFallback() {
   return (
-    <StoreShell className="bg-zinc-50">
-      <section className="py-6 sm:py-8 lg:py-10">
-        <div className="store-container">
-          <div className="overflow-hidden rounded-md border border-zinc-200 bg-white p-4 shadow-sm sm:p-5">
-            <div className="h-6 w-40 animate-pulse rounded-md bg-zinc-100" />
-            <div className="mt-2 h-4 w-64 animate-pulse rounded-md bg-zinc-100" />
-            <div className="mt-4 h-11 animate-pulse rounded-md bg-zinc-100" />
-          </div>
-        </div>
-      </section>
+    <StoreShell sx={{ bgcolor: "grey.50" }}>
+      <Box component="section" sx={{ py: { xs: 3, sm: 4, lg: 5 } }}>
+        <StoreContainer>
+          <Paper variant="outlined" sx={{ p: { xs: 2, sm: 2.5 } }}>
+            <Skeleton width={160} height={28} />
+            <Skeleton width={260} height={20} sx={{ mt: 1 }} />
+            <Skeleton height={44} sx={{ mt: 2 }} />
+          </Paper>
+        </StoreContainer>
+      </Box>
     </StoreShell>
   );
 }
@@ -247,12 +324,12 @@ function OrdersTrackingContent() {
       const normalized = normalizePhone(rawPhone);
 
       if (!normalized) {
-        setError("ফোন নাম্বার লিখুন");
+        setError("Please enter a phone number");
         return;
       }
 
       if (!isValidBdPhone(normalized)) {
-        setError("সঠিক বাংলাদেশি মোবাইল নাম্বার দিন (01XXXXXXXXX)");
+        setError("Enter a valid Bangladeshi mobile number (01XXXXXXXXX)");
         return;
       }
 
@@ -272,7 +349,7 @@ function OrdersTrackingContent() {
           router.replace(`/orders-traking?${params.toString()}`, { scroll: false });
         }
       } catch (err) {
-        setError(err.message || "কোনো অর্ডার পাওয়া যায়নি");
+        setError(err.message || "No orders found");
       } finally {
         setLoading(false);
       }
@@ -291,123 +368,149 @@ function OrdersTrackingContent() {
     trackByPhone(phone);
   }
 
-  return (
-    <StoreShell className="bg-zinc-50">
-      <section className="py-6 sm:py-8 lg:py-10">
-        <div className="store-container">
-          <div className="overflow-hidden rounded-md border border-zinc-200 bg-white p-4 shadow-sm sm:p-5">
-            <h1 className="text-lg font-bold text-zinc-900 sm:text-xl">Track Your Order</h1>
-            <p className="mt-1 text-xs text-zinc-500 sm:text-sm">
-              চেকআউটের ফোন নম্বর দিয়ে সর্বশেষ {TRACKING_ORDER_LIMIT}টি অর্ডার দেখুন
-            </p>
+  const hintCards = [
+    { icon: PhoneOutlinedIcon, title: "Enter phone number", desc: "Use the number from checkout" },
+    { icon: SearchRoundedIcon, title: "Search", desc: "See your latest 5 orders" },
+    { icon: LocalShippingOutlinedIcon, title: "Check status", desc: "Product table and progress bar" },
+  ];
 
-            <form onSubmit={handleTrack} className="mt-4 flex min-w-0 flex-col gap-2.5 sm:flex-row">
-              <div className="flex min-w-0 flex-1 overflow-hidden rounded-md border border-zinc-200 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100">
-                <span className="flex shrink-0 items-center border-r border-zinc-200 bg-zinc-50 px-3 text-xs font-semibold text-zinc-500">
-                  +88
-                </span>
-                <input
+  return (
+    <StoreShell sx={{ bgcolor: "grey.50" }}>
+      <Box component="section" sx={{ py: { xs: 3, sm: 4, lg: 5 } }}>
+        <StoreContainer>
+          <Paper variant="outlined" sx={{ p: { xs: 2, sm: 2.5 } }}>
+            <Typography variant="h6" fontWeight={700}>
+              Track Your Order
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              View your latest {TRACKING_ORDER_LIMIT} orders with your checkout phone number
+            </Typography>
+
+            <Box component="form" onSubmit={handleTrack} sx={{ mt: 2 }}>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25}>
+                <TextField
                   type="tel"
                   inputMode="numeric"
                   value={phone}
                   onChange={(event) => setPhone(normalizePhone(event.target.value))}
                   placeholder="01XXXXXXXXX"
                   required
-                  className="min-w-0 flex-1 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
+                  fullWidth
+                  size="small"
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ borderRight: 1, borderColor: "divider", pr: 1 }}>
+                            +88
+                          </Typography>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
                 />
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-60"
-              >
-                <Search className="h-4 w-4" />
-                {loading ? "Searching..." : "Search"}
-              </button>
-            </form>
-          </div>
+                <Button type="submit" variant="contained" disabled={loading} startIcon={<SearchRoundedIcon />} sx={{ flexShrink: 0 }}>
+                  {loading ? "Searching..." : "Search"}
+                </Button>
+              </Stack>
+            </Box>
+          </Paper>
 
-          <div className="mt-6 space-y-5 sm:mt-8">
+          <Box sx={{ mt: { xs: 3, sm: 4 } }}>
             <AnimatePresence mode="wait">
               {error ? (
-                <motion.div
+                <Paper
                   key="error"
+                  component={motion.div}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="rounded-md border border-red-200 bg-red-50 px-4 py-4 text-center text-sm text-red-600"
+                  variant="outlined"
+                  sx={{ borderColor: "error.light", bgcolor: "error.50", px: 2, py: 2, textAlign: "center" }}
                 >
-                  {error}
-                </motion.div>
+                  <Typography variant="body2" color="error.main">
+                    {error}
+                  </Typography>
+                </Paper>
               ) : null}
 
               {loading ? (
-                <motion.div
+                <Paper
                   key="loading"
+                  component={motion.div}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="flex min-h-[200px] flex-col items-center justify-center rounded-md border border-zinc-200 bg-white p-8"
+                  variant="outlined"
+                  sx={{ minHeight: 200, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", p: 4 }}
                 >
-                  <Package className="mb-3 h-9 w-9 animate-pulse text-indigo-500" />
-                  <p className="text-sm font-medium text-zinc-600">অর্ডার খুঁজছি...</p>
-                </motion.div>
+                  <Inventory2OutlinedIcon sx={{ mb: 1.5, fontSize: 36, color: "primary.main", animation: "pulse 1.5s ease-in-out infinite" }} />
+                  <Typography variant="body2" fontWeight={500} color="text.secondary">
+                    Searching for orders...
+                  </Typography>
+                </Paper>
               ) : orders.length > 0 ? (
-                <motion.div
+                <Stack
                   key="orders"
+                  component={motion.div}
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="space-y-5"
+                  spacing={2.5}
                 >
                   {orders.map((order, index) => (
                     <OrderTrackingCard key={order._id} order={order} index={index} />
                   ))}
-                </motion.div>
+                </Stack>
               ) : hasSearched && !error ? (
-                <motion.div
+                <Paper
                   key="empty"
+                  component={motion.div}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="rounded-md border border-dashed border-zinc-200 bg-white px-6 py-14 text-center"
+                  variant="outlined"
+                  sx={{ borderStyle: "dashed", px: 3, py: 7, textAlign: "center" }}
                 >
-                  <Package className="mx-auto h-10 w-10 text-zinc-300" />
-                  <p className="mt-4 text-sm font-semibold text-zinc-700">কোনো অর্ডার পাওয়া যায়নি</p>
-                </motion.div>
+                  <Inventory2OutlinedIcon sx={{ fontSize: 40, color: "grey.300" }} />
+                  <Typography variant="body2" fontWeight={600} sx={{ mt: 2 }}>
+                    No orders found
+                  </Typography>
+                </Paper>
               ) : (
-                <motion.div
+                <Grid
                   key="hint"
+                  component={motion.div}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="grid gap-3 sm:grid-cols-3"
+                  container
+                  spacing={1.5}
                 >
-                  {[
-                    { icon: Phone, title: "ফোন নম্বর দিন", desc: "চেকআউটের নম্বর ব্যবহার করুন" },
-                    { icon: Search, title: "Search করুন", desc: "সর্বশেষ ৫টি অর্ডার দেখুন" },
-                    { icon: Truck, title: "স্ট্যাটাস দেখুন", desc: "পণ্য টেবিল ও progress bar" },
-                  ].map((item) => {
+                  {hintCards.map((item) => {
                     const Icon = item.icon;
                     return (
-                      <div
-                        key={item.title}
-                        className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm"
-                      >
-                        <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-md bg-indigo-50 text-indigo-600">
-                          <Icon className="h-4 w-4" />
-                        </div>
-                        <p className="text-sm font-bold text-zinc-900">{item.title}</p>
-                        <p className="mt-1 text-xs leading-relaxed text-zinc-500">{item.desc}</p>
-                      </div>
+                      <Grid key={item.title} size={{ xs: 12, sm: 4 }}>
+                        <Paper variant="outlined" sx={{ p: 2 }}>
+                          <Box sx={{ mb: 1.5, display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, borderRadius: 1, bgcolor: "primary.50", color: "primary.main" }}>
+                            <Icon fontSize="small" />
+                          </Box>
+                          <Typography variant="body2" fontWeight={700}>
+                            {item.title}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block", lineHeight: 1.5 }}>
+                            {item.desc}
+                          </Typography>
+                        </Paper>
+                      </Grid>
                     );
                   })}
-                </motion.div>
+                </Grid>
               )}
             </AnimatePresence>
-          </div>
-        </div>
-      </section>
+          </Box>
+        </StoreContainer>
+      </Box>
     </StoreShell>
   );
 }

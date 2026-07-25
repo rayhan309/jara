@@ -8,7 +8,7 @@ export async function createOrder(payload) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error || "অর্ডার প্লেস করা যায়নি");
+    throw new Error(data.error || "Could not place order");
   }
 
   return data.order;
@@ -20,7 +20,7 @@ export async function fetchOrderByNumber(orderNumber) {
     .replace(/^#/, "");
 
   if (!normalized) {
-    throw new Error("অর্ডার নম্বর দিন");
+    throw new Error("Please enter an order number");
   }
 
   const response = await fetch(
@@ -29,7 +29,7 @@ export async function fetchOrderByNumber(orderNumber) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error || "অর্ডার খুঁজে পাওয়া যায়নি");
+    throw new Error(data.error || "Order not found");
   }
 
   return data.order;
@@ -39,7 +39,7 @@ export async function fetchOrdersByPhone(phone) {
   const normalized = String(phone || "").replace(/\D/g, "").slice(0, 11);
 
   if (!normalized) {
-    throw new Error("ফোন নাম্বার লিখুন");
+    throw new Error("Please enter a phone number");
   }
 
   const response = await fetch(
@@ -48,7 +48,7 @@ export async function fetchOrdersByPhone(phone) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error || "কোনো অর্ডার পাওয়া যায়নি");
+    throw new Error(data.error || "No orders found");
   }
 
   return data.orders || [];

@@ -1,23 +1,25 @@
+import StoreContainer from "@/components/container/StoreContainer";
 import StoreShell from "@/components/layout/StoreShell";
 import StoreProductsView from "@/components/products/StoreProductsView";
 import { createPageMetadata } from "@/lib/siteMetadata";
+import Box from "@mui/material/Box";
 
 export const metadata = createPageMetadata({
-  title: "সকল পণ্য",
+  title: "All products",
   description:
-    "Raisa's Glam Nest-এর সম্পূর্ণ পণ্য তালিকা। ক্যাটাগরি ও সার্চ দিয়ে সহজে পছন্দের পণ্য খুঁজে নিন।",
+    "Browse the full product catalog at Raisa's Glam Nest. Find what you need with categories and search.",
   path: "/products",
-  keywords: ["products", "shop", "online store", "পণ্য", "অনলাইন দোকান"],
+  keywords: ["products", "shop", "online store", "catalog"],
 });
 
 export default function ProductsPage() {
   return (
-    <StoreShell className="bg-zinc-50">
-      <section className="py-6 sm:py-8 lg:py-10">
-        <div className="store-container">
+    <StoreShell sx={{ bgcolor: "grey.50" }}>
+      <Box component="section" sx={{ py: { xs: 3, sm: 4, lg: 5 } }}>
+        <StoreContainer>
           <StoreProductsView />
-        </div>
-      </section>
+        </StoreContainer>
+      </Box>
     </StoreShell>
   );
 }

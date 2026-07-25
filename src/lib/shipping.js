@@ -37,7 +37,7 @@ export function buildDeliveryOptions(items = [], settings = DEFAULT_SETTINGS) {
     return [
       {
         id: FREE_DELIVERY_OPTION_ID,
-        label: "ডেলিভারি চার্জ ফ্রী",
+        label: "Free delivery",
         charge: 0,
         isFree: true,
       },

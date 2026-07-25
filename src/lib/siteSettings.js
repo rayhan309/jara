@@ -3,6 +3,9 @@ import { slugify } from "@/lib/slugify";
 
 export const SETTINGS_ID = "global";
 
+/** Default store logo & favicon (public path). */
+export const DEFAULT_BRAND_LOGO_PATH = "/images/brand-logo.png";
+
 export const SOCIAL_PLATFORMS = [
   { id: "facebook", label: "Facebook" },
   { id: "instagram", label: "Instagram" },
@@ -14,9 +17,9 @@ export const SOCIAL_PLATFORMS = [
 ];
 
 export const DEFAULT_SETTINGS = {
-  shopShortDescription: "আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। মানসম্মত পণ্য, দ্রুত ডেলিভারি এবং সহজ অর্ডার ট্র্যাকিং।",
-  shopTagline: "আধুনিক ই-কমার্সের জন্য তৈরি",
-  copyrightText: "© {year} Raisa's Glam Nest. সর্বস্বত্ব সংরক্ষিত।",
+  shopShortDescription: "Your trusted online shopping destination. Quality products, fast delivery, and easy order tracking.",
+  shopTagline: "Built for modern e-commerce",
+  copyrightText: "© {year} Raisa's Glam Nest. All rights reserved.",
   shopLogo: null,
   favicon: null,
   primaryColor: "#4f46e5",
@@ -28,11 +31,11 @@ export const DEFAULT_SETTINGS = {
   steadfastEnabled: false,
   contactPhone: "+8801815131040",
   contactEmail: "support@raisasglamnest.com",
-  contactAddress: "ঢাকা, বাংলাদেশ",
+  contactAddress: "Dhaka, Bangladesh",
   heroBanners: [],
   deliveryAreas: [
-    { id: "inside_dhaka", label: "ঢাকার ভিতরে" },
-    { id: "outside_dhaka", label: "ঢাকার বাহিরে" },
+    { id: "inside_dhaka", label: "Inside Dhaka" },
+    { id: "outside_dhaka", label: "Outside Dhaka" },
   ],
   shippingClasses: [
     {
@@ -133,11 +136,11 @@ function normalizeBrandAsset(asset) {
 }
 
 export function getShopLogoUrl(settings) {
-  return settings?.shopLogo?.url || "";
+  return settings?.shopLogo?.url || DEFAULT_BRAND_LOGO_PATH;
 }
 
 export function getFaviconUrl(settings) {
-  return settings?.favicon?.url || "";
+  return settings?.favicon?.url || DEFAULT_BRAND_LOGO_PATH;
 }
 
 function normalizeSocialLink(link, index) {
@@ -193,7 +196,7 @@ export function normalizeMetaPixelId(value) {
   return String(value || "").trim().replace(/\D/g, "");
 }
 
-/** Admin settings first; env fallback when dashboard-এ pixel configure করা নেই */
+/** Admin settings first; env fallback when dashboard pixel is not configured */
 export function getMetaPixelIdFromSettings(settings, envFallback = "") {
   if (settings?.metaPixelEnabled && settings?.metaPixelId) {
     return settings.metaPixelId;
@@ -217,7 +220,7 @@ export function normalizeSteadfastBaseUrl(value) {
   return url.replace(/\/$/, "") || DEFAULT_STEADFAST_BASE_URL;
 }
 
-/** Admin settings first; env fallback when dashboard-এ configure করা নেই */
+/** Admin settings first; env fallback when dashboard is not configured */
 export function getSteadfastConfigFromSettings(settings, options = {}) {
   const { requireEnabled = true } = options;
   const envFallback = {

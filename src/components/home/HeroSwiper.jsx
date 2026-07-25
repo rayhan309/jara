@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade } from "swiper/modules";
+import Box from "@mui/material/Box";
+import StoreContainer from "@/components/container/StoreContainer";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import { getActiveHeroBanners } from "@/lib/heroBanners";
 import { getOptimizedImageUrl } from "@/lib/imageUrl";
@@ -20,9 +22,18 @@ export default function HeroSwiper() {
   const slides = getActiveHeroBanners(settings.heroBanners);
 
   return (
-    <section className="bg-white py-4 sm:py-5 lg:py-6">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-xl border border-zinc-200/90 bg-zinc-100 shadow-sm">
+    <Box component="section" sx={{ bgcolor: "background.paper", py: { xs: 2, sm: 2.5, lg: 3 } }}>
+      <StoreContainer>
+        <Box
+          sx={{
+            overflow: "hidden",
+            borderRadius: 1,
+            border: 1,
+            borderColor: "divider",
+            bgcolor: "grey.100",
+            boxShadow: 1,
+          }}
+        >
           <Swiper
             modules={[Autoplay, Pagination, EffectFade]}
             effect="fade"
@@ -36,8 +47,14 @@ export default function HeroSwiper() {
 
               return (
                 <SwiperSlide key={slide.id}>
-                  <Link href={slide.href || "/products"} className="block">
-                    <div className="relative aspect-[16/8] w-full sm:aspect-[21/9]">
+                  <Box component={Link} href={slide.href || "/products"} sx={{ display: "block" }}>
+                    <Box
+                      sx={{
+                        position: "relative",
+                        width: 1,
+                        aspectRatio: { xs: "16 / 8", sm: "21 / 9" },
+                      }}
+                    >
                       <Image
                         src={imageUrl}
                         alt={slide.alt}
@@ -45,17 +62,17 @@ export default function HeroSwiper() {
                         priority
                         quality={100}
                         unoptimized={imageUrl.includes("ik.imagekit.io")}
-                        className="object-fill object-center"
+                        style={{ objectFit: "fill", objectPosition: "center" }}
                         sizes="(max-width: 1170px) 100vw, 1170px"
                       />
-                    </div>
-                  </Link>
+                    </Box>
+                  </Box>
                 </SwiperSlide>
               );
             })}
           </Swiper>
-        </div>
-      </div>
-    </section>
+        </Box>
+      </StoreContainer>
+    </Box>
   );
 }

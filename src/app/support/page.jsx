@@ -3,16 +3,16 @@ import SupportPageView from "@/components/support/SupportPageView";
 import { createPageMetadata } from "@/lib/siteMetadata";
 
 export const metadata = createPageMetadata({
-  title: "সহায়তা ও নীতিমালা",
+  title: "Help & policies",
   description:
-    "Raisa's Glam Nest যোগাযোগ, শিপিং নীতি, রিটার্ন ও গোপনীয়তা সংক্রান্ত তথ্য — আমরা সাহায্যের জন্য আছি।",
+    "Contact, shipping, returns, and privacy information for Raisa's Glam Nest — we're here to help.",
   path: "/support",
-  keywords: ["support", "contact", "shipping policy", "return policy", "সহায়তা", "যোগাযোগ"],
+  keywords: ["support", "contact", "shipping policy", "return policy", "help"],
 });
 
 export default function SupportPage() {
   return (
-    <StoreShell className="bg-zinc-50">
+    <StoreShell sx={{ bgcolor: "grey.50" }}>
       <SupportPageView />
     </StoreShell>
   );

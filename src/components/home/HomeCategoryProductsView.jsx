@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
+import Box from "@mui/material/Box";
+import StoreContainer from "@/components/container/StoreContainer";
 import { filterProductsByCategory } from "@/lib/categoryFilter";
 import { getProductsByCategory } from "@/lib/homeProducts";
 import { useCategories } from "@/hooks/useCategories";
@@ -29,12 +31,12 @@ export default function HomeCategoryProductsView() {
 
   if (isLoading) {
     return (
-      <div className="border-t border-zinc-100 bg-white">
-        <div className="store-container">
+      <Box sx={{ borderTop: 1, borderColor: "divider", bgcolor: "background.paper" }}>
+        <StoreContainer>
           <CategoryBlockSkeleton />
           <CategoryBlockSkeleton />
-        </div>
-      </div>
+        </StoreContainer>
+      </Box>
     );
   }
 
@@ -43,7 +45,7 @@ export default function HomeCategoryProductsView() {
   }
 
   return (
-    <div className="border-t border-zinc-100">
+    <Box sx={{ borderTop: 1, borderColor: "divider" }}>
       {categorySections.map((section, index) => (
         <HomeCategoryProductsSection
           key={section.category._id}
@@ -53,6 +55,6 @@ export default function HomeCategoryProductsView() {
           index={index}
         />
       ))}
-    </div>
+    </Box>
   );
 }

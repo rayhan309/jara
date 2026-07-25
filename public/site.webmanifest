@@ -6,8 +6,22 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#ffffff",
-  "theme_color": "#4f46e5",
+  "background_color": "#000000",
+  "theme_color": "#e91e8c",
   "lang": "bn",
-  "categories": ["shopping", "business"]
+  "categories": ["shopping", "business"],
+  "icons": [
+    {
+      "src": "/images/brand-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/brand-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
 }

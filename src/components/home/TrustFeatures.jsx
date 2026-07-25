@@ -1,50 +1,75 @@
-import { Headphones, RefreshCw, ShieldCheck, Truck } from "lucide-react";
+import Box from "@mui/material/Box";
+import StoreContainer from "@/components/container/StoreContainer";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
+import HeadsetMicOutlinedIcon from "@mui/icons-material/HeadsetMicOutlined";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
 
 const FEATURES = [
-  {
-    icon: RefreshCw,
-    title: "সহজ পরিবর্তনের গ্যারান্টি",
-  },
-  {
-    icon: Truck,
-    title: "সারাদেশে ক্যাশ অন হোম ডেলিভারি",
-  },
-  {
-    icon: ShieldCheck,
-    title: "নিরাপদে পেমেন্ট করার সহজ উপায়",
-  },
-  {
-    icon: Headphones,
-    title: "সর্বক্ষণিক ও দ্রুত গ্রাহক সেবা",
-  },
+  { icon: AutorenewRoundedIcon, title: "Easy exchange guarantee" },
+  { icon: LocalShippingOutlinedIcon, title: "Cash on delivery nationwide" },
+  { icon: VerifiedUserOutlinedIcon, title: "Safe and simple payment" },
+  { icon: HeadsetMicOutlinedIcon, title: "Fast, always-on customer support" },
 ];
 
 export default function TrustFeatures() {
   return (
-    <section className="bg-white py-4 sm:py-5">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white sm:rounded-full">
-          <div className="flex snap-x snap-mandatory divide-x divide-zinc-200 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
+    <Box component="section" sx={{ bgcolor: "background.paper", py: { xs: 2, sm: 2.5 } }}>
+      <StoreContainer>
+        <Box
+          sx={{
+            overflow: "hidden",
+            borderRadius: { xs: 2, sm: 999 },
+            border: 1,
+            borderColor: "divider",
+            bgcolor: "background.paper",
+          }}
+        >
+          <Stack
+            direction="row"
+            sx={{
+              overflowX: "auto",
+              scrollSnapType: "x mandatory",
+              scrollbarWidth: "none",
+              "&::-webkit-scrollbar": { display: "none" },
+              display: { xs: "flex", sm: "grid" },
+              gridTemplateColumns: { sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" },
+              "& > *": {
+                borderRight: { sm: 1 },
+                borderColor: "divider",
+                "&:last-child": { borderRight: { sm: 0 } },
+              },
+            }}
+          >
             {FEATURES.map((feature) => {
               const Icon = feature.icon;
               return (
-                <div
+                <Stack
                   key={feature.title}
-                  className="flex min-w-[78%] shrink-0 snap-start items-center gap-3 px-4 py-3.5 sm:min-w-0 sm:px-5 sm:py-4 lg:justify-center lg:px-6"
+                  direction="row"
+                  alignItems="center"
+                  spacing={1.5}
+                  sx={{
+                    minWidth: { xs: "78%", sm: "auto" },
+                    flexShrink: { xs: 0, sm: 1 },
+                    scrollSnapAlign: "start",
+                    px: { xs: 2, sm: 2.5, lg: 3 },
+                    py: { xs: 1.75, sm: 2 },
+                    justifyContent: { lg: "center" },
+                  }}
                 >
-                  <Icon
-                    className="h-6 w-6 shrink-0 text-zinc-900 sm:h-7 sm:w-7"
-                    strokeWidth={1.6}
-                  />
-                  <p className="text-[13px] leading-snug font-bold text-zinc-900 sm:text-sm">
+                  <Icon sx={{ fontSize: { xs: 28, sm: 32 }, color: "text.primary", flexShrink: 0 }} />
+                  <Typography variant="body2" fontWeight={700} color="text.primary" lineHeight={1.35}>
                     {feature.title}
-                  </p>
-                </div>
+                  </Typography>
+                </Stack>
               );
             })}
-          </div>
-        </div>
-      </div>
-    </section>
+          </Stack>
+        </Box>
+      </StoreContainer>
+    </Box>
   );
 }

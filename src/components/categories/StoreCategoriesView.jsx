@@ -2,7 +2,20 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Layers, RefreshCw, Search, ShoppingBag, Sparkles } from "lucide-react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import Grid from "@mui/material/Grid";
+import InputAdornment from "@mui/material/InputAdornment";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
+import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
+import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
 import {
@@ -13,9 +26,6 @@ import {
   CategoryPageCard,
   CategoryPageCardSkeleton,
 } from "@/components/categories/CategoryPageCard";
-
-const GRID_CLASS =
-  "grid min-w-0 grid-cols-2 gap-2 min-[400px]:grid-cols-3 sm:grid-cols-4 sm:gap-2.5 md:grid-cols-5 md:gap-3 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10";
 
 const SKELETON_COUNT = 10;
 
@@ -37,118 +47,163 @@ export default function StoreCategoriesView() {
   const totalProducts = products.length;
 
   return (
-    <div>
-      <div className="relative overflow-hidden rounded-md border border-indigo-100/80 bg-gradient-to-br from-indigo-50 via-white to-violet-50/60 p-4 sm:p-6 lg:p-7">
-        <div
-          className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-indigo-200/30 blur-3xl"
+    <Box>
+      <Box
+        sx={{
+          position: "relative",
+          overflow: "hidden",
+          borderRadius: 1,
+          border: 1,
+          borderColor: "primary.100",
+          background: "linear-gradient(135deg, #eef2ff 0%, #fff 50%, rgba(237,233,254,0.6) 100%)",
+          p: { xs: 2, sm: 3, lg: 3.5 },
+        }}
+      >
+        <Box
           aria-hidden
+          sx={{
+            pointerEvents: "none",
+            position: "absolute",
+            top: -40,
+            right: -40,
+            width: 160,
+            height: 160,
+            borderRadius: 1,
+            bgcolor: "primary.200",
+            opacity: 0.3,
+            filter: "blur(48px)",
+          }}
         />
-        <div className="relative grid gap-5 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.22em] text-indigo-600 uppercase sm:text-[11px]">
-              ক্যাটাগরি এক্সপ্লোর
-            </p>
-            <h1 className="mt-2 text-[1.5rem] leading-tight font-bold tracking-tight text-zinc-900 sm:text-2xl lg:text-[1.85rem]">
-              সব ক্যাটাগরি
-            </h1>
-            <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-zinc-600 sm:text-sm">
-              কমপ্যাক্ট গ্রিডে সব ক্যাটাগরি — দ্রুত বেছে নিন এবং পণ্য দেখুন।
-            </p>
+        <Grid container spacing={3} sx={{ alignItems: "flex-end" }}>
+          <Grid size={{ xs: 12, lg: 7 }}>
+            <Typography
+              variant="caption"
+              fontWeight={700}
+              color="primary"
+              sx={{ letterSpacing: "0.22em", textTransform: "uppercase" }}
+            >
+              Explore categories
+            </Typography>
+            <Typography variant="h4" fontWeight={700} sx={{ mt: 1 }}>
+              All categories
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, maxWidth: 560 }}>
+              Browse all categories in a compact grid — pick one and shop.
+            </Typography>
 
-            <div className="mt-4 flex flex-wrap gap-2">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/80 bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-zinc-700 shadow-sm sm:text-xs">
-                <Layers className="h-3.5 w-3.5 text-indigo-600" />
-                {categories.length} ক্যাটাগরি
-              </div>
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/80 bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-zinc-700 shadow-sm sm:text-xs">
-                <ShoppingBag className="h-3.5 w-3.5 text-indigo-600" />
-                {totalProducts} পণ্য
-              </div>
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/80 bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-zinc-700 shadow-sm sm:text-xs">
-                <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
-                নতুন কালেকশন
-              </div>
-            </div>
-          </div>
+            <Stack direction="row" flexWrap="wrap" spacing={1} useFlexGap sx={{ mt: 2 }}>
+              <Chip
+                icon={<LayersOutlinedIcon />}
+                label={`${categories.length} categories`}
+                size="small"
+                sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.9)" }}
+              />
+              <Chip
+                icon={<ShoppingBagOutlinedIcon />}
+                label={`${totalProducts} products`}
+                size="small"
+                sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.9)" }}
+              />
+              <Chip
+                icon={<AutoAwesomeOutlinedIcon />}
+                label="New collection"
+                size="small"
+                sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.9)" }}
+              />
+            </Stack>
+          </Grid>
 
-          <div className="space-y-2.5">
-            <label htmlFor="category-search" className="sr-only">
-              ক্যাটাগরি খুঁজুন
-            </label>
-            <div className="relative">
-              <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-              <input
+          <Grid size={{ xs: 12, lg: 5 }}>
+            <Stack spacing={1.25}>
+              <TextField
                 id="category-search"
                 type="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="ক্যাটাগরি খুঁজুন..."
-                className="w-full rounded-md border border-zinc-200 bg-white py-2.5 pr-4 pl-9 text-sm text-zinc-800 shadow-sm outline-none transition-colors placeholder:text-zinc-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                placeholder="Search categories..."
+                size="small"
+                fullWidth
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchRoundedIcon fontSize="small" color="disabled" />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
               />
-            </div>
-            <Link
-              href="/products"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 sm:w-auto"
-            >
-              সব পণ্য দেখুন
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </div>
+              <Button
+                component={Link}
+                href="/products"
+                variant="contained"
+                endIcon={<ArrowForwardRoundedIcon />}
+                sx={{ width: { xs: 1, sm: "auto" } }}
+              >
+                View all products
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Box>
 
-      <div className="mt-6 sm:mt-8">
-        <div className="mb-4 flex items-end justify-between gap-3 border-b border-zinc-200/80 pb-3 sm:mb-5 sm:pb-4">
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.2em] text-indigo-600 uppercase">
-              {search.trim() ? "ফলাফল" : "ব্রাউজ"}
-            </p>
-            <h2 className="mt-1 text-base font-bold text-zinc-900 sm:text-lg">
-              {search.trim() ? `"${search.trim()}" অনুসন্ধান` : "সব ক্যাটাগরি"}
-            </h2>
-          </div>
+      <Box sx={{ mt: { xs: 3, sm: 4 } }}>
+        <Stack
+          direction="row"
+          alignItems="flex-end"
+          justifyContent="space-between"
+          spacing={2}
+          sx={{ mb: { xs: 2, sm: 2.5 }, pb: { xs: 1.5, sm: 2 }, borderBottom: 1, borderColor: "divider" }}
+        >
+          <Box>
+            <Typography variant="caption" fontWeight={700} color="primary" sx={{ letterSpacing: "0.2em", textTransform: "uppercase" }}>
+              {search.trim() ? "Results" : "Browse"}
+            </Typography>
+            <Typography variant="h6" fontWeight={700} sx={{ mt: 0.5 }}>
+              {search.trim() ? `Search for "${search.trim()}"` : "All categories"}
+            </Typography>
+          </Box>
           {!isLoading && !isError ? (
-            <p className="text-[11px] font-medium text-zinc-500 sm:text-xs">
-              {filteredCategories.length}টি
-            </p>
+            <Typography variant="caption" color="text.secondary" fontWeight={500}>
+              {filteredCategories.length}
+            </Typography>
           ) : null}
-        </div>
+        </Stack>
 
         {isLoading ? (
-          <div className={GRID_CLASS}>
+          <Box className="store-category-grid">
             {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
               <CategoryPageCardSkeleton key={index} />
             ))}
-          </div>
+          </Box>
         ) : isError ? (
-          <div className="mx-auto max-w-md rounded-md border border-red-100 bg-red-50/80 px-6 py-10 text-center">
-            <p className="text-sm text-red-600">
-              {error?.message || "ক্যাটাগরি লোড করা যায়নি।"}
-            </p>
-            <button
-              type="button"
-              onClick={() => refetch()}
-              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 transition-colors hover:text-indigo-700"
-            >
-              <RefreshCw className="h-4 w-4" />
-              আবার চেষ্টা করুন
-            </button>
-          </div>
+          <Stack alignItems="center" sx={{ mx: "auto", maxWidth: 420, py: 5, px: 3, textAlign: "center", borderRadius: 1, border: 1, borderColor: "error.light", bgcolor: "error.50" }}>
+            <Typography variant="body2" color="error.main">
+              {error?.message || "Could not load categories."}
+            </Typography>
+            <Button startIcon={<RefreshRoundedIcon />} onClick={() => refetch()} sx={{ mt: 2 }}>
+              Try again
+            </Button>
+          </Stack>
         ) : categories.length === 0 ? (
-          <div className="mx-auto max-w-md rounded-md border border-dashed border-zinc-200 bg-white px-6 py-14 text-center">
-            <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-md bg-indigo-50 text-indigo-400">
-              <Layers className="h-7 w-7" />
-            </span>
-            <p className="mt-4 text-sm text-zinc-500">এখনও কোনো ক্যাটাগরি যোগ করা হয়নি।</p>
-          </div>
+          <Stack alignItems="center" sx={{ mx: "auto", maxWidth: 420, py: 7, px: 3, textAlign: "center", borderRadius: 1, border: 1, borderStyle: "dashed", borderColor: "divider", bgcolor: "background.paper" }}>
+            <LayersOutlinedIcon sx={{ fontSize: 36, color: "primary.light" }} />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+              No categories have been added yet.
+            </Typography>
+          </Stack>
         ) : filteredCategories.length === 0 ? (
-          <div className="rounded-md border border-dashed border-zinc-200 bg-white px-6 py-14 text-center">
-            <Search className="mx-auto h-8 w-8 text-zinc-300" />
-            <p className="mt-3 text-sm font-semibold text-zinc-700">কোনো ক্যাটাগরি পাওয়া যায়নি</p>
-            <p className="mt-1 text-sm text-zinc-500">অন্য keyword দিয়ে আবার খুঁজুন।</p>
-          </div>
+          <Stack alignItems="center" sx={{ py: 7, px: 3, textAlign: "center", borderRadius: 1, border: 1, borderStyle: "dashed", borderColor: "divider", bgcolor: "background.paper" }}>
+            <SearchRoundedIcon sx={{ fontSize: 32, color: "grey.300" }} />
+            <Typography variant="body2" fontWeight={600} sx={{ mt: 1.5 }}>
+              No categories found
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Try a different keyword.
+            </Typography>
+          </Stack>
         ) : (
-          <div className={GRID_CLASS}>
+          <Box className="store-category-grid">
             {filteredCategories.map((category, index) => (
               <CategoryPageCard
                 key={category._id}
@@ -157,9 +212,9 @@ export default function StoreCategoriesView() {
                 index={index}
               />
             ))}
-          </div>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

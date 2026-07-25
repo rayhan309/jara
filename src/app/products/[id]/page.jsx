@@ -10,8 +10,8 @@ export async function generateMetadata({ params }) {
 
   if (!product) {
     return createPageMetadata({
-      title: "পণ্য পাওয়া যায়নি",
-      description: "আপনি যে পণ্যটি খুঁজছেন তা পাওয়া যায়নি।",
+      title: "Product not found",
+      description: "The product you are looking for could not be found.",
       path: `/products/${id}`,
       noIndex: true,
     });
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }) {
   const title = product.title_bn || product.title_en;
   const description =
     product.description?.slice(0, 160) ||
-    `${title} — Raisa's Glam Nest-এ কিনুন। দ্রুত ডেলিভারি ও ক্যাশ অন ডেলিভারি সুবিধা।`;
+    `${title} — buy at Raisa's Glam Nest. Fast delivery and cash on delivery available.`;
 
   return createPageMetadata({
     title,
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }) {
       product.category,
       product.brand_or_vendor,
       "buy online",
-      "অনলাইনে কিনুন",
+      "buy online",
     ].filter(Boolean),
   });
 }
@@ -48,7 +48,7 @@ export default async function ProductPage({ params }) {
   const relatedProducts = await getRelatedProducts(product);
 
   return (
-    <StoreShell className="bg-zinc-50">
+    <StoreShell sx={{ bgcolor: "grey.50" }}>
       <StoreProductDetailView product={product} relatedProducts={relatedProducts} />
     </StoreShell>
   );

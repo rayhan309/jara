@@ -4,47 +4,69 @@ import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import StoreContainer from "@/components/container/StoreContainer";
+import Box from "@mui/material/Box";
+import Breadcrumbs from "@mui/material/Breadcrumbs";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
+import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
+import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
+import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
+import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import StarRoundedIcon from "@mui/icons-material/StarRounded";
+import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { motion } from "motion/react";
-import {
-  ArrowLeft,
-  Check,
-  ChevronRight,
-  Minus,
-  Package,
-  Phone,
-  Plus,
-  Share2,
-  ShieldCheck,
-  ShoppingCart,
-  Star,
-  Truck,
-  Zap,
-} from "lucide-react";
-import { FaWhatsapp } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
+import { useWishlist } from "@/hooks/useWishlist";
 import { getProductMaxStock } from "@/lib/cart";
 import { getProductVariantConfig } from "@/lib/productVariants";
-import { isVariableProduct, resolveProductPricing } from "@/lib/productPricing";
+import { resolveProductPricing } from "@/lib/productPricing";
 import { isProductFullyOutOfStock, isVariantOutOfStock } from "@/lib/variantStock";
 import StoreProductCard from "@/components/products/StoreProductCard";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import { buildProductPixelPayload, trackMetaEvent } from "@/lib/metaPixel";
 
+const productGridSx = {
+  display: "grid",
+  gridTemplateColumns: {
+    xs: "repeat(2, minmax(0, 1fr))",
+    sm: "repeat(3, minmax(0, 1fr))",
+    md: "repeat(4, minmax(0, 1fr))",
+    lg: "repeat(5, minmax(0, 1fr))",
+  },
+  gap: { xs: 1.5, sm: 2 },
+};
+
 function RatingStars({ rating }) {
   const value = Math.min(5, Math.max(0, rating || 0));
 
   return (
-    <div className="flex items-center gap-0.5">
+    <Stack direction="row" spacing={0.25}>
       {Array.from({ length: 5 }).map((_, index) => (
-        <Star
+        <StarRoundedIcon
           key={index}
-          className={`h-4 w-4 ${
-            index < Math.round(value) ? "fill-amber-400 text-amber-400" : "text-zinc-200"
-          }`}
+          sx={{
+            fontSize: 18,
+            color: index < Math.round(value) ? "warning.main" : "grey.200",
+          }}
         />
       ))}
-    </div>
+    </Stack>
   );
 }
 
@@ -55,6 +77,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
   const WHATSAPP_URL = `https://wa.me/${whatsappPhone}`;
   const router = useRouter();
   const { addToCart, buyNow, removeFromCart, items } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState("");
@@ -73,16 +96,12 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
   const salePrice = activePricing.sale_price || 0;
   const regularPrice = activePricing.regular_price || 0;
   const discount = activePricing.discount_percentage || 0;
-  const showFromPrice = isVariableProduct(product) && !selectedVariant;
   const outOfStock = variantConfig.required
     ? selectedVariant
       ? isVariantOutOfStock(product, selectedVariant)
       : isProductFullyOutOfStock(product)
     : isVariantOutOfStock(product);
   const maxStock = getProductMaxStock(product, selectedVariant);
-  const totalCartQty = items
-    .filter((item) => item._id === product._id)
-    .reduce((sum, item) => sum + item.quantity, 0);
   const cartLine = items.find(
     (item) =>
       item._id === product._id && (item.selected_variant || "") === (selectedVariant || "")
@@ -90,12 +109,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
   const inCart = Boolean(cartLine);
   const cartQty = cartLine?.quantity || 0;
   const remainingStock = Math.max(0, maxStock - cartQty);
-  const hasAnyInCart = productCartLines.length > 0;
-
-  const savings = useMemo(() => {
-    if (regularPrice <= salePrice) return 0;
-    return (regularPrice - salePrice) * quantity;
-  }, [regularPrice, salePrice, quantity]);
+  const wishlisted = isInWishlist(product._id, selectedVariant);
 
   useEffect(() => {
     setQuantity(1);
@@ -136,11 +150,11 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
   function handleAddToCart() {
     if (outOfStock) {
-      toast.error("এই পণ্যটি স্টকে নেই");
+      toast.error("This product is out of stock");
       return;
     }
     if (variantConfig.required && !selectedVariant) {
-      toast.error(`অনুগ্রহ করে ${variantConfig.label} বেছে নিন`);
+      toast.error(`Please select ${variantConfig.label}`);
       return;
     }
     if (inCart) {
@@ -148,7 +162,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
       return;
     }
     if (remainingStock === 0) {
-      toast.error("স্টক অনুযায়ী আর যোগ করা যাবে না");
+      toast.error("Cannot add more — stock limit reached");
       return;
     }
     addToCart(product, quantity, selectedVariant);
@@ -157,11 +171,11 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
   function handleBuy() {
     if (outOfStock) {
-      toast.error("এই পণ্যটি স্টকে নেই");
+      toast.error("This product is out of stock");
       return;
     }
     if (variantConfig.required && !selectedVariant) {
-      toast.error(`অনুগ্রহ করে ${variantConfig.label} বেছে নিন`);
+      toast.error(`Please select ${variantConfig.label}`);
       return;
     }
     if (inCart) {
@@ -169,7 +183,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
       return;
     }
     if (remainingStock === 0) {
-      toast.error("স্টক অনুযায়ী আর যোগ করা যাবে না");
+      toast.error("Cannot add more — stock limit reached");
       return;
     }
     buyNow(product, quantity, selectedVariant);
@@ -178,14 +192,18 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
   function increaseQuantity() {
     if (remainingStock === 0) {
-      toast.error("স্টক অনুযায়ী আর যোগ করা যাবে না");
+      toast.error("Cannot add more — stock limit reached");
       return;
     }
     if (quantity >= remainingStock) {
-      toast.error(`সর্বোচ্চ ${remainingStock}টি যোগ করতে পারবেন`);
+      toast.error(`You can add up to ${remainingStock} more`);
       return;
     }
     setQuantity((q) => clampQty(q + 1));
+  }
+
+  function handleWishlistToggle() {
+    toggleWishlist(product, selectedVariant);
   }
 
   async function handleShare() {
@@ -203,436 +221,397 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("পণ্যের লিংক কপি হয়েছে");
+      toast.success("Product link copied");
     } catch {
-      toast.error("শেয়ার করা যায়নি");
+      toast.error("Could not share");
     }
   }
 
+  const trustFeatures = [
+    { icon: LocalShippingOutlinedIcon, label: "Fast delivery" },
+    { icon: VerifiedUserOutlinedIcon, label: "Safe shopping" },
+    { icon: Inventory2OutlinedIcon, label: "Quality products" },
+  ];
+
   return (
-    <div className="store-container py-6 sm:py-10">
-      <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-zinc-500 sm:text-sm">
-        <Link href="/" className="transition-colors hover:text-indigo-600">
-          হোম
-        </Link>
-        <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-        <Link href="/products" className="transition-colors hover:text-indigo-600">
-          পণ্য
-        </Link>
+    <StoreContainer className="py-6 sm:py-10">
+      <Breadcrumbs
+        separator={<ChevronRightRoundedIcon sx={{ fontSize: 16 }} />}
+        sx={{ mb: 3, typography: "caption", color: "text.secondary" }}
+      >
+        <Typography component={Link} href="/" color="inherit" sx={{ textDecoration: "none", "&:hover": { color: "primary.main" } }}>
+          Home
+        </Typography>
+        <Typography component={Link} href="/products" color="inherit" sx={{ textDecoration: "none", "&:hover": { color: "primary.main" } }}>
+          Products
+        </Typography>
         {product.category ? (
-          <>
-            <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-            <Link
-              href={`/products?category=${product.category_slug || ""}`}
-              className="transition-colors hover:text-indigo-600"
-            >
-              {product.category}
-            </Link>
-          </>
+          <Typography
+            component={Link}
+            href={`/products?category=${product.category_slug || ""}`}
+            color="inherit"
+            sx={{ textDecoration: "none", "&:hover": { color: "primary.main" } }}
+          >
+            {product.category}
+          </Typography>
         ) : null}
-        <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-        <span className="line-clamp-1 font-medium text-zinc-800">{title}</span>
-      </nav>
-      <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16">
-        <div className="lg:sticky lg:top-24 lg:self-start xl:top-28">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.35 }}
-            className="space-y-4"
-          >
-          <div className="relative overflow-hidden rounded-md border border-zinc-200 bg-white">
-            <div className="relative aspect-square bg-zinc-50 p-4 sm:p-6">
-              {images[activeImage]?.url ? (
-                <Image
-                  src={images[activeImage].url}
-                  alt={title}
-                  fill
-                  unoptimized
-                  priority
-                  className="object-contain object-center"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-zinc-300">
-                  <Package className="h-16 w-16" />
-                </div>
-              )}
-            </div>
+        <Typography color="text.primary" fontWeight={500} noWrap sx={{ maxWidth: 200 }}>
+          {title}
+        </Typography>
+      </Breadcrumbs>
 
-            {discount > 0 ? (
-              <span className="absolute top-4 left-4 rounded-md bg-rose-500 px-2.5 py-1 text-xs font-bold text-white">
-                -{discount}% ছাড়
-              </span>
-            ) : null}
+      <Grid container spacing={{ xs: 4, lg: 6 }} sx={{ alignItems: "flex-start" }}>
+        <Grid size={{ xs: 12, lg: 6 }}>
+          <Box sx={{ position: { lg: "sticky" }, top: { lg: 96 } }}>
+            <Box component={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }}>
+              <Paper variant="outlined" sx={{ position: "relative", overflow: "hidden" }}>
+                <Box sx={{ position: "relative", aspectRatio: "1 / 1", bgcolor: "grey.50", p: { xs: 2, sm: 3 } }}>
+                  {images[activeImage]?.url ? (
+                    <Image
+                      src={images[activeImage].url}
+                      alt={title}
+                      fill
+                      unoptimized
+                      priority
+                      style={{ objectFit: "contain", objectPosition: "center" }}
+                    />
+                  ) : (
+                    <Stack alignItems="center" justifyContent="center" sx={{ height: 1, color: "grey.300" }}>
+                      <Inventory2OutlinedIcon sx={{ fontSize: 64 }} />
+                    </Stack>
+                  )}
+                </Box>
 
-            {outOfStock ? (
-              <span
-                className={`absolute left-4 rounded-md bg-zinc-800 px-2.5 py-1 text-xs font-semibold text-white ${
-                  discount > 0 ? "top-14" : "top-4"
-                }`}
-              >
-                স্টক নেই
-              </span>
-            ) : null}
-
-            <button
-              type="button"
-              aria-label="শেয়ার করুন"
-              onClick={handleShare}
-              className="absolute top-4 right-4 inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white/95 text-zinc-700 shadow-sm transition-colors hover:border-indigo-200 hover:text-indigo-600"
-            >
-              <Share2 className="h-4 w-4" />
-            </button>
-          </div>
-
-          {images.length > 1 ? (
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {images.map((image, index) => (
-                <button
-                  key={image.fileId || image.url || index}
-                  type="button"
-                  onClick={() => setActiveImage(index)}
-                  className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-md border bg-white transition-all sm:h-20 sm:w-20 ${
-                    activeImage === index
-                      ? "border-indigo-500 ring-2 ring-indigo-100"
-                      : "border-zinc-200 hover:border-indigo-200"
-                  }`}
-                >
-                  <Image
-                    src={image.url}
-                    alt=""
-                    fill
-                    unoptimized
-                    className="object-contain p-1"
+                {discount > 0 ? (
+                  <Chip
+                    label={`-${discount}% off`}
+                    color="error"
+                    size="small"
+                    sx={{ position: "absolute", top: 16, left: 16, fontWeight: 700 }}
                   />
-                </button>
-              ))}
-            </div>
-          ) : null}
-          </motion.div>
-        </div>
+                ) : null}
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.35, delay: 0.05 }}
-          className="flex flex-col"
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            {product.category ? (
-              <span className="rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-                {product.category}
-              </span>
-            ) : null}
-            {/* {product.brand_or_vendor ? (
-              <span className="text-xs font-medium text-zinc-500">{product.brand_or_vendor}</span>
-            ) : null} */}
-          </div>
-
-          <h1 className="mt-3 text-xl font-bold leading-snug text-zinc-900 sm:text-2xl lg:text-3xl">{title}</h1>
-
-          {product.ratings?.average_rating > 0 ? (
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <RatingStars rating={product.ratings.average_rating} />
-              <span className="text-sm font-semibold text-zinc-800">
-                {product.ratings.average_rating}
-              </span>
-              <span className="text-sm text-zinc-400">
-                ({product.ratings.total_reviews} রিভিউ)
-              </span>
-            </div>
-          ) : null}
-
-          <div className="mt-4.5 rounded-md">
-            <div className="flex flex-wrap items-end gap-3">
-              {showFromPrice ? (
-                <span className="pb-1 text-sm font-semibold text-indigo-600"></span>
-              ) : null}
-              <p className="text-2xl font-bold text-zinc-900 sm:text-3xl lg:text-4xl">
-                ৳{salePrice.toLocaleString()}
-              </p>
-              {regularPrice > salePrice ? (
-                <p className="pb-1 text-base text-zinc-400 line-through sm:text-lg">
-                  ৳{regularPrice.toLocaleString()}
-                </p>
-              ) : null}
-            </div>
-
-            {/* {savings > 0 ? (
-              <p className="mt-2 text-sm font-medium text-emerald-600">
-                আপনি ৳{savings.toLocaleString()} সাশ্রয় করছেন
-              </p>
-            ) : null} */}
-
-            {/* <p className="mt-3 text-xs text-zinc-500">
-              {outOfStock
-                ? "এই পণ্যটি বর্তমানে স্টকে নেই"
-                : maxStock > 0
-                  ? `স্টকে ${maxStock}টি আছে${inCart ? ` · কার্টে ${cartQty}টি` : ""}`
-                  : "স্টকে আছে"}
-            </p> */}
-            {!outOfStock && inCart && remainingStock === 0 ? (
-              <p className="mt-1 text-xs font-medium text-amber-600">
-                স্টক অনুযায়ী আর যোগ করা যাবে না
-              </p>
-            ) : null}
-          </div>
-
-          {/* {hasAnyInCart ? (
-            <div className="mt-4 break-words rounded-md border border-indigo-200 bg-indigo-50  text-xs font-medium text-indigo-800">
-              <span className="font-semibold">কার্টে আছে:</span>{" "}
-              {variantConfig.required
-                ? productCartLines
-                    .map((line) =>
-                      line.selected_variant
-                        ? `${line.selected_variant} × ${line.quantity}`
-                        : `${line.quantity}টি`
-                    )
-                    .join(" · ")
-                : `${totalCartQty}টি`}
-            </div>
-          ) : null} */}
-
-          {variantConfig.required ? (
-            <div className="mt-5">
-              <p className="mb-2 text-sm font-semibold text-zinc-700">
-                {variantConfig.label} বেছে নিন <span className="text-rose-500">*</span>
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {variantConfig.options.map((option) => {
-                  const optionOutOfStock = isVariantOutOfStock(product, option);
-                  return (
-                  <button
-                    key={option}
-                    type="button"
-                    disabled={optionOutOfStock}
-                    onClick={() => {
-                      setSelectedVariant(option);
+                {outOfStock ? (
+                  <Chip
+                    label="Out of stock"
+                    size="small"
+                    sx={{
+                      position: "absolute",
+                      top: discount > 0 ? 52 : 16,
+                      left: 16,
+                      bgcolor: "grey.800",
+                      color: "common.white",
+                      fontWeight: 600,
                     }}
-                    className={`rounded-md border px-3.5 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-                      selectedVariant === option
-                        ? "border-indigo-600 bg-indigo-600 text-white"
-                        : optionOutOfStock
-                          ? "border-zinc-200 bg-zinc-100 text-zinc-400"
-                          : "border-zinc-200 bg-white text-zinc-700 hover:border-indigo-200 hover:text-indigo-700"
-                    }`}
+                  />
+                ) : null}
+
+                <Stack direction="row" spacing={0.5} sx={{ position: "absolute", top: 16, right: 16 }}>
+                  <IconButton
+                    size="small"
+                    aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                    onClick={handleWishlistToggle}
+                    sx={{ bgcolor: "rgba(255,255,255,0.95)", border: 1, borderColor: "divider" }}
                   >
-                    {option}
-                    {optionOutOfStock ? " (স্টক নেই)" : ""}
-                  </button>
-                );
-                })}
-              </div>
-            </div>
-          ) : null}
+                    {wishlisted ? (
+                      <FavoriteRoundedIcon fontSize="small" color="error" />
+                    ) : (
+                      <FavoriteBorderRoundedIcon fontSize="small" />
+                    )}
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    aria-label="Share"
+                    onClick={handleShare}
+                    sx={{ bgcolor: "rgba(255,255,255,0.95)", border: 1, borderColor: "divider" }}
+                  >
+                    <ShareOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              </Paper>
 
-          {!outOfStock ? (
-            <div className="mt-5">
-              <p className="mb-2 text-sm font-semibold text-zinc-700">
-                পরিমাণ
-              </p>
-              <div className="inline-flex items-center rounded-md border border-zinc-200 bg-white">
-                <button
-                  type="button"
-                  aria-label="পরিমাণ কমান"
-                  onClick={() => setQuantity((q) => clampQty(q - 1))}
-                  className="flex h-11 w-11 items-center justify-center text-zinc-600 transition-colors hover:bg-zinc-50"
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="min-w-[3rem] text-center text-base font-bold text-zinc-900">
-                  {quantity}
-                </span>
-                <button
-                  type="button"
-                  aria-label="পরিমাণ বাড়ান"
-                  onClick={increaseQuantity}
-                  className="flex h-11 w-11 items-center justify-center text-zinc-600 transition-colors hover:bg-zinc-50"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          ) : null}
+              {images.length > 1 ? (
+                <Stack direction="row" spacing={1} sx={{ mt: 2, overflowX: "auto", pb: 0.5 }}>
+                  {images.map((image, index) => (
+                    <IconButton
+                      key={image.fileId || image.url || index}
+                      onClick={() => setActiveImage(index)}
+                      sx={{
+                        position: "relative",
+                        width: { xs: 64, sm: 80 },
+                        height: { xs: 64, sm: 80 },
+                        flexShrink: 0,
+                        borderRadius: 1,
+                        border: 2,
+                        borderColor: activeImage === index ? "primary.main" : "divider",
+                        bgcolor: "background.paper",
+                        overflow: "hidden",
+                        p: 0,
+                      }}
+                    >
+                      <Image src={image.url} alt="" fill unoptimized style={{ objectFit: "contain", padding: 4 }} />
+                    </IconButton>
+                  ))}
+                </Stack>
+              ) : null}
+            </Box>
+          </Box>
+        </Grid>
 
+        <Grid size={{ xs: 12, lg: 6 }}>
+          <Stack component={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, delay: 0.05 }}>
+            {product.category ? (
+              <Chip label={product.category} size="small" color="primary" variant="outlined" sx={{ alignSelf: "flex-start", fontWeight: 600 }} />
+            ) : null}
 
-          
+            <Typography variant="h4" fontWeight={700} sx={{ mt: 1.5, lineHeight: 1.3 }}>
+              {title}
+            </Typography>
 
-          <div className="mt-6 grid grid-cols-[2.75rem_1fr] gap-2 sm:grid-cols-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              aria-label={
-                inCart ? `কার্টে (${cartQty}) — সরান` : "কার্টে যোগ করুন"
-              }
-              title={inCart ? `কার্টে (${cartQty}) — সরান` : "কার্টে যোগ করুন"}
-              className={`inline-flex h-11 w-full items-center justify-center gap-2 rounded-md text-sm font-semibold transition-colors sm:h-auto sm:px-5 sm:py-3.5 ${
-                inCart
-                  ? "border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700"
-                  : "border border-zinc-200 bg-white text-zinc-800 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
-              }`}
-            >
-              {inCart ? <Check className="h-4 w-4 shrink-0" /> : <ShoppingCart className="h-4 w-4 shrink-0" />}
-              <span className="hidden truncate sm:inline">
-                {inCart ? `কার্টে (${cartQty}) — সরান` : "কার্টে যোগ করুন"}
-              </span>
-            </button>
-            <motion.button
-              type="button"
-              onClick={handleBuy}
-              animate={{ scale: [1, 1.02, 1] }}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{
-                scale: { duration: 2.2, repeat: Infinity, ease: "easeInOut" },
-              }}
-              className="relative inline-flex h-11 min-w-0 items-center justify-center gap-2 overflow-hidden rounded-md bg-indigo-600 px-3 text-sm font-semibold text-white shadow-[0_4px_14px_-4px_rgba(79,70,229,0.55)] transition-colors hover:bg-indigo-700 sm:h-auto sm:px-5 sm:py-3.5"
-            >
-              <motion.span
-                aria-hidden
-                className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent"
-                animate={{ x: ["-120%", "120%"] }}
-                transition={{
-                  duration: 2.4,
-                  repeat: Infinity,
-                  repeatDelay: 1.2,
-                  ease: "easeInOut",
-                }}
-              />
-              <Zap className="relative h-4 w-4 shrink-0" />
-              <span className="relative truncate">
-                {inCart ? "চেকআউটে যান" : "এখনই কিনুন"}
-              </span>
-            </motion.button>
-          </div>
+            {product.ratings?.average_rating > 0 ? (
+              <Stack direction="row" alignItems="center" flexWrap="wrap" spacing={1} sx={{ mt: 2 }}>
+                <RatingStars rating={product.ratings.average_rating} />
+                <Typography variant="body2" fontWeight={600}>
+                  {product.ratings.average_rating}
+                </Typography>
+                <Typography variant="body2" color="text.disabled">
+                  ({product.ratings.total_reviews} reviews)
+                </Typography>
+              </Stack>
+            ) : null}
 
-          
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:gap-3">
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-md border border-emerald-600 bg-emerald-500 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-600 sm:text-sm"
-            >
-              <FaWhatsapp className="h-4 w-4 shrink-0" />
-              <span className="truncate">হোয়াটসঅ্যাপ</span>
-            </a>
-            <a
-              href={`tel:${CONTACT_PHONE}`}
-              className="flex items-center justify-center gap-2 rounded-md border border-sky-600 bg-sky-500 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-sky-600 sm:text-sm"
-            >
-              <Phone className="h-4 w-4 shrink-0" />
-              <span className="truncate">{CONTACT_PHONE}</span>
-            </a>
-          </div>
-
-          {/* <button
-            type="button"
-            onClick={handleShare}
-            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-md border border-zinc-200 bg-white px-5 py-3 text-sm font-semibold text-zinc-700 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 sm:w-auto"
-          >
-            <Share2 className="h-4 w-4" />
-            শেয়ার করুন
-          </button> */}
-
-          <div>
-
-          </div>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            {[
-              { icon: Truck, label: "দ্রুত ডেলিভারি" },
-              { icon: ShieldCheck, label: "নিরাপদ কেনাকাটা" },
-              { icon: Package, label: "মানসম্মত পণ্য" },
-            ].map(({ icon: Icon, label }) => (
-              <div
-                key={label}
-                className="flex items-center gap-2 rounded-md border border-zinc-100 bg-white px-3 py-2.5"
-              >
-                <Icon className="h-4 w-4 shrink-0 text-indigo-600" />
-                <span className="text-xs font-medium text-zinc-600">{label}</span>
-              </div>
-            ))}
-          </div>
-
-          {(variantConfig.required || product.attributes?.material) && (
-            <div className="mt-8 rounded-md border border-zinc-200 bg-white p-4 sm:p-5">
-              <h2 className="text-sm font-bold text-zinc-900">বিস্তারিত তথ্য</h2>
-              <dl className="mt-3 space-y-2 text-sm">
-                {variantConfig.required ? (
-                  <div className="flex justify-between gap-4 border-b border-zinc-100 pb-2">
-                    <dt className="text-zinc-500">{variantConfig.label}</dt>
-                    <dd className="font-medium text-zinc-800">
-                      {variantConfig.options.join(", ")}
-                    </dd>
-                  </div>
+            <Box sx={{ mt: 2 }}>
+              <Stack direction="row" alignItems="flex-end" flexWrap="wrap" spacing={1.5}>
+                <Typography variant="h4" fontWeight={700}>
+                  ৳{salePrice.toLocaleString()}
+                </Typography>
+                {regularPrice > salePrice ? (
+                  <Typography variant="h6" color="text.disabled" sx={{ textDecoration: "line-through", pb: 0.25 }}>
+                    ৳{regularPrice.toLocaleString()}
+                  </Typography>
                 ) : null}
-                {product.attributes?.material ? (
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-zinc-500">ম্যাটেরিয়াল</dt>
-                    <dd className="font-medium text-zinc-800">{product.attributes.material}</dd>
-                  </div>
-                ) : null}
-              </dl>
-            </div>
-          )}
+              </Stack>
+              {!outOfStock && inCart && remainingStock === 0 ? (
+                <Typography variant="caption" fontWeight={600} color="warning.main" sx={{ mt: 0.5, display: "block" }}>
+                  Cannot add more — stock limit reached
+                </Typography>
+              ) : null}
+            </Box>
 
-          {product.description ? (
-            <div className="mt-6 rounded-md border border-zinc-200 bg-white p-4 sm:p-5">
-              <h2 className="text-sm font-bold text-zinc-900">পণ্যের বিবরণ</h2>
-              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-zinc-600">
-                {product.description}
-              </p>
-            </div>
-          ) : null}
-        </motion.div>
-      </div>
+            {variantConfig.required ? (
+              <Box sx={{ mt: 2.5 }}>
+                <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+                  Select {variantConfig.label} <Typography component="span" color="error.main">*</Typography>
+                </Typography>
+                <Stack direction="row" flexWrap="wrap" useFlexGap spacing={1}>
+                  {variantConfig.options.map((option) => {
+                    const optionOutOfStock = isVariantOutOfStock(product, option);
+                    const selected = selectedVariant === option;
+                    return (
+                      <Button
+                        key={option}
+                        variant={selected ? "contained" : "outlined"}
+                        disabled={optionOutOfStock}
+                        onClick={() => setSelectedVariant(option)}
+                        size="small"
+                        sx={{ fontWeight: 600, textTransform: "none" }}
+                      >
+                        {option}
+                        {optionOutOfStock ? " (out of stock)" : ""}
+                      </Button>
+                    );
+                  })}
+                </Stack>
+              </Box>
+            ) : null}
+
+            {!outOfStock ? (
+              <Box sx={{ mt: 2.5 }}>
+                <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+                  Quantity
+                </Typography>
+                <Stack direction="row" alignItems="center" sx={{ display: "inline-flex", border: 1, borderColor: "divider", borderRadius: 1, bgcolor: "background.paper" }}>
+                  <IconButton aria-label="Decrease quantity" onClick={() => setQuantity((q) => clampQty(q - 1))}>
+                    <RemoveRoundedIcon fontSize="small" />
+                  </IconButton>
+                  <Typography variant="body1" fontWeight={700} sx={{ minWidth: 48, textAlign: "center" }}>
+                    {quantity}
+                  </Typography>
+                  <IconButton aria-label="Increase quantity" onClick={increaseQuantity}>
+                    <AddRoundedIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              </Box>
+            ) : null}
+
+            <Grid container spacing={1} sx={{ mt: 3 }}>
+              <Grid size={{ xs: 3, sm: 6 }}>
+                <Button
+                  fullWidth
+                  variant={inCart ? "contained" : "outlined"}
+                  onClick={handleAddToCart}
+                  aria-label={inCart ? `In cart (${cartQty}) — remove` : "Add to cart"}
+                  startIcon={inCart ? <CheckRoundedIcon /> : <ShoppingCartOutlinedIcon />}
+                  sx={{ minHeight: 44 }}
+                >
+                  <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                    {inCart ? `In cart (${cartQty}) — remove` : "Add to cart"}
+                  </Box>
+                </Button>
+              </Grid>
+              <Grid size={{ xs: 9, sm: 6 }}>
+                <Box
+                  component={motion.div}
+                  animate={{ scale: [1, 1.02, 1] }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ scale: { duration: 2.2, repeat: Infinity, ease: "easeInOut" } }}
+                >
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    onClick={handleBuy}
+                    startIcon={<BoltRoundedIcon />}
+                    sx={{
+                      minHeight: 44,
+                      boxShadow: "0 4px 14px -4px rgba(79,70,229,0.55)",
+                    }}
+                  >
+                    {inCart ? "Go to checkout" : "Buy now"}
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={1} sx={{ mt: 1.5 }}>
+              <Grid size={6}>
+                <Button
+                  component="a"
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  fullWidth
+                  variant="contained"
+                  color="success"
+                  startIcon={<WhatsAppIcon />}
+                  size="small"
+                >
+                  WhatsApp
+                </Button>
+              </Grid>
+              <Grid size={6}>
+                <Button
+                  component="a"
+                  href={`tel:${CONTACT_PHONE}`}
+                  fullWidth
+                  variant="contained"
+                  color="info"
+                  startIcon={<PhoneOutlinedIcon />}
+                  size="small"
+                  sx={{ fontSize: { xs: "0.7rem", sm: "0.8125rem" } }}
+                >
+                  {CONTACT_PHONE}
+                </Button>
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={1.5} sx={{ mt: 2 }}>
+              {trustFeatures.map(({ icon: Icon, label }) => (
+                <Grid key={label} size={{ xs: 12, sm: 4 }}>
+                  <Stack direction="row" alignItems="center" spacing={1} sx={{ border: 1, borderColor: "grey.100", borderRadius: 1, bgcolor: "background.paper", px: 1.5, py: 1.25 }}>
+                    <Icon sx={{ fontSize: 18, color: "primary.main", flexShrink: 0 }} />
+                    <Typography variant="caption" fontWeight={500} color="text.secondary">
+                      {label}
+                    </Typography>
+                  </Stack>
+                </Grid>
+              ))}
+            </Grid>
+
+            {(variantConfig.required || product.attributes?.material) && (
+              <Paper variant="outlined" sx={{ mt: 4, p: { xs: 2, sm: 2.5 } }}>
+                <Typography variant="body2" fontWeight={700}>
+                  Details
+                </Typography>
+                <Stack spacing={1} sx={{ mt: 1.5 }}>
+                  {variantConfig.required ? (
+                    <Stack direction="row" justifyContent="space-between" spacing={2} sx={{ borderBottom: 1, borderColor: "grey.100", pb: 1 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {variantConfig.label}
+                      </Typography>
+                      <Typography variant="body2" fontWeight={500}>
+                        {variantConfig.options.join(", ")}
+                      </Typography>
+                    </Stack>
+                  ) : null}
+                  {product.attributes?.material ? (
+                    <Stack direction="row" justifyContent="space-between" spacing={2}>
+                      <Typography variant="body2" color="text.secondary">
+                        Material
+                      </Typography>
+                      <Typography variant="body2" fontWeight={500}>
+                        {product.attributes.material}
+                      </Typography>
+                    </Stack>
+                  ) : null}
+                </Stack>
+              </Paper>
+            )}
+
+            {product.description ? (
+              <Paper variant="outlined" sx={{ mt: 2, p: { xs: 2, sm: 2.5 } }}>
+                <Typography variant="body2" fontWeight={700}>
+                  Product description
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5, whiteSpace: "pre-line", lineHeight: 1.7 }}>
+                  {product.description}
+                </Typography>
+              </Paper>
+            ) : null}
+          </Stack>
+        </Grid>
+      </Grid>
 
       {product.category ? (
-        <section className="mt-14 border-t border-zinc-200 pt-10 sm:mt-16">
-          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-indigo-600">একই ক্যাটাগরি</p>
-              <h2 className="mt-1 line-clamp-2 text-lg font-bold text-zinc-900 sm:text-xl lg:text-2xl">
-                {product.category} — আরও পণ্য
-              </h2>
-            </div>
+        <Box component="section" sx={{ mt: { xs: 7, sm: 8 }, pt: 5, borderTop: 1, borderColor: "divider" }}>
+          <Stack direction={{ xs: "column", sm: "row" }} alignItems={{ sm: "flex-end" }} justifyContent="space-between" spacing={1} sx={{ mb: 3 }}>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography variant="caption" fontWeight={600} color="primary.main">
+                Same category
+              </Typography>
+              <Typography variant="h5" fontWeight={700} sx={{ mt: 0.5 }}>
+                {product.category} — more products
+              </Typography>
+            </Box>
             {product.category_slug ? (
-              <Link
-                href={`/products?category=${product.category_slug}`}
-                className="shrink-0 text-sm font-semibold text-indigo-600 hover:text-indigo-700"
-              >
-                সব দেখুন
-              </Link>
+              <Typography component={Link} href={`/products?category=${product.category_slug}`} variant="body2" fontWeight={600} color="primary.main" sx={{ flexShrink: 0, textDecoration: "none" }}>
+                View all
+              </Typography>
             ) : (
-              <Link
-                href="/products"
-                className="text-sm font-semibold text-indigo-600 hover:text-indigo-700"
-              >
-                সব পণ্য
-              </Link>
+              <Typography component={Link} href="/products" variant="body2" fontWeight={600} color="primary.main" sx={{ textDecoration: "none" }}>
+                All products
+              </Typography>
             )}
-          </div>
+          </Stack>
 
           {relatedProducts.length > 0 ? (
-            <div className="store-product-grid">
+            <Box sx={productGridSx}>
               {relatedProducts.map((item, index) => (
                 <StoreProductCard key={item._id} product={item} index={index} />
               ))}
-            </div>
+            </Box>
           ) : (
-            <div className="rounded-md border border-dashed border-zinc-200 bg-white px-6 py-10 text-center">
-              <p className="text-sm text-zinc-500">এই ক্যাটাগরিতে আর কোনো পণ্য নেই।</p>
-              <Link
-                href="/products"
-                className="mt-3 inline-block text-sm font-semibold text-indigo-600 hover:text-indigo-700"
-              >
-                সব পণ্য দেখুন
-              </Link>
-            </div>
+            <Paper variant="outlined" sx={{ borderStyle: "dashed", px: 3, py: 5, textAlign: "center" }}>
+              <Typography variant="body2" color="text.secondary">
+                No more products in this category.
+              </Typography>
+              <Typography component={Link} href="/products" variant="body2" fontWeight={600} color="primary.main" sx={{ mt: 1.5, display: "inline-block", textDecoration: "none" }}>
+                View all products
+              </Typography>
+            </Paper>
           )}
-        </section>
+        </Box>
       ) : null}
-    </div>
+    </StoreContainer>
   );
 }

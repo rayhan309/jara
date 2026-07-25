@@ -1,43 +1,76 @@
 "use client";
 
 import Image from "next/image";
-import { RiStore2Fill } from "react-icons/ri";
+import Box from "@mui/material/Box";
+import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
+
+/** Trimmed wordmark ≈ 520×255 (~2∶1) */
+const LOGO_ASPECT = 520 / 255;
 
 const SIZE_MAP = {
-  xs: { box: "h-8 w-8", icon: "h-3.5 w-3.5", image: 32 },
-  sm: { box: "h-9 w-9", icon: "h-4 w-4", image: 36 },
-  md: { box: "h-10 w-10 sm:h-11 sm:w-11", icon: "h-5 w-5", image: 44 },
+  xs: { height: 44, icon: 14 },
+  sm: { height: 52, icon: 16 },
+  md: { height: 58, icon: 20 },
+  lg: { height: 68, icon: 24 },
 };
 
 export default function ShopLogo({
   logoUrl,
   size = "md",
-  className = "",
-  fallbackClassName = "bg-indigo-600 shadow-md shadow-indigo-200",
+  sx = {},
+  fallbackSx = {},
 }) {
   const sizeConfig = SIZE_MAP[size] || SIZE_MAP.md;
+  const width = Math.round(sizeConfig.height * LOGO_ASPECT);
 
   if (logoUrl) {
     return (
-      <div
-        className={`relative shrink-0 overflow-hidden rounded-md ${sizeConfig.box} ${className}`}
+      <Box
+        sx={{
+          display: "block",
+          flexShrink: 0,
+          lineHeight: 0,
+          borderRadius: 1,
+          overflow: "hidden",
+          ...sx,
+        }}
       >
         <Image
           src={logoUrl}
-          alt="Shop logo"
-          fill
-          sizes={`${sizeConfig.image}px`}
-          className="object-contain"
+          alt="Raisa's Glam Nest"
+          width={width}
+          height={sizeConfig.height}
+          priority={size === "md" || size === "lg"}
+          unoptimized
+          style={{
+            display: "block",
+            width,
+            height: sizeConfig.height,
+            objectFit: "cover",
+            objectPosition: "center",
+          }}
         />
-      </div>
+      </Box>
     );
   }
 
   return (
-    <div
-      className={`flex shrink-0 items-center justify-center rounded-md ${sizeConfig.box} ${fallbackClassName} ${className}`}
+    <Box
+      sx={{
+        width: sizeConfig.height,
+        height: sizeConfig.height,
+        flexShrink: 0,
+        borderRadius: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "primary.main",
+        color: "primary.contrastText",
+        ...fallbackSx,
+        ...sx,
+      }}
     >
-      <RiStore2Fill className={`${sizeConfig.icon} text-white`} />
-    </div>
+      <StorefrontRoundedIcon sx={{ fontSize: sizeConfig.icon }} />
+    </Box>
   );
 }

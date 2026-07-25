@@ -2,55 +2,124 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import Box from "@mui/material/Box";
+import Skeleton from "@mui/material/Skeleton";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import { motion } from "motion/react";
-import { Layers } from "lucide-react";
-
 import { setSelectedCategoryId } from "@/lib/categoryFilter";
 
 export function CategoryTile({ category, index = 0 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.035, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="h-full"
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-16px" }}
+      transition={{ delay: Math.min(index * 0.035, 0.28), duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -4 }}
+      sx={{ height: 1 }}
     >
-      <Link
+      <Box
+        component={Link}
         href={`/products?category=${category.slug}`}
         onClick={() => setSelectedCategoryId(category._id)}
-        className="group flex h-full flex-col items-center gap-3 sm:gap-3.5"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: 1,
+          textDecoration: "none",
+          color: "inherit",
+          alignItems: "center",
+          gap: { xs: 1.5, sm: 1.75 },
+          "&:hover .cat-tile-media": {
+            borderColor: "rgba(15,23,42,0.14)",
+            boxShadow: "0 16px 36px -18px rgba(15,23,42,0.28)",
+          },
+          "&:hover .cat-tile-image": {
+            transform: "scale(1.06)",
+          },
+          "&:hover .cat-tile-name": {
+            color: "primary.main",
+          },
+        }}
       >
-        <div className="relative aspect-square w-full overflow-hidden rounded-md border border-zinc-200/80 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-300 group-hover:-translate-y-1 group-hover:border-indigo-200 group-hover:shadow-[0_12px_28px_-12px_rgba(79,70,229,0.35)] sm:p-5">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/0 via-transparent to-violet-50/0 opacity-0 transition-opacity duration-300 group-hover:from-indigo-50/40 group-hover:to-violet-50/30 group-hover:opacity-100" />
-          <div className="relative flex h-full w-full items-center justify-center">
+        <Box
+          className="cat-tile-media rounded-md"
+          sx={{
+            position: "relative",
+            aspectRatio: "1 / 1",
+            width: 1,
+            overflow: "hidden",
+            borderRadius: 1.5,
+            border: 1,
+            borderColor: "rgba(15,23,42,0.08)",
+            bgcolor: "background.paper",
+            p: { xs: 2, sm: 2.5 },
+            boxShadow: "0 1px 2px rgba(15,23,42,0.04)",
+            transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+          }}
+        >
+          <Stack
+            sx={{
+              position: "relative",
+              height: 1,
+              width: 1,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             {category.image?.url ? (
               <Image
+                className="cat-tile-image"
                 src={category.image.url}
                 alt={category.name}
                 width={160}
                 height={160}
                 unoptimized
-                className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                style={{
+                  maxHeight: "100%",
+                  maxWidth: "100%",
+                  objectFit: "contain",
+                  transition: "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)",
+                }}
               />
             ) : (
-              <Layers className="h-10 w-10 text-zinc-300" />
+              <LayersOutlinedIcon sx={{ fontSize: 40, color: "grey.300" }} />
             )}
-          </div>
-        </div>
+          </Stack>
+        </Box>
 
-        <h3 className="line-clamp-2 min-h-[2.5rem] w-full px-1 text-center text-[13px] leading-snug font-semibold text-zinc-800 transition-colors group-hover:text-indigo-700 sm:text-sm">
+        <Typography
+          className="cat-tile-name"
+          variant="body2"
+          fontWeight={600}
+          color="text.primary"
+          sx={{
+            minHeight: "2.5rem",
+            width: 1,
+            px: 0.5,
+            textAlign: "center",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            transition: "color 0.2s ease",
+          }}
+        >
           {category.name}
-        </h3>
-      </Link>
-    </motion.div>
+        </Typography>
+      </Box>
+    </Box>
   );
 }
 
 export function CategoryTileSkeleton() {
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="aspect-square w-full animate-pulse rounded-md border border-zinc-100 bg-zinc-100/80" />
-      <div className="h-3.5 w-3/5 animate-pulse rounded-md bg-zinc-100" />
-    </div>
+    <Stack spacing={1.5} sx={{ alignItems: "center" }}>
+      <Skeleton variant="rounded" sx={{ aspectRatio: "1 / 1", width: 1, borderRadius: 1.5 }} />
+      <Skeleton width="60%" height={14} />
+    </Stack>
   );
 }

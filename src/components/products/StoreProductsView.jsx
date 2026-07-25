@@ -2,7 +2,15 @@
 
 import { Suspense, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, Package } from "lucide-react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Skeleton from "@mui/material/Skeleton";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
+import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import { filterProductsByCategory } from "@/lib/categoryFilter";
 import { filterProductsBySearch } from "@/lib/productSearch";
 import { useCategoryFilter } from "@/hooks/useCategoryFilter";
@@ -12,16 +20,27 @@ import StoreProductCard from "@/components/products/StoreProductCard";
 
 function ProductSkeleton() {
   return (
-    <div className="overflow-hidden rounded-md border border-zinc-100 bg-white">
-      <div className="aspect-square animate-pulse bg-zinc-100" />
-      <div className="space-y-1.5 px-2.5 py-2">
-        <div className="h-3 w-full animate-pulse rounded-md bg-zinc-100" />
-        <div className="h-3 w-2/3 animate-pulse rounded-md bg-zinc-100" />
-        <div className="h-4 w-16 animate-pulse rounded-md bg-zinc-100" />
-      </div>
-    </div>
+    <Box sx={{ overflow: "hidden", borderRadius: 1, border: 1, borderColor: "divider", bgcolor: "background.paper" }}>
+      <Skeleton variant="rectangular" sx={{ aspectRatio: "1 / 1", width: 1 }} />
+      <Stack spacing={1} sx={{ px: 1.25, py: 1 }}>
+        <Skeleton height={12} />
+        <Skeleton width="70%" height={12} />
+        <Skeleton width={64} height={16} />
+      </Stack>
+    </Box>
   );
 }
+
+const productGridSx = {
+  display: "grid",
+  gridTemplateColumns: {
+    xs: "repeat(2, minmax(0, 1fr))",
+    sm: "repeat(3, minmax(0, 1fr))",
+    md: "repeat(4, minmax(0, 1fr))",
+    lg: "repeat(5, minmax(0, 1fr))",
+  },
+  gap: { xs: 1.5, sm: 2 },
+};
 
 export default function StoreProductsView() {
   return (
@@ -33,17 +52,17 @@ export default function StoreProductsView() {
 
 function StoreProductsFallback() {
   return (
-    <div>
-      <div className="text-center">
-        <div className="mx-auto h-7 w-32 animate-pulse rounded-md bg-zinc-100 sm:h-8 sm:w-40" />
-        <div className="mx-auto mt-2.5 h-0.5 w-12 animate-pulse rounded-full bg-zinc-100" />
-      </div>
-      <div className="store-product-grid mt-6 sm:mt-8">
+    <Box>
+      <Stack alignItems="center">
+        <Skeleton width={160} height={32} />
+        <Skeleton width={48} height={4} sx={{ mt: 1 }} />
+      </Stack>
+      <Box sx={{ ...productGridSx, mt: { xs: 3, sm: 4 } }}>
         {Array.from({ length: 15 }).map((_, index) => (
           <ProductSkeleton key={index} />
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
 
@@ -65,14 +84,8 @@ function StoreProductsContent() {
     return filterProductsBySearch(byCategory, searchQuery);
   }, [products, selectedCategory, searchQuery]);
 
-  const {
-    page,
-    setPage,
-    totalPages,
-    totalItems,
-    pageSize,
-    paginatedItems,
-  } = usePagination(filteredProducts, 15);
+  const { page, setPage, totalPages, totalItems, pageSize, paginatedItems } =
+    usePagination(filteredProducts, 15);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -80,10 +93,10 @@ function StoreProductsContent() {
   }, [page]);
 
   const pageTitle = searchQuery
-    ? `"${searchQuery}" — অনুসন্ধান`
+    ? `"${searchQuery}" — Search`
     : selectedCategory
       ? selectedCategory.name
-      : "সব পণ্য";
+      : "All products";
   const isLoadingContent = isLoading || categoriesLoading;
 
   function handleShowAllProducts() {
@@ -92,90 +105,84 @@ function StoreProductsContent() {
   }
 
   return (
-    <div>
-      <div className="text-center">
-        <h1 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl">
+    <Box>
+      <Stack sx={{ alignItems: "center" }}>
+        <Typography variant="h5" fontWeight={700} sx={{ textAlign: "center" }}>
           {pageTitle}
-        </h1>
-        <div
-          className="mx-auto mt-2 h-0.5 w-10 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-300/40 sm:mt-2.5 sm:w-12"
-          aria-hidden
+        </Typography>
+        <Box
+          sx={{
+            mt: 1,
+            width: 40,
+            height: 3,
+            borderRadius: 1,
+            background: (theme) =>
+              `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
+          }}
         />
-      </div>
+      </Stack>
 
-      <div className="mt-6 sm:mt-8">
+      <Box sx={{ mt: { xs: 3, sm: 4 } }}>
         {isLoadingContent ? (
-          <div className="store-product-grid">
+          <Box sx={productGridSx}>
             {Array.from({ length: 12 }).map((_, index) => (
               <ProductSkeleton key={index} />
             ))}
-          </div>
+          </Box>
         ) : isError ? (
-          <div className="rounded-md border border-red-200 bg-red-50 p-8 text-center">
-            <p className="text-sm text-red-600">{error?.message || "পণ্য লোড করা যায়নি।"}</p>
-            <button
-              type="button"
-              onClick={() => refetch()}
-              className="mt-3 text-sm font-semibold text-indigo-600"
-            >
-              আবার চেষ্টা করুন
-            </button>
-          </div>
+          <Box sx={{ border: 1, borderColor: "error.light", bgcolor: "error.50", borderRadius: 1, p: 4, textAlign: "center" }}>
+            <Typography variant="body2" color="error.main">
+              {error?.message || "Could not load products."}
+            </Typography>
+            <Button onClick={() => refetch()} sx={{ mt: 1.5 }}>
+              Try again
+            </Button>
+          </Box>
         ) : filteredProducts.length === 0 ? (
-          <div className="rounded-md border border-dashed border-zinc-200 bg-white px-6 py-16 text-center">
-            <Package className="mx-auto h-10 w-10 text-zinc-300" />
-            <p className="mt-4 text-sm text-zinc-500">
+          <Box sx={{ border: "1px dashed", borderColor: "divider", bgcolor: "background.paper", borderRadius: 1, px: 3, py: 8, textAlign: "center" }}>
+            <Inventory2OutlinedIcon sx={{ fontSize: 40, color: "grey.300" }} />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
               {searchQuery
-                ? `"${searchQuery}" খুঁজে কোনো পণ্য পাওয়া যায়নি।`
+                ? `No products found for "${searchQuery}".`
                 : selectedCategory
-                  ? `"${selectedCategory.name}" ক্যাটাগরিতে এখনও কোনো পণ্য নেই।`
-                  : "এখনও কোনো পণ্য যোগ করা হয়নি।"}
-            </p>
+                  ? `No products in "${selectedCategory.name}" yet.`
+                  : "No products have been added yet."}
+            </Typography>
             {searchQuery || selectedCategory ? (
-              <button
-                type="button"
-                onClick={handleShowAllProducts}
-                className="mt-4 text-sm font-semibold text-indigo-600"
-              >
-                সব পণ্য দেখুন
-              </button>
+              <Button onClick={handleShowAllProducts} sx={{ mt: 2 }}>
+                View all products
+              </Button>
             ) : null}
-          </div>
+          </Box>
         ) : (
-          <div className="store-product-grid">
+          <Box sx={productGridSx}>
             {paginatedItems.map((product, index) => (
               <StoreProductCard key={product._id} product={product} index={index} />
             ))}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
+
       {!isLoadingContent && !isError && totalItems > pageSize ? (
-        <div className="mt-8 flex items-center justify-center">
-          <div className="flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-2 text-xs font-semibold text-zinc-600 shadow-sm">
-            <button
-              type="button"
-              onClick={() => setPage(page - 1)}
-              disabled={page <= 1}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 text-zinc-500 transition-colors hover:border-indigo-200 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Previous page"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <span className="min-w-[86px] text-center">
+        <Stack alignItems="center" sx={{ mt: 4 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={1}
+            sx={{ border: 1, borderColor: "divider", bgcolor: "background.paper", borderRadius: 1, px: 1.5, py: 1 }}
+          >
+            <IconButton size="small" onClick={() => setPage(page - 1)} disabled={page <= 1} aria-label="Previous page">
+              <ChevronLeftRoundedIcon fontSize="small" />
+            </IconButton>
+            <Typography variant="caption" fontWeight={600} sx={{ minWidth: 86, textAlign: "center" }}>
               Page {page} / {totalPages}
-            </span>
-            <button
-              type="button"
-              onClick={() => setPage(page + 1)}
-              disabled={page >= totalPages}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 text-zinc-500 transition-colors hover:border-indigo-200 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Next page"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
+            </Typography>
+            <IconButton size="small" onClick={() => setPage(page + 1)} disabled={page >= totalPages} aria-label="Next page">
+              <ChevronRightRoundedIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+        </Stack>
       ) : null}
-    </div>
+    </Box>
   );
 }

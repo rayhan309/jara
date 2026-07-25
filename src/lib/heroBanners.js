@@ -4,7 +4,7 @@ export const FALLBACK_HERO_BANNERS = [
   {
     id: "fallback-1",
     image: { url: "/images/banner-1.jpg" },
-    alt: "Raisa's Glam Nest ব্যানার",
+    alt: "Raisa's Glam Nest banner",
     href: "/products",
     enabled: true,
   },
@@ -20,7 +20,7 @@ export function normalizeHeroBanner(banner, index = 0) {
       fileId: banner?.image?.fileId || "",
       name: banner?.image?.name || "",
     },
-    alt: String(banner?.alt || "হোম ব্যানার").trim(),
+    alt: String(banner?.alt || "Home banner").trim(),
     href: String(banner?.href || "/products").trim() || "/products",
     enabled: banner?.enabled !== false,
   };
@@ -56,7 +56,7 @@ export function createHeroBanner(image, overrides = {}) {
   return normalizeHeroBanner({
     id: `hero-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     image,
-    alt: overrides.alt || "হোম ব্যানার",
+    alt: overrides.alt || "Home banner",
     href: overrides.href || "/products",
     enabled: true,
   });

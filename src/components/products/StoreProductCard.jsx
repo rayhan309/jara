@@ -2,16 +2,27 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
+import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import { motion } from "motion/react";
-import { ArrowRight, Check, Package, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
+import { useWishlist } from "@/hooks/useWishlist";
 import { resolveProductVariant } from "@/lib/productVariants";
 import { isProductFullyOutOfStock } from "@/lib/variantStock";
 import { getProductCardImageUrl } from "@/lib/imageUrl";
 
 export default function StoreProductCard({ product, index = 0 }) {
   const { toggleCart, items } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const defaultVariant = resolveProductVariant(product);
   const image = getProductCardImageUrl(product.images?.[0]?.url);
   const discount = product.pricing?.discount_percentage || 0;
@@ -24,94 +35,311 @@ export default function StoreProductCard({ product, index = 0 }) {
       item._id === product._id &&
       (item.selected_variant || "") === (defaultVariant || "")
   );
+  const wishlisted = isInWishlist(product._id, defaultVariant);
 
   function handleCartToggle(event) {
     event.preventDefault();
     event.stopPropagation();
     if (outOfStock) {
-      toast.error("এই পণ্যটি স্টকে নেই");
+      toast.error("This product is out of stock");
       return;
     }
     toggleCart(product);
   }
 
+  function handleWishlistToggle(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleWishlist(product, defaultVariant);
+  }
+
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.03, duration: 0.3 }}
-      className="group flex h-full min-w-0 flex-col overflow-hidden rounded-md border border-zinc-200/90 bg-white transition-all duration-200 hover:border-zinc-300 hover:shadow-[0_8px_24px_-12px_rgba(15,23,42,0.18)]"
+    <Box
+      component={motion.article}
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-20px" }}
+      transition={{
+        delay: Math.min(index * 0.04, 0.24),
+        duration: 0.42,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: 1,
+        minWidth: 0,
+        bgcolor: "transparent",
+        "&:hover .product-media": {
+          boxShadow: "0 18px 40px -24px rgba(15,23,42,0.35)",
+        },
+        "&:hover .product-image": {
+          transform: "scale(1.04)",
+        },
+        "&:hover .product-title": {
+          color: "primary.main",
+        },
+        "&:hover .product-actions": {
+          opacity: 1,
+          transform: "translateY(0)",
+        },
+      }}
     >
-      <Link href={`/products/${product.slug}`} className="flex flex-1 flex-col">
-        <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-zinc-50">
+      <Box
+        className="product-media"
+        sx={{
+          position: "relative",
+          aspectRatio: "4 / 5",
+          width: 1,
+          overflow: "hidden",
+          borderRadius: 1.5,
+          bgcolor: "#f3f0ee",
+          transition: "box-shadow 0.35s ease",
+        }}
+      >
+        <Box
+          component={Link}
+          href={`/products/${product.slug}`}
+          aria-label={title}
+          sx={{ position: "absolute", inset: 0, displayDecoration: "none" }}
+        >
           {image ? (
             <Image
+              className="product-image"
               src={image}
               alt={title}
               fill
               unoptimized
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04] [transform:translateZ(0)]"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+              style={{
+                objectFit: "cover",
+                objectPosition: "center",
+                transition: "transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-zinc-300">
-              <Package className="h-8 w-8" />
-            </div>
+            <Stack
+              sx={{
+                height: 1,
+                color: "grey.400",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Inventory2OutlinedIcon sx={{ fontSize: 36 }} />
+            </Stack>
           )}
+        </Box>
 
-          {discount > 0 ? (
-            <span className="absolute top-2 left-2 z-10 rounded-md bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
-              -{discount}%
-            </span>
-          ) : null}
+        {discount > 0 ? (
+          <Box
+            sx={{
+              position: "absolute",
+              top: { xs: 6, sm: 10 },
+              left: { xs: 6, sm: 10 },
+              zIndex: 2,
+              px: { xs: 0.75, sm: 1 },
+              py: 0.25,
+              borderRadius: 0.75,
+              bgcolor: "error.main",
+              color: "common.white",
+              typography: "caption",
+              fontWeight: 700,
+              fontSize: { xs: 9, sm: 11 },
+              letterSpacing: "0.02em",
+            }}
+          >
+            -{discount}%
+          </Box>
+        ) : null}
 
-          {outOfStock ? (
-            <span className="absolute top-2 right-2 z-10 rounded-md bg-zinc-800/90 px-1.5 py-0.5 text-[10px] font-medium text-white shadow-sm">
-              স্টক নেই
-            </span>
-          ) : null}
-        </div>
+        {outOfStock ? (
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              bgcolor: "rgba(255,255,255,0.55)",
+              backdropFilter: "blur(1px)",
+              pointerEvents: "none",
+            }}
+          >
+            <Typography
+              variant="caption"
+              fontWeight={700}
+              sx={{
+                px: { xs: 1, sm: 1.25 },
+                py: 0.5,
+                borderRadius: 0.75,
+                bgcolor: "rgba(15,23,42,0.88)",
+                color: "common.white",
+                fontSize: { xs: 10, sm: 12 },
+                letterSpacing: "0.04em",
+              }}
+            >
+              Out of stock
+            </Typography>
+          </Box>
+        ) : null}
 
-        <div className="px-2 pt-2 sm:px-2.5 sm:pt-3.5">
-          <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-800 sm:text-base md:text-lg">
-            {title}
-          </h3>
-
-          <div className="mt-1 flex flex-wrap items-baseline gap-1.5 pb-2 sm:mt-1.5 sm:gap-2 sm:pb-2.5">
-            <span className="text-[16px] md:text-xl font-bold text-red-600 min-[360px]:text-sm sm:text-base">
-              ৳<span className="font-sans">{salePrice?.toLocaleString()}</span>
-            </span>
-            {regularPrice > salePrice ? (
-              <span className="text-[11px] text-zinc-400 line-through sm:text-xs md:text-sm">
-                ৳{regularPrice.toLocaleString()}
-              </span>
-            ) : null}
-          </div>
-        </div>
-      </Link>
-
-      <div className="mt-1 grid grid-cols-[2rem_1fr] items-center gap-1.5 px-2 pb-2 pt-0 sm:mt-1.5 sm:grid-cols-[2.5rem_1fr] sm:px-2.5 sm:pb-2.5">
-        <button
-          type="button"
-          onClick={handleCartToggle}
-          aria-label={inCart ? "কার্ট থেকে সরান" : "কার্টে যোগ করুন"}
-          title={inCart ? "কার্ট থেকে সরান" : "কার্টে যোগ করুন"}
-          className={`flex h-8 w-full items-center justify-center rounded-md transition-colors cursor-pointer sm:h-9 ${
-            inCart
-              ? "border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700"
-              : "border border-zinc-200 bg-white text-zinc-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
-          }`}
+        <IconButton
+          component={motion.button}
+          whileTap={{ scale: 0.9 }}
+          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          onClick={handleWishlistToggle}
+          size="small"
+          sx={{
+            position: "absolute",
+            top: { xs: 6, sm: 8 },
+            right: { xs: 6, sm: 8 },
+            zIndex: 2,
+            width: { xs: 26, sm: 34 },
+            height: { xs: 26, sm: 34 },
+            bgcolor: "rgba(255,255,255,0.92)",
+            color: wishlisted ? "error.main" : "text.secondary",
+            boxShadow: "0 2px 10px rgba(15,23,42,0.1)",
+            "&:hover": {
+              bgcolor: "common.white",
+              color: "error.main",
+            },
+          }}
         >
-          {inCart ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
-        </button>
-        <Link
-          href={`/products/${product.slug}`}
-          className="flex h-8 min-w-0 items-center justify-center gap-1 rounded-md bg-indigo-600 px-2 text-[16px] font-semibold text-white transition-colors hover:bg-indigo-800 sm:h-9"
+          {wishlisted ? (
+            <FavoriteRoundedIcon sx={{ fontSize: { xs: 14, sm: 18 } }} />
+          ) : (
+            <FavoriteBorderRoundedIcon sx={{ fontSize: { xs: 14, sm: 18 } }} />
+          )}
+        </IconButton>
+
+        <Stack
+          className="product-actions"
+          direction="row"
+          spacing={{ xs: 0.5, sm: 0.75 }}
+          sx={{
+            position: "absolute",
+            left: { xs: 6, sm: 10 },
+            right: { xs: 6, sm: 10 },
+            bottom: { xs: 6, sm: 10 },
+            zIndex: 2,
+            opacity: { xs: 1, md: 0 },
+            transform: { xs: "none", md: "translateY(6px)" },
+            transition: "opacity 0.28s ease, transform 0.28s ease",
+          }}
         >
-          <span className="truncate">অর্ডার করুন</span>
-          <ArrowRight className="h-3.5 w-3.5 shrink-0" />
-        </Link>
-      </div>
-    </motion.article>
+          <IconButton
+            component={motion.button}
+            whileTap={{ scale: 0.92 }}
+            onClick={handleCartToggle}
+            disabled={outOfStock}
+            aria-label={inCart ? "Remove from cart" : "Add to cart"}
+            sx={{
+              width: { xs: 28, sm: 40 },
+              height: { xs: 28, sm: 40 },
+              flexShrink: 0,
+              borderRadius: 1,
+              bgcolor: inCart ? "primary.main" : "rgba(255,255,255,0.96)",
+              color: inCart ? "primary.contrastText" : "text.primary",
+              boxShadow: "0 4px 14px rgba(15,23,42,0.12)",
+              "&:hover": {
+                bgcolor: inCart ? "primary.dark" : "common.white",
+              },
+              "&.Mui-disabled": {
+                bgcolor: "rgba(255,255,255,0.7)",
+                color: "text.disabled",
+              },
+            }}
+          >
+            {inCart ? (
+              <CheckRoundedIcon sx={{ fontSize: { xs: 14, sm: 18 } }} />
+            ) : (
+              <ShoppingBagOutlinedIcon sx={{ fontSize: { xs: 14, sm: 18 } }} />
+            )}
+          </IconButton>
+          <Button
+            component={Link}
+            href={`/products/${product.slug}`}
+            variant="contained"
+            fullWidth
+            sx={{
+              height: { xs: 28, sm: 40 },
+              minWidth: 0,
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: 10, sm: 13 },
+              fontWeight: 700,
+              lineHeight: 1.1,
+              bgcolor: "rgba(15,23,42,0.92)",
+              color: "common.white",
+              boxShadow: "0 4px 14px rgba(15,23,42,0.18)",
+              "&:hover": {
+                bgcolor: "secondary.main",
+              },
+            }}
+          >
+            Order now
+          </Button>
+        </Stack>
+      </Box>
+
+      <Box
+        component={Link}
+        href={`/products/${product.slug}`}
+        sx={{
+          display: "block",
+          pt: 1.5,
+          px: 0.25,
+          textDecoration: "none",
+          color: "inherit",
+          flex: 1,
+        }}
+      >
+        <Typography
+          className="product-title"
+          variant="body2"
+          fontWeight={600}
+          color="text.primary"
+          sx={{
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            minHeight: { xs: 36, sm: 40 },
+            lineHeight: 1.35,
+            letterSpacing: "-0.01em",
+            transition: "color 0.2s ease",
+          }}
+        >
+          {title}
+        </Typography>
+
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          flexWrap="wrap"
+          sx={{ mt: 0.75, alignItems: "baseline" }}
+        >
+          <Typography
+            variant="subtitle1"
+            fontWeight={700}
+            color="text.primary"
+            sx={{ letterSpacing: "-0.02em", lineHeight: 1.2 }}
+          >
+            ৳{salePrice?.toLocaleString()}
+          </Typography>
+          {regularPrice > salePrice ? (
+            <Typography
+              variant="caption"
+              color="text.disabled"
+              sx={{ textDecoration: "line-through" }}
+            >
+              ৳{regularPrice.toLocaleString()}
+            </Typography>
+          ) : null}
+        </Stack>
+      </Box>
+    </Box>
   );
 }

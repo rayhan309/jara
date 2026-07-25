@@ -4,51 +4,112 @@ import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode } from "swiper/modules";
-import { Layers, Loader2 } from "lucide-react";
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import StoreContainer from "@/components/container/StoreContainer";
+import Skeleton from "@mui/material/Skeleton";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import { setSelectedCategoryId } from "@/lib/categoryFilter";
 import { useCategories } from "@/hooks/useCategories";
 import "swiper/css";
 
 function CategoryCard({ category }) {
   return (
-    <Link
+    <Box
+      component={Link}
       href={`/products?category=${category.slug}`}
       onClick={() => setSelectedCategoryId(category._id)}
-      className="group block min-w-0"
+      sx={{
+        display: "block",
+        minWidth: 0,
+        textDecoration: "none",
+        color: "inherit",
+        transition: "transform 0.3s ease",
+        "&:hover": { transform: "translateY(-3px)" },
+        "&:hover .cat-card": {
+          borderColor: "rgba(15,23,42,0.14)",
+          boxShadow: "0 14px 32px -16px rgba(15,23,42,0.28)",
+        },
+        "&:hover .cat-card-image": {
+          transform: "scale(1.06)",
+        },
+        "&:hover .cat-name": { color: "primary.main" },
+      }}
     >
-      <div className="aspect-square overflow-hidden rounded-full border border-zinc-200/90 bg-white p-1 shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-indigo-200 group-hover:shadow-[0_8px_24px_-8px_rgba(79,70,229,0.28)] min-[360px]:p-1.5 sm:p-2">
-        <div className="relative h-full w-full overflow-hidden rounded-full bg-zinc-50">
+      <Box
+        className="cat-card rounded-md"
+        sx={{
+          aspectRatio: "1 / 1",
+          overflow: "hidden",
+          borderRadius: 1.5,
+          border: 1,
+          borderColor: "rgba(15,23,42,0.08)",
+          bgcolor: "background.paper",
+          p: { xs: 0.75, sm: 1 },
+          boxShadow: "0 1px 2px rgba(15,23,42,0.04)",
+          transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+        }}
+      >
+        <Box
+          className="rounded-md"
+          sx={{
+            position: "relative",
+            height: 1,
+            width: 1,
+            overflow: "hidden",
+            borderRadius: 1,
+            bgcolor: "grey.50",
+          }}
+        >
           {category.image?.url ? (
             <Image
+              className="cat-card-image"
               src={category.image.url}
               alt={category.name}
               fill
               unoptimized
               sizes="(max-width: 640px) 22vw, 120px"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              style={{
+                objectFit: "cover",
+                transition: "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
             />
           ) : (
-            <div className="flex h-full items-center justify-center">
-              <Layers className="h-6 w-6 text-zinc-300 sm:h-8 sm:w-8" />
-            </div>
+            <Stack sx={{ height: 1, color: "grey.300", alignItems: "center", justifyContent: "center" }}>
+              <LayersOutlinedIcon />
+            </Stack>
           )}
-        </div>
-      </div>
-      <p className="mt-1.5 line-clamp-2 px-0.5 text-center text-[14px] md:text-lg leading-snug font-semibold text-zinc-800 transition-colors group-hover:text-indigo-700 min-[360px]:mt-2 min-[360px]:text-[14px] sm:mt-2.5">
+        </Box>
+      </Box>
+      <Typography
+        className="cat-name"
+        variant="body2"
+        fontWeight={600}
+        sx={{
+          mt: 1.5,
+          px: 0.5,
+          textAlign: "center",
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+          transition: "color 0.2s ease",
+        }}
+      >
         {category.name}
-      </p>
-    </Link>
+      </Typography>
+    </Box>
   );
 }
 
 function CategoryCardSkeleton() {
   return (
-    <div className="min-w-0">
-      <div className="aspect-square rounded-full border border-zinc-100 bg-white p-1.5">
-        <div className="h-full w-full animate-pulse rounded-full bg-zinc-100" />
-      </div>
-      <div className="mx-auto mt-2 h-3 w-3/4 animate-pulse rounded-md bg-zinc-100" />
-    </div>
+    <Box sx={{ minWidth: 0 }}>
+      <Skeleton variant="rounded" className="rounded-md" sx={{ width: 1, aspectRatio: "1 / 1", height: "auto", borderRadius: 1 }} />
+      <Skeleton width="75%" height={12} sx={{ mx: "auto", mt: 1 }} />
+    </Box>
   );
 }
 
@@ -69,55 +130,52 @@ export default function HomeCategoriesSection() {
   }
 
   return (
-    <section className="border-b border-zinc-100 bg-white py-6 sm:py-10 lg:py-12">
-      <div className="store-container">
-        <div className="mb-6 text-center sm:mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-zinc-900">
-            আমাদের সেরা ক্যাটাগরি সমূহ
-          </h2>
-          <div
-            className="mx-auto mt-3 h-1 w-14 rounded-full bg-gradient-to-r from-indigo-400 via-indigo-600 to-violet-500 sm:mt-3.5 sm:w-16"
-            aria-hidden
+    <Box component="section" sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "background.paper", py: { xs: 3, sm: 5, lg: 6 } }}>
+      <StoreContainer>
+        <Stack sx={{ mb: { xs: 3, sm: 4 }, alignItems: "center" }}>
+          <Typography variant="h5" fontWeight={700} sx={{ textAlign: "center" }}>
+            Our top categories
+          </Typography>
+          <Box
+            className="rounded-md"
+            sx={{
+              mt: 1.5,
+              width: 56,
+              height: 4,
+              borderRadius: 1,
+              background: (theme) =>
+                `linear-gradient(90deg, ${theme.palette.primary.light}, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+            }}
           />
-        </div>
+        </Stack>
+
+        <Swiper
+          modules={[FreeMode]}
+          freeMode
+          watchOverflow
+          breakpoints={SWIPER_BREAKPOINTS}
+          className="home-categories-swiper"
+        >
+          {isLoading
+            ? Array.from({ length: 8 }).map((_, index) => (
+                <SwiperSlide key={index} className="!h-auto">
+                  <CategoryCardSkeleton />
+                </SwiperSlide>
+              ))
+            : categories.map((category) => (
+                <SwiperSlide key={category._id} className="!h-auto">
+                  <CategoryCard category={category} />
+                </SwiperSlide>
+              ))}
+        </Swiper>
 
         {isLoading ? (
-          <Swiper
-            modules={[FreeMode]}
-            freeMode
-            watchOverflow
-            breakpoints={SWIPER_BREAKPOINTS}
-            className="home-categories-swiper"
-          >
-            {Array.from({ length: 8 }).map((_, index) => (
-              <SwiperSlide key={index} className="!h-auto">
-                <CategoryCardSkeleton />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        ) : (
-          <Swiper
-            modules={[FreeMode]}
-            freeMode
-            watchOverflow
-            breakpoints={SWIPER_BREAKPOINTS}
-            className="home-categories-swiper"
-          >
-            {categories.map((category) => (
-              <SwiperSlide key={category._id} className="!h-auto">
-                <CategoryCard category={category} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        )}
-
-        {isLoading ? (
-          <p className="mt-5 flex items-center justify-center gap-2 text-xs text-zinc-400">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ক্যাটাগরি লোড হচ্ছে...
-          </p>
+          <Stack direction="row" spacing={1} sx={{ mt: 2.5, color: "text.disabled", alignItems: "center", justifyContent: "center" }}>
+            <CircularProgress size={14} color="inherit" />
+            <Typography variant="caption">Loading categories...</Typography>
+          </Stack>
         ) : null}
-      </div>
-    </section>
+      </StoreContainer>
+    </Box>
   );
 }

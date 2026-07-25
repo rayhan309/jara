@@ -20,25 +20,25 @@ export function validateCustomerDetails({ name, phone, address }) {
   const trimmedAddress = String(address || "").trim();
 
   if (!trimmedName) {
-    errors.name = "আপনার নাম লিখুন";
+    errors.name = "Please enter your name";
   } else if (trimmedName.length < 2) {
-    errors.name = "নাম কমপক্ষে ২ অক্ষরের হতে হবে";
+    errors.name = "Name must be at least 2 characters";
   } else if (!NAME_REGEX.test(trimmedName)) {
-    errors.name = "সঠিক নাম লিখুন (শুধু অক্ষর)";
+    errors.name = "Please enter a valid name (letters only)";
   }
 
   if (!normalizedPhone) {
-    errors.phone = "ফোন নাম্বার লিখুন";
+    errors.phone = "Please enter your phone number";
   } else if (!isValidBdPhone(normalizedPhone)) {
-    errors.phone = "সঠিক বাংলাদেশি মোবাইল নাম্বার দিন (01XXXXXXXXX)";
+    errors.phone = "Enter a valid Bangladeshi mobile number (01XXXXXXXXX)";
   }
 
   if (!trimmedAddress) {
-    errors.address = "আপনার ঠিকানা লিখুন";
+    errors.address = "Please enter your address";
   } else if (trimmedAddress.length < 10) {
-    errors.address = "সম্পূর্ণ ঠিকানা লিখুন (কমপক্ষে ১০ অক্ষর)";
+    errors.address = "Enter a complete address (at least 10 characters)";
   } else if (trimmedAddress.length > 500) {
-    errors.address = "ঠিকানা ৫০০ অক্ষরের বেশি হতে পারবে না";
+    errors.address = "Address cannot exceed 500 characters";
   }
 
   return {
@@ -57,30 +57,30 @@ export function validateDeliveryMethod(delivery, settings) {
     return {
       ok: true,
       delivery,
-      area: { id: FREE_DELIVERY_OPTION_ID, label: "ফ্রী ডেলিভারি" },
+      area: { id: FREE_DELIVERY_OPTION_ID, label: "Free delivery" },
     };
   }
 
   const areas = getDeliveryAreas(settings);
   const match = areas.find((area) => area.id === delivery);
   if (!match) {
-    return { ok: false, error: "ডেলিভারি মেথড বেছে নিন" };
+    return { ok: false, error: "Please select a delivery method" };
   }
   return { ok: true, delivery, area: match };
 }
 
 export function validateOrderItems(items) {
   if (!Array.isArray(items) || items.length === 0) {
-    return { ok: false, error: "কার্টে কোনো পণ্য নেই" };
+    return { ok: false, error: "Your cart is empty" };
   }
 
   for (const item of items) {
     if (!item?._id) {
-      return { ok: false, error: "অবৈধ পণ্য তথ্য" };
+      return { ok: false, error: "Invalid product information" };
     }
     const qty = Number(item.quantity);
     if (!Number.isFinite(qty) || qty < 1 || qty > 99) {
-      return { ok: false, error: "পণ্যের পরিমাণ সঠিক নয়" };
+      return { ok: false, error: "Invalid product quantity" };
     }
   }
 

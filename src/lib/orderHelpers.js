@@ -1,14 +1,14 @@
 export const DEFAULT_ORDER_STATUS = "new";
 
 export const ORDER_STATUSES = [
-  { value: "new", label: "নতুন অর্ডার" },
-  { value: "confirmed", label: "অর্ডার কনফার্ম" },
-  { value: "steadfast_entered", label: "স্টিডফাস্টে এন্ট্রি করা হয়েছে" },
-  { value: "no_response", label: "নো রেসপন্স" },
-  { value: "will_inform_later", label: "পরে জানাবে" },
-  { value: "color_code_pending", label: "কালার কোড দেয় নাই কথা বলতে হবে" },
-  { value: "out_for_delivery", label: "ডেলিভারির জন্য বের হয়েছে" },
-  { value: "scammer", label: "চিটার বাটপার" },
+  { value: "new", label: "New order" },
+  { value: "confirmed", label: "Order confirmed" },
+  { value: "steadfast_entered", label: "Entered in Steadfast" },
+  { value: "no_response", label: "No response" },
+  { value: "will_inform_later", label: "Will inform later" },
+  { value: "color_code_pending", label: "Color code pending — follow up needed" },
+  { value: "out_for_delivery", label: "Out for delivery" },
+  { value: "scammer", label: "Scammer / fraudulent" },
 ];
 
 export const ORDER_STATUS_VALUES = ORDER_STATUSES.map((entry) => entry.value);
@@ -29,10 +29,10 @@ export const ALL_VALID_ORDER_STATUSES = [...ORDER_STATUS_VALUES, ...LEGACY_STATU
 export const EXCLUDED_ORDER_STATUSES = ["scammer", "cancelled"];
 
 export const ORDER_TRACKING_STEPS = [
-  "নতুন অর্ডার",
-  "অর্ডার কনফার্ম",
-  "কুরিয়ারে এন্ট্রি",
-  "ডেলিভারির জন্য বের হয়েছে",
+  "New order",
+  "Order confirmed",
+  "Entered with courier",
+  "Out for delivery",
 ];
 
 const STATUS_STYLE = {
@@ -52,19 +52,19 @@ const STATUS_STYLE = {
 };
 
 const TRACKING_INFO = {
-  new: { step: 1, label: "নতুন অর্ডার" },
-  confirmed: { step: 2, label: "অর্ডার কনফার্ম" },
-  steadfast_entered: { step: 3, label: "স্টিডফাস্টে এন্ট্রি করা হয়েছে" },
-  no_response: { step: 2, label: "নো রেসপন্স" },
-  will_inform_later: { step: 2, label: "পরে জানাবে" },
-  color_code_pending: { step: 2, label: "কালার কোড দেয় নাই কথা বলতে হবে" },
-  out_for_delivery: { step: 4, label: "ডেলিভারির জন্য বের হয়েছে" },
-  scammer: { step: 0, label: "চিটার বাটপার" },
-  pending: { step: 1, label: "নতুন অর্ডার" },
-  processing: { step: 2, label: "অর্ডার কনফার্ম" },
-  shipped: { step: 3, label: "স্টিডফাস্টে এন্ট্রি করা হয়েছে" },
-  delivered: { step: 4, label: "ডেলিভারির জন্য বের হয়েছে" },
-  cancelled: { step: 0, label: "চিটার বাটপার" },
+  new: { step: 1, label: "New order" },
+  confirmed: { step: 2, label: "Order confirmed" },
+  steadfast_entered: { step: 3, label: "Entered in Steadfast" },
+  no_response: { step: 2, label: "No response" },
+  will_inform_later: { step: 2, label: "Will inform later" },
+  color_code_pending: { step: 2, label: "Color code pending — follow up needed" },
+  out_for_delivery: { step: 4, label: "Out for delivery" },
+  scammer: { step: 0, label: "Scammer / fraudulent" },
+  pending: { step: 1, label: "New order" },
+  processing: { step: 2, label: "Order confirmed" },
+  shipped: { step: 3, label: "Entered in Steadfast" },
+  delivered: { step: 4, label: "Out for delivery" },
+  cancelled: { step: 0, label: "Scammer / fraudulent" },
 };
 
 export function normalizeOrderStatus(status) {
@@ -187,13 +187,13 @@ export function buildCourierClipboardText(order) {
     .join(", ");
 
   return [
-    `অর্ডার: ${formatDisplayOrderNumber(order.order_number)}`,
-    `নাম: ${order.customer?.name || ""}`,
-    `ফোন: ${order.customer?.phone || ""}`,
-    `ঠিকানা: ${order.customer?.address || ""}`,
-    `এলাকা: ${order.delivery?.label || order.customer?.delivery_area || ""}`,
-    `ক্যাশ কালেক্ট: ৳${Number(order.pricing?.total || 0).toLocaleString()}`,
-    `পণ্য: ${items}`,
+    `Order: ${formatDisplayOrderNumber(order.order_number)}`,
+    `Name: ${order.customer?.name || ""}`,
+    `Phone: ${order.customer?.phone || ""}`,
+    `Address: ${order.customer?.address || ""}`,
+    `Area: ${order.delivery?.label || order.customer?.delivery_area || ""}`,
+    `Cash collect: ৳${Number(order.pricing?.total || 0).toLocaleString()}`,
+    `Items: ${items}`,
   ].join("\n");
 }
 

@@ -1,38 +1,50 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { motion } from "motion/react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import StoreContainer from "@/components/container/StoreContainer";
+import Skeleton from "@mui/material/Skeleton";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import { setSelectedCategoryId } from "@/lib/categoryFilter";
 import StoreProductCard from "@/components/products/StoreProductCard";
 
+const productGridSx = {
+  display: "grid",
+  gridTemplateColumns: {
+    xs: "repeat(2, minmax(0, 1fr))",
+    sm: "repeat(3, minmax(0, 1fr))",
+    md: "repeat(4, minmax(0, 1fr))",
+    lg: "repeat(5, minmax(0, 1fr))",
+  },
+  gap: { xs: 1.5, sm: 2 },
+};
+
 function ProductSkeleton() {
   return (
-    <div className="overflow-hidden rounded-md border border-zinc-100 bg-white">
-      <div className="aspect-square animate-pulse bg-zinc-100" />
-      <div className="space-y-1.5 px-2.5 py-2">
-        <div className="h-3 w-full animate-pulse rounded-md bg-zinc-100" />
-        <div className="h-3 w-2/3 animate-pulse rounded-md bg-zinc-100" />
-        <div className="h-4 w-16 animate-pulse rounded-md bg-zinc-100" />
-        <div className="mt-2 grid grid-cols-[2.75rem_1fr] gap-1.5">
-          <div className="h-8 animate-pulse rounded-md bg-zinc-100" />
-          <div className="h-8 animate-pulse rounded-md bg-zinc-100" />
-        </div>
-      </div>
-    </div>
+    <Box sx={{ overflow: "hidden", borderRadius: 1, border: 1, borderColor: "divider", bgcolor: "background.paper" }}>
+      <Skeleton variant="rectangular" sx={{ aspectRatio: "1 / 1", width: 1 }} />
+      <Stack spacing={1} sx={{ px: 1.25, py: 1 }}>
+        <Skeleton height={12} />
+        <Skeleton width="70%" height={12} />
+        <Skeleton width={64} height={16} />
+      </Stack>
+    </Box>
   );
 }
 
 function CategoryBlockSkeleton() {
   return (
-    <section className="py-6 sm:py-8">
-      <div className="mb-5 mx-auto h-6 w-40 animate-pulse rounded-md bg-zinc-100" />
-      <div className="store-product-grid">
+    <Box component="section" sx={{ py: { xs: 3, sm: 4 } }}>
+      <Skeleton width={160} height={28} sx={{ mx: "auto", mb: 2.5 }} />
+      <Box sx={productGridSx}>
         {Array.from({ length: 4 }).map((_, index) => (
           <ProductSkeleton key={index} />
         ))}
-      </div>
-    </section>
+      </Box>
+    </Box>
   );
 }
 
@@ -45,42 +57,49 @@ export default function HomeCategoryProductsSection({
   const hasMore = totalCount > products.length;
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
-      className={`py-6 sm:py-8 ${index % 2 === 1 ? "bg-zinc-50/80" : "bg-white"}`}
+    <Box
+      component="section"
+      sx={{
+        py: { xs: 3, sm: 4 },
+        bgcolor: index % 2 === 1 ? "grey.50" : "background.paper",
+      }}
     >
-      <div className="store-container">
-        <div className="mb-4 text-center sm:mb-5">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-zinc-900">
+      <StoreContainer>
+        <Stack sx={{ mb: { xs: 2, sm: 2.5 }, alignItems: "center" }}>
+          <Typography variant="h5" fontWeight={700} sx={{ textAlign: "center" }}>
             {category.name}
-          </h2>
-          <div
-            className="mx-auto mt-2 h-0.5 w-10 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-300/40 sm:w-12"
-            aria-hidden
+          </Typography>
+          <Box
+            sx={{
+              mt: 1,
+              width: 40,
+              height: 3,
+              borderRadius: 1,
+              background: (theme) =>
+                `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
+            }}
           />
-
           {hasMore ? (
-            <Link
+            <Button
+              component={Link}
               href={`/products?category=${category.slug}`}
               onClick={() => setSelectedCategoryId(category._id)}
-              className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-indigo-600 transition-colors hover:text-indigo-700 sm:text-[13px]"
+              endIcon={<ArrowForwardRoundedIcon />}
+              size="small"
+              sx={{ mt: 1.5 }}
             >
-              সব দেখুন
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+              View all
+            </Button>
           ) : null}
-        </div>
+        </Stack>
 
-        <div className="store-product-grid">
+        <Box sx={productGridSx}>
           {products.map((product, productIndex) => (
             <StoreProductCard key={product._id} product={product} index={productIndex} />
           ))}
-        </div>
-      </div>
-    </motion.section>
+        </Box>
+      </StoreContainer>
+    </Box>
   );
 }
 

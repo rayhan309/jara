@@ -3,21 +3,22 @@ export const SITE_NAME_SHORT = "Raisa's Glam Nest";
 export const ADMIN_NAME = "Raisa's Glam Nest Admin";
 
 export const DEFAULT_DESCRIPTION =
-  "Raisa's Glam Nest — বাংলাদেশের অন্যতম বিশ্বস্ত অনলাইন শপ। গুণগত পণ্য, দ্রুত ডেলিভারি, ক্যাশ অন ডেলিভারি ও সহজ অর্ডার ট্র্যাকিং।";
+  "Raisa's Glam Nest — one of Bangladesh's trusted online shops. Quality products, fast delivery, cash on delivery, and easy order tracking.";
 
 export const DEFAULT_KEYWORDS = [
   "Raisa's Glam Nest",
   "raisas glam nest",
   "online shopping Bangladesh",
   "e-commerce",
-  "অনলাইন শপিং",
-  "ক্যাশ অন ডেলিভারি",
+  "online shopping",
+  "cash on delivery",
   "COD",
   "order tracking",
-  "বাংলাদেশ",
+  "Bangladesh",
 ];
 
 const DEFAULT_OG_IMAGE = "/images/banner-1.jpg";
+const DEFAULT_ICON = "/images/brand-logo.png";
 
 export function getSiteUrl() {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -71,7 +72,7 @@ export function createPageMetadata({
       description,
       url: canonical,
       siteName: SITE_NAME,
-      locale: "bn_BD",
+      locale: "en_BD",
       type,
       images: [
         {
@@ -110,7 +111,7 @@ export function createAdminPageMetadata(title, description) {
 export const rootMetadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: `${SITE_NAME} — অনলাইন শপিং`,
+    default: `${SITE_NAME} — Online Shopping`,
     template: `%s | ${SITE_NAME}`,
   },
   description: DEFAULT_DESCRIPTION,
@@ -127,10 +128,10 @@ export const rootMetadata = {
   },
   openGraph: {
     type: "website",
-    locale: "bn_BD",
+    locale: "en_BD",
     url: getSiteUrl(),
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — অনলাইন শপিং`,
+    title: `${SITE_NAME} — Online Shopping`,
     description: DEFAULT_DESCRIPTION,
     images: [
       {
@@ -143,7 +144,7 @@ export const rootMetadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} — অনলাইন শপিং`,
+    title: `${SITE_NAME} — Online Shopping`,
     description: DEFAULT_DESCRIPTION,
     images: [absoluteUrl(DEFAULT_OG_IMAGE)],
   },
@@ -158,8 +159,12 @@ export const rootMetadata = {
     },
   },
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/apple-icon.svg", type: "image/svg+xml" }],
+    icon: [
+      { url: DEFAULT_ICON, type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: DEFAULT_ICON, type: "image/png" }],
+    shortcut: [{ url: DEFAULT_ICON, type: "image/png" }],
   },
   manifest: "/site.webmanifest",
 };
@@ -178,6 +183,10 @@ export const adminRootMetadata = {
     googleBot: { index: false, follow: false },
   },
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    icon: [
+      { url: DEFAULT_ICON, type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: DEFAULT_ICON, type: "image/png" }],
   },
 };

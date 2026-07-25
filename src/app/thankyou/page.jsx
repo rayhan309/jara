@@ -2,9 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
+import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import { motion } from "motion/react";
-import { CheckCircle2, Copy, Package } from "lucide-react";
 import toast from "react-hot-toast";
+import StoreContainer from "@/components/container/StoreContainer";
 import StoreShell from "@/components/layout/StoreShell";
 import { formatDisplayOrderNumber } from "@/lib/orderHelpers";
 import { trackMetaEvent } from "@/lib/metaPixel";
@@ -51,10 +59,10 @@ export default function ThankYou() {
     try {
       await navigator.clipboard.writeText(displayOrderNumber);
       setCopied(true);
-      toast.success("অর্ডার নম্বর কপি হয়েছে");
+      toast.success("Order number copied");
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("কপি করা যায়নি");
+      toast.error("Could not copy");
     }
   }
 
@@ -63,89 +71,103 @@ export default function ThankYou() {
     : "/orders-traking";
 
   return (
-    <StoreShell className="bg-zinc-50">
-      <div className="store-container py-12 sm:py-16 lg:py-24">
-        <motion.div
+    <StoreShell sx={{ bgcolor: "grey.50" }}>
+      <StoreContainer className="py-12 sm:py-16 lg:py-24">
+        <Box
+          component={motion.div}
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mx-auto max-w-lg text-center"
+          sx={{ mx: "auto", maxWidth: 480, textAlign: "center" }}
         >
-          <motion.div
+          <Box
+            component={motion.div}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 220, delay: 0.15 }}
-            className="rounded-md mx-auto mb-6 flex h-20 w-20 items-center justify-center border border-emerald-200 bg-emerald-50"
+            sx={{
+              mx: "auto",
+              mb: 3,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 80,
+              height: 80,
+              borderRadius: 1,
+              border: 1,
+              borderColor: "success.light",
+              bgcolor: "success.50",
+            }}
           >
-            <CheckCircle2 className="h-10 w-10 text-emerald-600" />
-          </motion.div>
+            <CheckCircleOutlineRoundedIcon sx={{ fontSize: 40, color: "success.main" }} />
+          </Box>
 
-          <p className="text-xs font-semibold tracking-[0.12em] text-emerald-600">
-            অর্ডার নিশ্চিত
-          </p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
-            আপনার অর্ডারের জন্য ধন্যবাদ!
-          </h1>
+          <Typography variant="caption" fontWeight={600} color="success.main" sx={{ letterSpacing: "0.12em" }}>
+            Order confirmed
+          </Typography>
+          <Typography variant="h3" fontWeight={700} sx={{ mt: 1.5 }}>
+            Thank you for your order!
+          </Typography>
 
           {displayOrderNumber ? (
-            <div className="mt-4 rounded-md border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-700">
-              <p className="text-xs font-semibold text-zinc-400">অর্ডার নম্বর</p>
-              <div className="mt-1 flex items-center justify-center gap-2">
-                <span className="font-bold text-indigo-600">{displayOrderNumber}</span>
-                <button
-                  type="button"
+            <Paper variant="outlined" sx={{ mt: 2, px: 2, py: 1.5, textAlign: "center" }}>
+              <Typography variant="caption" fontWeight={600} color="text.disabled">
+                Order number
+              </Typography>
+              <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mt: 0.5 }}>
+                <Typography fontWeight={700} color="primary.main">
+                  {displayOrderNumber}
+                </Typography>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<ContentCopyRoundedIcon sx={{ fontSize: 16 }} />}
                   onClick={handleCopyOrderId}
-                  aria-label="অর্ডার নম্বর কপি করুন"
-                  className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs font-semibold text-zinc-600 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
+                  aria-label="Copy order number"
                 >
-                  <Copy className="h-3.5 w-3.5" />
-                  {copied ? "কপি হয়েছে" : "কপি"}
-                </button>
-              </div>
+                  {copied ? "Copied" : "Copy"}
+                </Button>
+              </Stack>
               {orderInfo.total ? (
-                <p className="mt-2 text-zinc-600">
-                  মোট:{" "}
-                  <span className="font-semibold text-zinc-900">
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Total:{" "}
+                  <Typography component="span" fontWeight={600} color="text.primary">
                     ৳{Number(orderInfo.total).toLocaleString()}
-                  </span>
-                </p>
+                  </Typography>
+                </Typography>
               ) : null}
-            </div>
+            </Paper>
           ) : null}
 
-          <p className="mt-4 text-sm leading-relaxed text-zinc-500 sm:text-base">
-            আমরা আপনার অর্ডার পেয়েছি। শীঘ্রই আপনার সাথে যোগাযোগ করা হবে।
-            যেকোনো সময় ডেলিভারি ট্র্যাক করতে পারবেন।
-          </p>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2, lineHeight: 1.7 }}>
+            We've received your order and will contact you shortly. You can track delivery anytime.
+          </Typography>
 
-          <motion.div
+          <Stack
+            component={motion.div}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center"
+            direction={{ xs: "column", sm: "row" }}
+            spacing={1.5}
+            justifyContent="center"
+            sx={{ mt: 4 }}
           >
-            <Link href={trackHref}>
-              <motion.span
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-indigo-600 px-6 py-3.5 text-sm font-semibold text-white sm:w-auto"
-              >
-                <Package className="h-4 w-4" />
-                অর্ডার ট্র্যাক করুন
-              </motion.span>
-            </Link>
-            <Link href="/">
-              <motion.span
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="rounded-md inline-flex w-full items-center justify-center gap-2 border border-zinc-200 bg-white px-6 py-3.5 text-sm font-semibold text-zinc-700 sm:w-auto"
-              >
-                কেনাকাটা চালিয়ে যান
-              </motion.span>
-            </Link>
-          </motion.div>
-        </motion.div>
-      </div>
+            <Button
+              component={Link}
+              href={trackHref}
+              variant="contained"
+              startIcon={<Inventory2OutlinedIcon />}
+              sx={{ width: { xs: 1, sm: "auto" } }}
+            >
+              Track order
+            </Button>
+            <Button component={Link} href="/" variant="outlined" sx={{ width: { xs: 1, sm: "auto" } }}>
+              Continue shopping
+            </Button>
+          </Stack>
+        </Box>
+      </StoreContainer>
     </StoreShell>
   );
 }

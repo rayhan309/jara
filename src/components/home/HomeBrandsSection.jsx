@@ -2,10 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import StoreContainer from "@/components/container/StoreContainer";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
+import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
+import { motion } from "motion/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
-import { motion } from "motion/react";
 import { getProductCardImageUrl } from "@/lib/imageUrl";
 import "swiper/css";
 
@@ -13,18 +20,37 @@ function BrandCard({ brand, index }) {
   const imageSrc = getProductCardImageUrl(brand.image);
 
   return (
-    <motion.div
+    <Box
+      component={motion.div}
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.05, duration: 0.35 }}
-      className="h-full"
+      sx={{ height: 1 }}
     >
-      <Link
+      <Box
+        component={Link}
         href="/products"
-        className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-zinc-200/90 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_12px_32px_-14px_rgba(79,70,229,0.35)]"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: 1,
+          overflow: "hidden",
+          borderRadius: 2,
+          border: 1,
+          borderColor: "divider",
+          bgcolor: "background.paper",
+          textDecoration: "none",
+          color: "inherit",
+          transition: "transform 0.3s, box-shadow 0.3s, border-color 0.3s",
+          "&:hover": {
+            transform: "translateY(-4px)",
+            borderColor: "primary.light",
+            boxShadow: "0 12px 32px -14px rgba(79,70,229,0.35)",
+          },
+        }}
       >
-        <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-zinc-50">
+        <Box sx={{ position: "relative", aspectRatio: "1 / 1", width: 1, bgcolor: "grey.50", overflow: "hidden" }}>
           {imageSrc ? (
             <Image
               src={imageSrc}
@@ -32,53 +58,82 @@ function BrandCard({ brand, index }) {
               fill
               unoptimized
               sizes="(max-width: 640px) 45vw, 180px"
-              className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.04]"
+              style={{ objectFit: "cover", objectPosition: "center" }}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-indigo-600">
-              <span className="text-2xl font-bold text-white sm:text-3xl">
+            <Stack alignItems="center" justifyContent="center" sx={{ height: 1, bgcolor: "primary.main" }}>
+              <Typography variant="h4" fontWeight={700} color="common.white">
                 {brand.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
+              </Typography>
+            </Stack>
           )}
-        </div>
-
-        <div className="border-t border-zinc-100 px-3 py-3 text-center sm:px-4 sm:py-3.5">
-          <p className="line-clamp-2 text-[12px] font-semibold leading-snug text-zinc-800 transition-colors group-hover:text-indigo-700 sm:text-[13px]">
+        </Box>
+        <Box sx={{ borderTop: 1, borderColor: "grey.100", px: { xs: 1.5, sm: 2 }, py: { xs: 1.25, sm: 1.75 }, textAlign: "center" }}>
+          <Typography variant="caption" fontWeight={600} color="text.primary" sx={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
             {brand.name}
-          </p>
-        </div>
-      </Link>
-    </motion.div>
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 
 function SectionHeader() {
   return (
-    <div className="mb-8 text-center sm:mb-10">
-      <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50/80 px-3 py-1 text-[11px] font-semibold tracking-wide text-indigo-700 uppercase">
-        <Sparkles className="h-3.5 w-3.5" />
-        ব্র্যান্ড
-      </div>
-      <h2 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl lg:text-[1.75rem]">
-        আমাদের ব্র্যান্ড সমূহ
-      </h2>
-      <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-zinc-500">
-        বিশ্বস্ত ব্র্যান্ডের মানসম্মত ও অরিজিনাল পণ্য
-      </p>
-      <div
-        className="mx-auto mt-3 h-0.5 w-14 rounded-full bg-gradient-to-r from-indigo-400 via-indigo-600 to-violet-500"
-        aria-hidden
+    <Stack alignItems="center" sx={{ mb: { xs: 4, sm: 5 }, textAlign: "center" }}>
+      <Chip
+        icon={<AutoAwesomeOutlinedIcon sx={{ fontSize: "14px !important" }} />}
+        label="Brands"
+        size="small"
+        sx={{ mb: 1.5, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}
+        color="primary"
+        variant="outlined"
       />
-      <Link
+      <Typography variant="h5" fontWeight={700}>
+        Our brands
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1, maxWidth: 480 }}>
+        Quality originals from trusted brands
+      </Typography>
+      <Box
+        aria-hidden
+        sx={{
+          mt: 1.5,
+          height: 2,
+          width: 56,
+          borderRadius: 1,
+          background: "linear-gradient(90deg, #818cf8, #4f46e5, #8b5cf6)",
+        }}
+      />
+      <Button
+        component={Link}
         href="/products"
-        className="group mt-5 inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white px-4 py-2 text-[13px] font-semibold text-indigo-700 shadow-sm transition-all hover:border-indigo-300 hover:bg-indigo-50 sm:text-sm"
+        variant="outlined"
+        endIcon={<ArrowForwardRoundedIcon />}
+        sx={{ mt: 2.5, borderRadius: 1 }}
       >
-        সবগুলো দেখুন
-        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-      </Link>
-    </div>
+        View all
+      </Button>
+    </Stack>
   );
+}
+
+function brandGridSx(count) {
+  const cols =
+    count === 1
+      ? { xs: "1fr" }
+      : count === 2
+        ? { xs: "repeat(2, 1fr)" }
+        : count === 3
+          ? { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)" }
+          : { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)", lg: "repeat(4, 1fr)", xl: "repeat(5, 1fr)" };
+  return {
+    display: "grid",
+    gap: { xs: 1.75, sm: 2 },
+    gridTemplateColumns: cols,
+    mx: "auto",
+    maxWidth: count === 1 ? 200 : count === 2 ? 480 : count === 3 ? 720 : 960,
+  };
 }
 
 export default function HomeBrandsSection({ brands = [] }) {
@@ -87,31 +142,43 @@ export default function HomeBrandsSection({ brands = [] }) {
   const useGrid = brands.length <= 6;
 
   return (
-    <section className="relative overflow-hidden border-t border-zinc-100 bg-white py-10 sm:py-12 lg:py-14">
-      <div
-        className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[min(100%,720px)] -translate-x-1/2 rounded-full bg-indigo-100/40 blur-3xl"
+    <Box
+      component="section"
+      sx={{
+        position: "relative",
+        overflow: "hidden",
+        borderTop: 1,
+        borderColor: "grey.100",
+        bgcolor: "background.paper",
+        py: { xs: 5, sm: 6, lg: 7 },
+      }}
+    >
+      <Box
         aria-hidden
+        sx={{
+          pointerEvents: "none",
+          position: "absolute",
+          top: -96,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "min(100%, 720px)",
+          height: 192,
+          borderRadius: 1,
+          bgcolor: "primary.50",
+          filter: "blur(48px)",
+          opacity: 0.6,
+        }}
       />
 
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+      <StoreContainer className="relative">
         <SectionHeader />
 
         {useGrid ? (
-          <div
-            className={`mx-auto grid gap-3.5 sm:gap-4 ${
-              brands.length === 1
-                ? "max-w-[200px] grid-cols-1"
-                : brands.length === 2
-                  ? "max-w-md grid-cols-2"
-                  : brands.length === 3
-                    ? "max-w-2xl grid-cols-2 sm:grid-cols-3"
-                    : "max-w-4xl grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-            }`}
-          >
+          <Box sx={brandGridSx(brands.length)}>
             {brands.map((brand, index) => (
               <BrandCard key={brand.name} brand={brand} index={index} />
             ))}
-          </div>
+          </Box>
         ) : (
           <Swiper
             modules={[Autoplay]}
@@ -126,16 +193,17 @@ export default function HomeBrandsSection({ brands = [] }) {
               1024: { slidesPerView: 5, spaceBetween: 18 },
               1280: { slidesPerView: 6, spaceBetween: 20 },
             }}
-            className="!overflow-visible brands-swiper"
+            className="brands-swiper"
+            style={{ overflow: "visible" }}
           >
             {brands.map((brand, index) => (
-              <SwiperSlide key={brand.name} className="!h-auto">
+              <SwiperSlide key={brand.name} style={{ height: "auto" }}>
                 <BrandCard brand={brand} index={index} />
               </SwiperSlide>
             ))}
           </Swiper>
         )}
-      </div>
-    </section>
+      </StoreContainer>
+    </Box>
   );
 }

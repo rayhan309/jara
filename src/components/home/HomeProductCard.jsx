@@ -3,27 +3,40 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Package } from "lucide-react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Skeleton from "@mui/material/Skeleton";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
+import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import { motion } from "motion/react";
 import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
-import { getProductVariantConfig } from "@/lib/productVariants";
+import { useWishlist } from "@/hooks/useWishlist";
+import { getProductVariantConfig, resolveProductVariant } from "@/lib/productVariants";
 import { isProductFullyOutOfStock } from "@/lib/variantStock";
 
-export default function HomeProductCard({ product }) {
+export default function HomeProductCard({ product, index = 0 }) {
   const router = useRouter();
   const { buyNow } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const variantConfig = getProductVariantConfig(product);
+  const defaultVariant = resolveProductVariant(product);
   const image = product.images?.[0]?.url;
   const title = product.title_bn || product.title_en;
   const salePrice = product.pricing?.sale_price;
   const outOfStock = isProductFullyOutOfStock(product);
+  const wishlisted = isInWishlist(product._id, defaultVariant);
 
   function handleOrder(event) {
     event.preventDefault();
     event.stopPropagation();
 
     if (outOfStock) {
-      toast.error("এই পণ্যটি স্টকে নেই");
+      toast.error("This product is out of stock");
       return;
     }
 
@@ -35,59 +48,162 @@ export default function HomeProductCard({ product }) {
     buyNow(product);
   }
 
+  function handleWishlistToggle(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleWishlist(product, defaultVariant);
+  }
+
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-zinc-200/90 bg-white transition-all duration-200 hover:border-indigo-200 hover:shadow-[0_10px_28px_-14px_rgba(79,70,229,0.35)]">
-      <Link href={`/products/${product.slug}`} className="block flex-1">
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-50 sm:aspect-square">
+    <Box
+      component={motion.article}
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-20px" }}
+      transition={{
+        delay: Math.min(index * 0.04, 0.24),
+        duration: 0.42,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: 1,
+        "&:hover .home-media": {
+          boxShadow: "0 18px 40px -24px rgba(15,23,42,0.35)",
+        },
+        "&:hover .home-image": {
+          transform: "scale(1.04)",
+        },
+      }}
+    >
+      <Box
+        className="home-media"
+        sx={{
+          position: "relative",
+          width: 1,
+          aspectRatio: "4 / 5",
+          overflow: "hidden",
+          borderRadius: 1.5,
+          bgcolor: "#f3f0ee",
+          transition: "box-shadow 0.35s ease",
+        }}
+      >
+        <Box
+          component={Link}
+          href={`/products/${product.slug}`}
+          aria-label={title}
+          sx={{ position: "absolute", inset: 0 }}
+        >
           {image ? (
             <Image
+              className="home-image"
               src={image}
               alt={title}
               fill
               unoptimized
-              className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
+              style={{
+                objectFit: "cover",
+                objectPosition: "center",
+                transition: "transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-zinc-300">
-              <Package className="h-8 w-8" />
-            </div>
+            <Stack sx={{ height: 1, color: "grey.400", alignItems: "center", justifyContent: "center" }}>
+              <Inventory2OutlinedIcon sx={{ fontSize: 36 }} />
+            </Stack>
           )}
-        </div>
+        </Box>
 
-        <div className="px-3 pb-2 pt-2.5 text-center sm:px-3.5 sm:pt-3">
-          <h3 className="line-clamp-2 min-h-[2.25rem] text-[12px] leading-4 font-semibold text-zinc-800 sm:text-[13px] sm:leading-[18px]">
-            {title}
-          </h3>
-          <p className="mt-1.5 text-base font-bold text-zinc-900 sm:text-[17px]">
-            ৳{salePrice?.toLocaleString("bn-BD")}
-          </p>
-        </div>
-      </Link>
-
-      <div className="px-3 pb-3 sm:px-3.5 sm:pb-3.5">
-        <button
-          type="button"
-          onClick={handleOrder}
-          disabled={outOfStock}
-          className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-indigo-600 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-zinc-300 sm:text-[13px]"
+        <IconButton
+          component={motion.button}
+          whileTap={{ scale: 0.9 }}
+          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          onClick={handleWishlistToggle}
+          size="small"
+          sx={{
+            position: "absolute",
+            top: { xs: 6, sm: 8 },
+            right: { xs: 6, sm: 8 },
+            width: { xs: 26, sm: 34 },
+            height: { xs: 26, sm: 34 },
+            bgcolor: "rgba(255,255,255,0.92)",
+            color: wishlisted ? "error.main" : "text.secondary",
+            boxShadow: "0 2px 10px rgba(15,23,42,0.1)",
+            "&:hover": { bgcolor: "common.white", color: "error.main" },
+          }}
         >
-          {outOfStock ? "স্টক নেই" : "অর্ডার করুন"}
-          {!outOfStock ? <ArrowRight className="h-3.5 w-3.5" /> : null}
-        </button>
-      </div>
-    </article>
+          {wishlisted ? (
+            <FavoriteRoundedIcon sx={{ fontSize: { xs: 14, sm: 18 } }} />
+          ) : (
+            <FavoriteBorderRoundedIcon sx={{ fontSize: { xs: 14, sm: 18 } }} />
+          )}
+        </IconButton>
+
+        <Box sx={{ position: "absolute", left: { xs: 6, sm: 10 }, right: { xs: 6, sm: 10 }, bottom: { xs: 6, sm: 10 } }}>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleOrder}
+            disabled={outOfStock}
+            sx={{
+              height: { xs: 28, sm: 40 },
+              minWidth: 0,
+              px: { xs: 1, sm: 2 },
+              fontSize: { xs: 10, sm: 13 },
+              fontWeight: 700,
+              lineHeight: 1.1,
+              bgcolor: outOfStock ? "grey.400" : "rgba(15,23,42,0.92)",
+              color: "common.white",
+              boxShadow: "0 4px 14px rgba(15,23,42,0.18)",
+              "&:hover": { bgcolor: "secondary.main" },
+            }}
+          >
+            {outOfStock ? "Out of stock" : "Order now"}
+          </Button>
+        </Box>
+      </Box>
+
+      <Box
+        component={Link}
+        href={`/products/${product.slug}`}
+        sx={{ display: "block", pt: 1.5, px: 0.25, textDecoration: "none", color: "inherit" }}
+      >
+        <Typography
+          variant="body2"
+          fontWeight={600}
+          sx={{
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            minHeight: 36,
+            lineHeight: 1.35,
+            textAlign: "center",
+          }}
+        >
+          {title}
+        </Typography>
+        <Typography
+          variant="subtitle1"
+          fontWeight={700}
+          sx={{ mt: 0.75, letterSpacing: "-0.02em", textAlign: "center" }}
+        >
+          ৳{salePrice?.toLocaleString()}
+        </Typography>
+      </Box>
+    </Box>
   );
 }
 
 export function HomeProductCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-100 bg-white">
-      <div className="aspect-[4/3] animate-pulse bg-zinc-100 sm:aspect-square" />
-      <div className="space-y-2 px-3 py-3">
-        <div className="mx-auto h-3 w-4/5 animate-pulse rounded-md bg-zinc-100" />
-        <div className="mx-auto h-4 w-1/3 animate-pulse rounded-md bg-zinc-100" />
-        <div className="h-9 animate-pulse rounded-lg bg-zinc-100" />
-      </div>
-    </div>
+    <Box>
+      <Skeleton variant="rounded" sx={{ aspectRatio: "4 / 5", width: 1, borderRadius: 1.5 }} />
+      <Stack spacing={1} sx={{ pt: 1.5, alignItems: "center" }}>
+        <Skeleton width="80%" height={14} />
+        <Skeleton width="35%" height={18} />
+      </Stack>
+    </Box>
   );
 }

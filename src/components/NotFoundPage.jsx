@@ -1,8 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { motion } from "motion/react";
-import { ArrowLeft, Home, Package, Search } from "lucide-react";
+import StoreContainer from "@/components/container/StoreContainer";
 import StoreShell from "@/components/layout/StoreShell";
 
 const floatingItems = [
@@ -15,10 +23,14 @@ const floatingItems = [
 export default function NotFoundPage() {
   return (
     <StoreShell>
-      <div className="relative overflow-hidden">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-30"
-          style={{
+      <Box sx={{ position: "relative", overflow: "hidden" }}>
+        <Box
+          aria-hidden
+          sx={{
+            pointerEvents: "none",
+            position: "absolute",
+            inset: 0,
+            opacity: 0.3,
             backgroundImage: `
               linear-gradient(to right, #e4e4e7 1px, transparent 1px),
               linear-gradient(to bottom, #e4e4e7 1px, transparent 1px)
@@ -28,8 +40,9 @@ export default function NotFoundPage() {
         />
 
         {floatingItems.map((item) => (
-          <motion.span
+          <Typography
             key={item.label + item.delay}
+            component={motion.span}
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{
               opacity: [0.06, 0.12, 0.06],
@@ -42,8 +55,12 @@ export default function NotFoundPage() {
               ease: "easeInOut",
               delay: item.delay,
             }}
-            className="pointer-events-none absolute text-6xl font-black text-indigo-200 sm:text-8xl"
-            style={{
+            sx={{
+              pointerEvents: "none",
+              position: "absolute",
+              fontSize: { xs: "4rem", sm: "5rem" },
+              fontWeight: 900,
+              color: "primary.100",
               top: item.top,
               left: item.left,
               right: item.right,
@@ -51,122 +68,166 @@ export default function NotFoundPage() {
             }}
           >
             {item.label}
-          </motion.span>
+          </Typography>
         ))}
 
-        <div className="store-container relative z-10 flex flex-col items-center justify-center py-12 text-center sm:py-16 lg:py-24">
-          <motion.div
+        <StoreContainer className="relative z-10 py-12 sm:py-16 lg:py-24">
+          <Stack alignItems="center" sx={{ textAlign: "center", justifyContent: "center" }}>
+          <Box
+            component={motion.div}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="relative mb-8"
+            sx={{ position: "relative", mb: 4 }}
           >
-            <motion.div
+            <Box
+              component={motion.div}
               animate={{ rotate: [0, -4, 4, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="rounded-md flex h-24 w-24 items-center justify-center border-2 border-dashed border-indigo-200 bg-indigo-50 sm:h-28 sm:w-28"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: { xs: 96, sm: 112 },
+                height: { xs: 96, sm: 112 },
+                borderRadius: 1,
+                border: 2,
+                borderStyle: "dashed",
+                borderColor: "primary.light",
+                bgcolor: "primary.50",
+              }}
             >
-              <Package className="h-10 w-10 text-indigo-500 sm:h-12 sm:w-12" />
-            </motion.div>
-            <motion.span
+              <Inventory2OutlinedIcon sx={{ fontSize: { xs: 40, sm: 48 }, color: "primary.main" }} />
+            </Box>
+            <Typography
+              component={motion.span}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, type: "spring", stiffness: 260 }}
-              className="rounded-md absolute -top-2 -right-2 flex h-10 w-10 items-center justify-center bg-indigo-600 text-sm font-bold text-white shadow-lg"
+              sx={{
+                position: "absolute",
+                top: -8,
+                right: -8,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 40,
+                height: 40,
+                borderRadius: 1,
+                bgcolor: "primary.main",
+                color: "common.white",
+                fontWeight: 700,
+                boxShadow: 3,
+              }}
             >
               ?
-            </motion.span>
-          </motion.div>
+            </Typography>
+          </Box>
 
-          <motion.p
+          <Typography
+            component={motion.p}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="text-xs font-semibold tracking-[0.12em] text-indigo-600"
+            variant="caption"
+            fontWeight={600}
+            color="primary.main"
+            sx={{ letterSpacing: "0.12em" }}
           >
-            পেজ পাওয়া যায়নি
-          </motion.p>
+            Page not found
+          </Typography>
 
-          <motion.h1
+          <Typography
+            component={motion.h1}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="mt-3 text-5xl font-black tracking-tight text-zinc-900 sm:text-7xl"
+            variant="h2"
+            fontWeight={900}
+            sx={{ mt: 1.5, fontSize: { xs: "3rem", sm: "4.5rem" } }}
           >
-            <motion.span
+            <Typography
+              component={motion.span}
               animate={{ opacity: [1, 0.4, 1] }}
               transition={{ duration: 2.5, repeat: Infinity }}
-              className="text-indigo-600"
+              color="primary.main"
             >
               4
-            </motion.span>
-            <motion.span
+            </Typography>
+            <Typography
+              component={motion.span}
               animate={{ y: [0, -8, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="inline-block"
+              sx={{ display: "inline-block" }}
             >
               0
-            </motion.span>
-            <motion.span
+            </Typography>
+            <Typography
+              component={motion.span}
               animate={{ opacity: [1, 0.4, 1] }}
               transition={{ duration: 2.5, repeat: Infinity, delay: 0.3 }}
-              className="text-indigo-600"
+              color="primary.main"
             >
               4
-            </motion.span>
-          </motion.h1>
+            </Typography>
+          </Typography>
 
-          <motion.p
+          <Typography
+            component={motion.p}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
-            className="mt-4 max-w-md text-sm leading-relaxed text-zinc-500 sm:text-base"
+            variant="body2"
+            color="text.secondary"
+            sx={{ mt: 2, maxWidth: 420, lineHeight: 1.7 }}
           >
-            আপনি যে পেজটি খুঁজছেন সেটি নেই বা সরিয়ে নেওয়া হয়েছে। চলুন আপনাকে
-            সঠিক পথে ফিরিয়ে নিয়ে যাই।
-          </motion.p>
+            The page you are looking for doesn't exist or has been moved. Let's get you back on track.
+          </Typography>
 
-          <motion.div
+          <Stack
+            component={motion.div}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45 }}
-            className="mt-10 flex flex-col gap-3 sm:flex-row sm:gap-4"
+            direction={{ xs: "column", sm: "row" }}
+            spacing={1.5}
+            sx={{ mt: 5 }}
           >
-            <Link href="/">
-              <motion.span
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="inline-flex w-full items-center justify-center gap-2 bg-indigo-600 px-6 py-3.5 text-sm font-semibold tracking-wide text-white uppercase transition-colors hover:bg-indigo-700 sm:w-auto"
-              >
-                <Home className="h-4 w-4" />
-                হোমে ফিরুন
-              </motion.span>
-            </Link>
-            <Link href="/orders-traking">
-              <motion.span
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="rounded-md inline-flex w-full items-center justify-center gap-2 border border-zinc-200 bg-white px-6 py-3.5 text-sm font-semibold tracking-wide text-zinc-700 uppercase transition-colors hover:border-indigo-300 hover:text-indigo-600 sm:w-auto"
-              >
-                <Search className="h-4 w-4" />
-                অর্ডার ট্র্যাক
-              </motion.span>
-            </Link>
-          </motion.div>
+            <Button
+              component={Link}
+              href="/"
+              variant="contained"
+              startIcon={<HomeOutlinedIcon />}
+              sx={{ width: { xs: 1, sm: "auto" } }}
+            >
+              Back to home
+            </Button>
+            <Button
+              component={Link}
+              href="/orders-traking"
+              variant="outlined"
+              startIcon={<SearchRoundedIcon />}
+              sx={{ width: { xs: 1, sm: "auto" } }}
+            >
+              Track order
+            </Button>
+          </Stack>
 
-          <motion.button
+          <Button
+            component={motion.button}
             type="button"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
             onClick={() => window.history.back()}
-            className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-zinc-400 transition-colors hover:text-indigo-600"
+            startIcon={<ArrowBackRoundedIcon />}
+            sx={{ mt: 3, color: "text.disabled" }}
           >
-            <ArrowLeft className="h-4 w-4" />
-            পেছনে যান
-          </motion.button>
-        </div>
-      </div>
+            Go back
+          </Button>
+          </Stack>
+        </StoreContainer>
+      </Box>
     </StoreShell>
   );
 }

@@ -11,12 +11,12 @@ export function parseVariantOptions(value) {
 }
 
 const FALLBACK_LABELS = {
-  size: { bn: "সাইজ", en: "Size", placeholder: "S, M, L, XL" },
-  weight: { bn: "ওজন", en: "Weight", placeholder: "500g, 1kg, 2kg" },
-  color: { bn: "রং", en: "Color", placeholder: "Red, Blue, Green" },
+  size: { bn: "Size", en: "Size", placeholder: "S, M, L, XL" },
+  weight: { bn: "Weight", en: "Weight", placeholder: "500g, 1kg, 2kg" },
+  color: { bn: "Color", en: "Color", placeholder: "Red, Blue, Green" },
 };
 
-export function getVariantTypeLabel(productOrAttrs, locale = "bn") {
+export function getVariantTypeLabel(productOrAttrs, locale = "en") {
   const attrs = typeof productOrAttrs === "object" ? productOrAttrs?.attributes || productOrAttrs : null;
   const type = attrs?.variant_type || (typeof productOrAttrs === "string" ? productOrAttrs : "");
 
@@ -49,7 +49,7 @@ export function getProductVariantConfig(product) {
     type,
     options,
     required,
-    label: labelBn,
+    label: labelEn || labelBn,
     labelEn,
     placeholder: attrs.variant_placeholder || fallback.placeholder || "Option 1, Option 2",
   };
@@ -76,7 +76,7 @@ export function resolveProductVariant(product, selectedVariant) {
 
 export function formatVariantLabel(productOrType, value) {
   if (!value) return "";
-  const label = getVariantTypeLabel(productOrType, "bn");
+  const label = getVariantTypeLabel(productOrType, "en");
   return `${label}: ${value}`;
 }
 

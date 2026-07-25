@@ -12,14 +12,14 @@ export async function generateMetadata() {
   const settings = await getSiteSettings();
   const faviconUrl = getFaviconUrl(settings);
 
-  if (!faviconUrl) {
-    return adminRootMetadata;
-  }
-
   return {
     ...adminRootMetadata,
     icons: {
-      icon: [{ url: faviconUrl }],
+      icon: [
+        { url: faviconUrl, type: "image/png" },
+        { url: "/icon.svg", type: "image/svg+xml" },
+      ],
+      apple: [{ url: faviconUrl, type: "image/png" }],
     },
   };
 }

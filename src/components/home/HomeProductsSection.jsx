@@ -1,20 +1,36 @@
 "use client";
 
-import { Package } from "lucide-react";
+import Box from "@mui/material/Box";
+import StoreContainer from "@/components/container/StoreContainer";
+import Skeleton from "@mui/material/Skeleton";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import { motion } from "motion/react";
 import StoreProductCard from "@/components/products/StoreProductCard";
 import HomeSectionHeader from "@/components/home/HomeSectionHeader";
 
+const productGridSx = {
+  display: "grid",
+  gridTemplateColumns: {
+    xs: "repeat(2, minmax(0, 1fr))",
+    sm: "repeat(3, minmax(0, 1fr))",
+    md: "repeat(4, minmax(0, 1fr))",
+    lg: "repeat(5, minmax(0, 1fr))",
+  },
+  gap: { xs: 1.5, sm: 2 },
+};
+
 function ProductSkeleton() {
   return (
-    <div className="overflow-hidden rounded-md border border-zinc-100 bg-white shadow-sm">
-      <div className="aspect-square animate-pulse bg-zinc-100" />
-      <div className="space-y-1.5 px-2.5 py-2.5">
-        <div className="h-3 w-full animate-pulse rounded-md bg-zinc-100" />
-        <div className="h-3 w-2/3 animate-pulse rounded-md bg-zinc-100" />
-        <div className="h-4 w-16 animate-pulse rounded-md bg-zinc-100" />
-      </div>
-    </div>
+    <Box>
+      <Skeleton variant="rounded" sx={{ aspectRatio: "4 / 5", width: 1, borderRadius: 1.5, bgcolor: "#f3f0ee" }} />
+      <Stack spacing={0.75} sx={{ pt: 1.5, px: 0.25 }}>
+        <Skeleton height={12} />
+        <Skeleton width="70%" height={12} />
+        <Skeleton width={64} height={16} />
+      </Stack>
+    </Box>
   );
 }
 
@@ -25,47 +41,59 @@ export default function HomeProductsSection({
   href,
   products = [],
   isLoading = false,
-  emptyMessage = "এখনও কোনো পণ্য নেই।",
+  emptyMessage = "No products yet.",
   className = "",
 }) {
   return (
-    <section className={`py-8 sm:py-12 lg:py-14 ${className}`}>
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <HomeSectionHeader
-          eyebrow={eyebrow}
-          title={title}
-          subtitle={subtitle}
-          href={href}
-        />
+    <Box component="section" className={className} sx={{ py: { xs: 4, sm: 6, lg: 7 } }}>
+      <StoreContainer>
+        <HomeSectionHeader eyebrow={eyebrow} title={title} subtitle={subtitle} href={href} />
 
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5">
+          <Box sx={productGridSx}>
             {Array.from({ length: 8 }).map((_, index) => (
               <ProductSkeleton key={index} />
             ))}
-          </div>
+          </Box>
         ) : products.length === 0 ? (
-          <div className="flex min-h-[200px] flex-col items-center justify-center rounded-md border border-dashed border-zinc-200 bg-white p-8 text-center shadow-sm">
-            <Package className="mb-3 h-9 w-9 text-indigo-400" />
-            <p className="text-sm text-zinc-500">{emptyMessage}</p>
-          </div>
+          <Stack
+            alignItems="center"
+            justifyContent="center"
+            sx={{
+              minHeight: 200,
+              borderRadius: 1,
+              border: 1,
+              borderStyle: "dashed",
+              borderColor: "divider",
+              bgcolor: "background.paper",
+              p: 4,
+              textAlign: "center",
+              boxShadow: 1,
+            }}
+          >
+            <Inventory2OutlinedIcon sx={{ mb: 1.5, fontSize: 36, color: "primary.light" }} />
+            <Typography variant="body2" color="text.secondary">
+              {emptyMessage}
+            </Typography>
+          </Stack>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5">
+          <Box sx={productGridSx}>
             {products.map((product, index) => (
-              <motion.div
+              <Box
                 key={product._id}
+                component={motion.div}
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ delay: Math.min(index * 0.03, 0.24) }}
-                className="min-w-0"
+                sx={{ minWidth: 0 }}
               >
                 <StoreProductCard product={product} index={index} />
-              </motion.div>
+              </Box>
             ))}
-          </div>
+          </Box>
         )}
-      </div>
-    </section>
+      </StoreContainer>
+    </Box>
   );
 }

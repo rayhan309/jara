@@ -3,36 +3,46 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { AnimatePresence, motion } from "motion/react";
-import {
-  ArrowRight,
-  Loader2,
-  Menu,
-  Package,
-  Search,
-  ShoppingCart,
-  Smartphone,
-  Truck,
-  X,
-} from "lucide-react";
+import AppBar from "@mui/material/AppBar";
+import Badge from "@mui/material/Badge";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import StoreContainer from "@/components/container/StoreContainer";
+import Drawer from "@mui/material/Drawer";
+import IconButton from "@mui/material/IconButton";
+import InputBase from "@mui/material/InputBase";
+import Stack from "@mui/material/Stack";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
+import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { clearSelectedCategoryId, setSelectedCategoryId } from "@/lib/categoryFilter";
 import { useCart } from "@/hooks/useCart";
+import { useWishlist } from "@/hooks/useWishlist";
 import { useCategories } from "@/hooks/useCategories";
 import CartSidebar from "@/components/cart/CartSidebar";
-import { FaWhatsapp } from "react-icons/fa";
+import WishlistSidebar from "@/components/wishlist/WishlistSidebar";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import ShopLogo from "@/components/layout/ShopLogo";
 import { getShopLogoUrl } from "@/lib/siteSettings";
-import { SITE_NAME_SHORT } from "@/lib/siteMetadata";
 
 const navLinks = [
-  { href: "/", label: "হোম" },
-  { href: "/products", label: "পণ্য", match: (path) => path === "/products" || path.startsWith("/products/") },
-  { href: "/categories", label: "ক্যাটাগরি", match: (path) => path === "/categories" || path.startsWith("/categories/") },
-  { href: "/orders-traking", label: "অর্ডার ট্র্যাক" },
+  { href: "/", label: "Home" },
+  { href: "/products", label: "Products", match: (path) => path === "/products" || path.startsWith("/products/") },
+  { href: "/categories", label: "Categories", match: (path) => path === "/categories" || path.startsWith("/categories/") },
+  { href: "/orders-traking", label: "Track order" },
 ];
 
-function HeaderSearch({ className = "" }) {
+function HeaderSearch() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -48,41 +58,107 @@ function HeaderSearch({ className = "" }) {
   function handleSubmit(event) {
     event.preventDefault();
     const term = query.trim();
-
     clearSelectedCategoryId();
-
     if (term) {
       router.push(`/products?q=${encodeURIComponent(term)}`);
       return;
     }
-
     router.push("/products");
   }
 
   return (
-    <form onSubmit={handleSubmit} className={`w-full ${className}`}>
-      <div className="flex overflow-hidden rounded-xl border-2 border-indigo-100 bg-zinc-50 shadow-sm transition-colors focus-within:border-indigo-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-100">
-        <input
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="পণ্য খুঁজুন..."
-          className="min-w-0 flex-1 bg-transparent px-4 py-2.5 text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
-        />
-        <button
-          type="submit"
-          aria-label="পণ্য খুঁজুন"
-          className="flex shrink-0 items-center justify-center bg-indigo-600 px-4 text-white transition-colors hover:bg-indigo-700"
-        >
-          <Search className="h-4 w-4" strokeWidth={2.5} />
-        </button>
-      </div>
-    </form>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        width: 1,
+        maxWidth: 560,
+        mx: "auto",
+        borderRadius: 1.5,
+        bgcolor: "grey.50",
+        border: "1px solid",
+        borderColor: "rgba(15,23,42,0.08)",
+        overflow: "hidden",
+        transition: "border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease",
+        "&:focus-within": {
+          bgcolor: "background.paper",
+          borderColor: "primary.main",
+          boxShadow: (theme) => `0 0 0 3px ${theme.palette.primary.main}22`,
+        },
+      }}
+    >
+      <SearchRoundedIcon sx={{ ml: 1.5, color: "text.disabled", fontSize: 20, flexShrink: 0 }} />
+      <InputBase
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="Search products..."
+        sx={{ flex: 1, px: 1.25, py: 1.1, fontSize: 14 }}
+        inputProps={{ "aria-label": "Search products" }}
+      />
+      <Button
+        type="submit"
+        aria-label="Search products"
+        variant="contained"
+        sx={{
+          minWidth: 0,
+          px: 2,
+          py: 1.15,
+          borderRadius: 0,
+          boxShadow: "none",
+          "&:hover": { boxShadow: "none" },
+        }}
+      >
+        <SearchRoundedIcon sx={{ fontSize: 18 }} />
+      </Button>
+    </Box>
   );
 }
 
-const navLinkActiveClass = "bg-white/20 text-white shadow-sm";
-const navLinkInactiveClass = "text-indigo-50 hover:bg-white/10";
+function ActionIconButton({ label, onClick, badgeContent, children, sx = {} }) {
+  return (
+    <IconButton
+      aria-label={label}
+      onClick={onClick}
+      sx={{
+        width: 40,
+        height: 40,
+        borderRadius: 1.25,
+        bgcolor: "rgba(255,255,255,0.14)",
+        color: "inherit",
+        border: "1px solid rgba(255,255,255,0.18)",
+        transition: "background-color 0.2s ease, transform 0.2s ease",
+        "&:hover": {
+          bgcolor: "rgba(255,255,255,0.24)",
+          transform: "translateY(-1px)",
+        },
+        ...sx,
+      }}
+    >
+      {badgeContent != null ? (
+        <Badge
+          badgeContent={badgeContent}
+          color="error"
+          max={9}
+          sx={{
+            "& .MuiBadge-badge": {
+              fontSize: 10,
+              minWidth: 16,
+              height: 16,
+              top: 2,
+              right: 2,
+            },
+          }}
+        >
+          {children}
+        </Badge>
+      ) : (
+        children
+      )}
+    </IconButton>
+  );
+}
 
 export default function Navbar() {
   return (
@@ -94,23 +170,20 @@ export default function Navbar() {
 
 function NavbarFallback() {
   return (
-    <header className="shadow-sm">
-      <div className="bg-indigo-700 px-4 py-2 text-center text-[11px] font-medium text-white sm:text-xs">
-        বিশ্বস্ত অনলাইন শপিং — দ্রুত ডেলিভারি ও সহজ অর্ডার ট্র্যাকিং
-      </div>
-      <div className="border-b border-zinc-100 bg-white">
-        <div className="store-container py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-3 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-8">
-            <div className="h-10 w-28 animate-pulse rounded-md bg-zinc-100 sm:h-11 sm:w-32" />
-            <div className="hidden h-11 animate-pulse rounded-xl bg-zinc-100 lg:block" />
-            <div className="hidden h-11 w-40 animate-pulse rounded-md bg-zinc-100 lg:block" />
-          </div>
-        </div>
-      </div>
-      <div className="border-b border-indigo-800/80 bg-indigo-700">
-        <div className="store-container h-11" />
-      </div>
-    </header>
+    <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+      <Box
+        sx={{
+          background: (theme) =>
+            `linear-gradient(90deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+          color: "primary.contrastText",
+          py: 0.75,
+          textAlign: "center",
+        }}
+      >
+        <Typography variant="caption">Trusted online shopping — fast delivery & easy order tracking</Typography>
+      </Box>
+      <Toolbar sx={{ minHeight: { xs: 72, sm: 80 } }} />
+    </Box>
   );
 }
 
@@ -123,236 +196,431 @@ function NavbarContent() {
   const searchParams = useSearchParams();
   const activeCategorySlug = searchParams.get("category");
   const { count: cartCount } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const { data: categories = [], isLoading } = useCategories();
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
 
   useEffect(() => {
     setMenuOpen(false);
     setCartOpen(false);
+    setWishlistOpen(false);
   }, [pathname]);
-
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [menuOpen]);
 
   return (
     <>
-      <header className="shadow-sm">
-        <div className="bg-indigo-700 px-3 py-1.5 text-center text-[10px] leading-snug font-medium text-white sm:px-4 sm:py-2 sm:text-xs">
-          বিশ্বস্ত অনলাইন শপিং — দ্রুত ডেলিভারি ও সহজ অর্ডার ট্র্যাকিং
-        </div>
-
-        <div className="border-b border-zinc-100 bg-white">
-          <div className="store-container py-4 sm:py-5">
-            <div className="flex items-center justify-between gap-3 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:gap-8">
-              <Link href="/" className="group flex shrink-0 items-center gap-2.5 sm:gap-3">
-                <ShopLogo logoUrl={logoUrl} size="md" />
-                <div>
-                  <p className="text-sm font-bold tracking-tight text-zinc-900 transition-colors group-hover:text-indigo-600 min-[360px]:text-base sm:text-xl">
-                    {SITE_NAME_SHORT}
-                  </p>
-                  <p className="hidden text-[11px] text-zinc-400 sm:block">প্রিমিয়াম অনলাইন শপিং</p>
-                </div>
-              </Link>
-
-              <div className="hidden min-w-0 lg:block lg:px-4">
-                <HeaderSearch className="mx-auto w-full max-w-2xl" />
-              </div>
-
-              <div className="hidden shrink-0 items-center gap-3 lg:flex">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-indigo-600 text-indigo-600">
-                  <Smartphone className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-zinc-500">যোগাযোগ করুন</p>
-                  <p className="text-sm font-bold text-zinc-900">{CONTACT_PHONE}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 lg:hidden">
-
-                {/* wathsapp button */}
-                <button
-                  type="button"
-                  aria-label="যোগাযোগ করুন"
-                  onClick={() => window.open(`https://wa.me/${whatsappPhone}`, "_blank")}
-                  className="relative flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 text-zinc-700"
-                >
-                  <FaWhatsapp className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="কার্ট খুলুন"
-                  onClick={() => setCartOpen(true)}
-                  className="relative flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 text-zinc-700"
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  {cartCount > 0 ? (
-                    <span className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-md bg-indigo-600 px-1 text-[10px] font-bold text-white">
-                      {cartCount > 9 ? "9+" : cartCount}
-                    </span>
-                  ) : null}
-                </button>
-                <button
-                  type="button"
-                  aria-label={menuOpen ? "মেনু বন্ধ করুন" : "মেনু খুলুন"}
-                  onClick={() => setMenuOpen((prev) => !prev)}
-                  className="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 text-zinc-700"
-                >
-                  {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <nav
-          aria-label="ক্যাটাগরি মেনু"
-          className="border-b border-indigo-800/80 bg-indigo-700 text-white"
+      <AppBar
+        position="sticky"
+        color="inherit"
+        elevation={0}
+        sx={{
+          bgcolor: "background.paper",
+          borderBottom: "1px solid",
+          borderColor: "rgba(15,23,42,0.06)",
+          boxShadow: "0 8px 24px -18px rgba(15,23,42,0.35)",
+        }}
+      >
+        <Box
+          sx={{
+            background: (theme) =>
+              `linear-gradient(105deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 55%, ${theme.palette.primary.dark} 100%)`,
+            color: "primary.contrastText",
+            py: 0.65,
+            px: 1.5,
+            textAlign: "center",
+          }}
         >
-          <div className="store-container flex items-center gap-1.5 sm:gap-2">
-            <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto py-1.5 sm:gap-1 sm:py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <Link
-                href="/"
-                className={`shrink-0 rounded-md px-2.5 py-1.5 text-[15px] font-semibold whitespace-nowrap transition-colors sm:px-3 sm:text-sm ${
-                  pathname === "/"
-                    ? navLinkActiveClass
-                    : navLinkInactiveClass
-                }`}
-              >
-                হোম
-              </Link>
+          <Typography
+            variant="caption"
+            fontWeight={500}
+            sx={{ letterSpacing: "0.02em", opacity: 0.95 }}
+          >
+            Trusted online shopping — fast delivery & easy order tracking
+          </Typography>
+        </Box>
 
-              {isLoading ? (
-                <span className="inline-flex shrink-0 items-center gap-2 px-3 py-1.5 text-xs text-indigo-200">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  লোড...
-                </span>
-              ) : (
-                categories.map((category) => {
-                  const active =
-                    pathname === "/products" && activeCategorySlug === category.slug;
-                  return (
-                    <Link
-                      key={category._id}
-                      href={`/products?category=${category.slug}`}
-                      onClick={() => setSelectedCategoryId(category._id)}
-                      className={`shrink-0 rounded-md px-2.5 py-1.5 text-[15px] font-medium whitespace-nowrap transition-colors sm:px-3 sm:text-sm ${
-                        active ? navLinkActiveClass : navLinkInactiveClass
-                      }`}
-                    >
-                      {category.name}
-                    </Link>
-                  );
-                })
-              )}
-            </div>
-
-            <div className="hidden shrink-0 items-center gap-2 border-l border-indigo-600 py-2 pl-2 sm:flex sm:pl-3">
-              <button
-                type="button"
-                aria-label="কার্ট খুলুন"
-                onClick={() => setCartOpen(true)}
-                className="relative hidden h-9 w-9 items-center justify-center rounded-md text-white transition-colors hover:bg-indigo-600 lg:flex"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {cartCount > 0 ? (
-                  <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-0.5 text-[9px] font-bold text-indigo-700">
-                    {cartCount > 9 ? "9+" : cartCount}
-                  </span>
-                ) : null}
-              </button>
-              <Link
-                href="/orders-traking"
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-emerald-400 sm:px-4 sm:text-[13px]"
-              >
-                <Truck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span>অর্ডার ট্র্যাক</span>
-              </Link>
-            </div>
-          </div>
-        </nav>
-      </header>
-
-      <AnimatePresence>
-        {menuOpen ? (
-          <>
-            <motion.button
-              type="button"
-              aria-label="মেনু বন্ধ করুন"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMenuOpen(false)}
-              className="fixed inset-0 z-40 bg-zinc-900/40 backdrop-blur-sm lg:hidden"
-            />
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 320, damping: 32 }}
-              className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[min(100%,320px)] flex-col border-l border-zinc-200 bg-white shadow-2xl lg:hidden"
+        <StoreContainer>
+          <Toolbar disableGutters sx={{ py: 1.25, gap: { xs: 1, sm: 2 }, minHeight: { xs: 72, sm: 84 } }}>
+            <Stack
+              component={Link}
+              href="/"
+              direction="row"
+              spacing={1.5}
+              sx={{ textDecoration: "none", color: "inherit", flexShrink: 0, alignItems: "center" }}
             >
-              <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4">
-                <p className="text-sm font-bold text-zinc-900">মেনু</p>
-                <button
-                  type="button"
+              <ShopLogo logoUrl={logoUrl} size="md" />
+            </Stack>
+
+            <Box sx={{ flex: 1, display: { xs: "none", lg: "block" }, px: { lg: 2, xl: 3 } }}>
+              <HeaderSearch />
+            </Box>
+
+            <Stack
+              direction="row"
+              spacing={1.25}
+              sx={{ display: { xs: "none", lg: "flex" }, flexShrink: 0, alignItems: "center" }}
+            >
+              <Box
+                component="a"
+                href={`tel:${CONTACT_PHONE}`}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.25,
+                  textDecoration: "none",
+                  color: "inherit",
+                  px: 1.25,
+                  py: 0.75,
+                  borderRadius: 1.5,
+                  border: "1px solid",
+                  borderColor: "rgba(15,23,42,0.08)",
+                  bgcolor: "grey.50",
+                  transition: "border-color 0.2s ease, background-color 0.2s ease",
+                  "&:hover": {
+                    borderColor: "primary.light",
+                    bgcolor: "primary.50",
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    bgcolor: "primary.main",
+                    color: "primary.contrastText",
+                    flexShrink: 0,
+                  }}
+                >
+                  <PhoneOutlinedIcon sx={{ fontSize: 18 }} />
+                </Box>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: "block", lineHeight: 1.2 }}>
+                    Contact us
+                  </Typography>
+                  <Typography variant="body2" fontWeight={700} noWrap sx={{ lineHeight: 1.3 }}>
+                    {CONTACT_PHONE}
+                  </Typography>
+                </Box>
+              </Box>
+            </Stack>
+
+            <Stack
+              direction="row"
+              spacing={0.75}
+              sx={{ display: { xs: "flex", lg: "none" }, ml: "auto", alignItems: "center" }}
+            >
+              <IconButton
+                aria-label="WhatsApp"
+                onClick={() => window.open(`https://wa.me/${whatsappPhone}`, "_blank")}
+                size="small"
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 1.25,
+                  bgcolor: "rgba(37,211,102,0.1)",
+                  color: "#128C7E",
+                }}
+              >
+                <WhatsAppIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+              <IconButton
+                aria-label="Wishlist"
+                onClick={() => setWishlistOpen(true)}
+                size="small"
+                sx={{ width: 36, height: 36, borderRadius: 1.25, bgcolor: "grey.50", border: "1px solid", borderColor: "divider" }}
+              >
+                <Badge badgeContent={wishlistCount} color="primary" max={9}>
+                  <FavoriteBorderRoundedIcon sx={{ fontSize: 18 }} />
+                </Badge>
+              </IconButton>
+              <IconButton
+                aria-label="Cart"
+                onClick={() => setCartOpen(true)}
+                size="small"
+                sx={{ width: 36, height: 36, borderRadius: 1.25, bgcolor: "grey.50", border: "1px solid", borderColor: "divider" }}
+              >
+                <Badge badgeContent={cartCount} color="primary" max={9}>
+                  <ShoppingBagOutlinedIcon sx={{ fontSize: 18 }} />
+                </Badge>
+              </IconButton>
+              <IconButton
+                aria-label="Menu"
+                onClick={() => setMenuOpen(true)}
+                size="small"
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 1.25,
+                  bgcolor: "primary.main",
+                  color: "primary.contrastText",
+                  "&:hover": { bgcolor: "primary.dark" },
+                }}
+              >
+                <MenuRoundedIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+            </Stack>
+          </Toolbar>
+        </StoreContainer>
+
+        <Box
+          sx={{
+            background: (theme) =>
+              `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+            color: "primary.contrastText",
+          }}
+        >
+          <StoreContainer>
+            <Stack direction="row" spacing={1} sx={{ py: 0.85, alignItems: "center" }}>
+              <Stack
+                direction="row"
+                spacing={0.5}
+                sx={{
+                  flex: 1,
+                  minWidth: 0,
+                  overflowX: "auto",
+                  scrollbarWidth: "none",
+                  "&::-webkit-scrollbar": { display: "none" },
+                  alignItems: "center",
+                }}
+              >
+                <Button
+                  component={Link}
+                  href="/"
+                  size="small"
+                  sx={{
+                    color: "inherit",
+                    minHeight: 32,
+                    px: 1.5,
+                    borderRadius: 1,
+                    bgcolor: pathname === "/" ? "rgba(255,255,255,0.22)" : "transparent",
+                    flexShrink: 0,
+                    fontWeight: 600,
+                    fontSize: 13,
+                    "&:hover": { bgcolor: "rgba(255,255,255,0.14)" },
+                  }}
+                >
+                  Home
+                </Button>
+
+                {isLoading ? (
+                  <Stack direction="row" spacing={1} sx={{ px: 1, color: "rgba(255,255,255,0.75)", alignItems: "center" }}>
+                    <CircularProgress size={14} color="inherit" />
+                    <Typography variant="caption">Loading...</Typography>
+                  </Stack>
+                ) : (
+                  categories.map((category) => {
+                    const active = pathname === "/products" && activeCategorySlug === category.slug;
+                    return (
+                      <Button
+                        key={category._id}
+                        component={Link}
+                        href={`/products?category=${category.slug}`}
+                        onClick={() => setSelectedCategoryId(category._id)}
+                        size="small"
+                        sx={{
+                          color: "inherit",
+                          minHeight: 32,
+                          px: 1.5,
+                          borderRadius: 1,
+                          bgcolor: active ? "rgba(255,255,255,0.22)" : "transparent",
+                          flexShrink: 0,
+                          fontWeight: active ? 700 : 500,
+                          fontSize: 13,
+                          "&:hover": { bgcolor: "rgba(255,255,255,0.14)" },
+                        }}
+                      >
+                        {category.name}
+                      </Button>
+                    );
+                  })
+                )}
+              </Stack>
+
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  display: { xs: "none", sm: "flex" },
+                  flexShrink: 0,
+                  pl: 1.5,
+                  ml: 0.5,
+                  borderLeft: "1px solid rgba(255,255,255,0.22)",
+                  alignItems: "center",
+                }}
+              >
+                <ActionIconButton
+                  label="Wishlist"
+                  onClick={() => setWishlistOpen(true)}
+                  badgeContent={wishlistCount}
+                  sx={{ display: { xs: "none", lg: "inline-flex" } }}
+                >
+                  <FavoriteBorderRoundedIcon sx={{ fontSize: 20 }} />
+                </ActionIconButton>
+                <ActionIconButton
+                  label="Cart"
+                  onClick={() => setCartOpen(true)}
+                  badgeContent={cartCount}
+                  sx={{ display: { xs: "none", lg: "inline-flex" } }}
+                >
+                  <ShoppingBagOutlinedIcon sx={{ fontSize: 20 }} />
+                </ActionIconButton>
+                <Button
+                  component={Link}
+                  href="/orders-traking"
+                  size="small"
+                  startIcon={<LocalShippingOutlinedIcon sx={{ fontSize: "18px !important" }} />}
+                  sx={{
+                    bgcolor: "common.white",
+                    color: "primary.main",
+                    borderRadius: 1.25,
+                    px: 1.75,
+                    py: 0.75,
+                    fontWeight: 700,
+                    fontSize: 13,
+                    boxShadow: "0 6px 16px -8px rgba(15,23,42,0.45)",
+                    "&:hover": {
+                      bgcolor: "grey.50",
+                      color: "primary.dark",
+                    },
+                  }}
+                >
+                  Track order
+                </Button>
+              </Stack>
+            </Stack>
+          </StoreContainer>
+        </Box>
+      </AppBar>
+
+      <Drawer
+        anchor="right"
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        slotProps={{
+          paper: {
+            sx: {
+              width: { xs: "100%", sm: 320 },
+              maxWidth: "100%",
+              height: "100%",
+              maxHeight: "100dvh",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+            },
+          },
+        }}
+      >
+        <Box sx={{ display: "flex", flexDirection: "column", height: 1, minHeight: 0, overflow: "hidden" }}>
+          <Stack
+            direction="row"
+            sx={{
+              px: 2,
+              py: 2,
+              borderBottom: 1,
+              borderColor: "divider",
+              flexShrink: 0,
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography fontWeight={700}>Menu</Typography>
+            <IconButton onClick={() => setMenuOpen(false)} size="small">
+              <CloseRoundedIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+
+          <Stack spacing={0.5} sx={{ p: 2, flex: 1, minHeight: 0, overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
+            {navLinks.map((link) => {
+              const active = link.match ? link.match(pathname) : pathname === link.href;
+              return (
+                <Button
+                  key={link.href}
+                  component={Link}
+                  href={link.href}
                   onClick={() => setMenuOpen(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-md border border-zinc-200"
+                  fullWidth
+                  sx={{
+                    justifyContent: "flex-start",
+                    bgcolor: active ? "primary.light" : "transparent",
+                    color: active ? "primary.dark" : "text.primary",
+                    fontWeight: 600,
+                  }}
                 >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <nav className="flex flex-col gap-1 overflow-y-auto p-4">
-                {navLinks.map((link) => {
-                  const active = link.match ? link.match(pathname) : pathname === link.href;
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={`block rounded-md px-4 py-3 text-sm font-semibold transition-colors ${
-                        active
-                          ? "bg-indigo-50 text-indigo-700"
-                          : "text-zinc-700 hover:bg-zinc-50"
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
-                <Link
-                  href="/categories"
-                  className="mt-2 flex items-center gap-2 px-4 py-2 text-sm font-semibold text-indigo-600"
-                >
-                  সব ক্যাটাগরি
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </nav>
-              <div className="mt-auto space-y-2 border-t border-zinc-100 p-4">
-                <div className="flex items-center gap-3 rounded-md bg-zinc-50 p-3">
-                  <Smartphone className="h-5 w-5 text-indigo-600" />
-                  <div>
-                    <p className="text-xs text-zinc-500">যোগাযোগ</p>
-                    <p className="text-sm font-bold text-zinc-900">{CONTACT_PHONE}</p>
-                  </div>
-                </div>
-                <Link href="/orders-traking">
-                  <span className="flex w-full items-center justify-center gap-2 rounded-md bg-indigo-600 py-3 text-sm font-semibold text-white">
-                    <Package className="h-4 w-4" />
-                    অর্ডার ট্র্যাক করুন
-                  </span>
-                </Link>
-              </div>
-            </motion.div>
-          </>
-        ) : null}
-      </AnimatePresence>
+                  {link.label}
+                </Button>
+              );
+            })}
+            <Button
+              component={Link}
+              href="/categories"
+              onClick={() => setMenuOpen(false)}
+              endIcon={<ArrowForwardRoundedIcon />}
+              sx={{ justifyContent: "flex-start", color: "primary.main", mt: 1 }}
+            >
+              All categories
+            </Button>
+          </Stack>
+
+          <Stack
+            spacing={1.5}
+            sx={{
+              p: 2,
+              borderTop: 1,
+              borderColor: "divider",
+              flexShrink: 0,
+              pb: "max(1rem, env(safe-area-inset-bottom))",
+            }}
+          >
+            <Stack
+              direction="row"
+              spacing={1.5}
+              sx={{ bgcolor: "grey.50", p: 1.5, borderRadius: 1.25, alignItems: "center" }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bgcolor: "primary.main",
+                  color: "primary.contrastText",
+                  flexShrink: 0,
+                }}
+              >
+                <PhoneOutlinedIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" color="text.secondary">
+                  Contact
+                </Typography>
+                <Typography variant="body2" fontWeight={700} noWrap>
+                  {CONTACT_PHONE}
+                </Typography>
+              </Box>
+            </Stack>
+            <Button
+              component={Link}
+              href="/orders-traking"
+              onClick={() => setMenuOpen(false)}
+              variant="contained"
+              fullWidth
+              startIcon={<Inventory2OutlinedIcon />}
+            >
+              Track your order
+            </Button>
+          </Stack>
+        </Box>
+      </Drawer>
 
       <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} />
+      <WishlistSidebar open={wishlistOpen} onClose={() => setWishlistOpen(false)} />
     </>
   );
 }
