@@ -2,8 +2,30 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "motion/react";
-import { Loader2, Plus, ShoppingBag, X } from "lucide-react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import FormControl from "@mui/material/FormControl";
+import IconButton from "@mui/material/IconButton";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Paper from "@mui/material/Paper";
+import Select from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import { FieldError } from "@/components/dashboard/DashboardFormUi";
 import { useUpdateAdminOrder } from "@/hooks/useAdminOrders";
 import { useProductPicker } from "@/hooks/useDashboard";
@@ -19,55 +41,10 @@ import { getDefaultProductVariant, getProductVariantConfig } from "@/lib/product
 import { resolveProductPricing } from "@/lib/productPricing";
 import { buildDeliveryOptions } from "@/lib/shipping";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { mobileDashModalClass } from "@/components/shared/ResponsiveTable";
-
-const inputClass =
-  "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
-
-const tableInputClass =
-  "w-full min-w-0 rounded-md border border-dash-border bg-white px-2 py-1.5 text-sm text-dash-text outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100";
-
-const labelClass = "mb-1.5 block text-sm font-semibold text-dash-text";
-
-function ModalShell({ open, title, onClose, children }) {
-  return (
-    <AnimatePresence>
-      {open ? (
-        <>
-          <motion.button
-            type="button"
-            aria-label="Close modal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]"
-          />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 16 }}
-            className={`${mobileDashModalClass} sm:max-w-6xl`}
-          >
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-dash-border px-4 py-3 sm:px-5 sm:py-4">
-              <h2 className="min-w-0 flex-1 truncate text-base font-bold text-dash-text sm:text-lg">
-                {title}
-              </h2>
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex h-8 w-8 items-center justify-center rounded-md text-dash-muted transition-colors hover:bg-slate-100"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
-          </motion.div>
-        </>
-      ) : null}
-    </AnimatePresence>
-  );
-}
+import {
+  DesktopTable,
+  MobileCardList,
+} from "@/components/shared/ResponsiveTable";
 
 function mapOrderItemToDraft(item) {
   return normalizeAdminOrderItem({
@@ -94,6 +71,30 @@ function buildProductLine(product) {
     selected_variant: selectedVariant,
     variant_type: variantConfig.type || "",
   });
+}
+
+function ProductThumb({ item }) {
+  return (
+    <Box
+      sx={{
+        position: "relative",
+        width: 48,
+        height: 48,
+        borderRadius: 1,
+        bgcolor: "grey.100",
+        overflow: "hidden",
+        flexShrink: 0,
+      }}
+    >
+      {item.image ? (
+        <Image src={item.image} alt={item.title} fill unoptimized className="object-contain p-1" />
+      ) : (
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: 1, color: "text.disabled" }}>
+          <ShoppingBagOutlinedIcon fontSize="small" sx={{ opacity: 0.4 }} />
+        </Box>
+      )}
+    </Box>
+  );
 }
 
 export default function OrderEditModal({ open, onClose, order }) {
@@ -234,342 +235,404 @@ export default function OrderEditModal({ open, onClose, order }) {
   if (!order) return null;
 
   return (
-    <ModalShell
+    <Dialog
       open={open}
-      title={`Edit Order ${formatDisplayOrderNumber(order.order_number)}`}
       onClose={handleClose}
+      fullWidth
+      maxWidth="lg"
+      scroll="paper"
+      PaperProps={{ sx: { maxHeight: "92dvh" } }}
     >
-      <form onSubmit={handleSubmit} className="flex flex-col">
-        <div className="space-y-6 p-5 sm:p-6">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className={labelClass}>Status</label>
-              <select
-                value={status}
-                onChange={(event) => setStatus(event.target.value)}
-                className={inputClass}
-              >
-                {ORDER_STATUSES.map((entry) => (
-                  <option key={entry.value} value={entry.value}>
-                    {entry.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>Delivery Method</label>
-              <select
-                value={deliveryMethod}
-                onChange={(event) => {
-                  const method = event.target.value;
-                  setDeliveryMethod(method);
-                  const option = deliveryOptions.find((entry) => entry.id === method);
-                  setShippingFee(option?.charge ?? 0);
-                }}
-                className={inputClass}
-              >
-                {deliveryOptions.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+      <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, pr: 1 }}>
+        <Typography variant="h6" fontWeight={700} noWrap>
+          Edit Order {formatDisplayOrderNumber(order.order_number)}
+        </Typography>
+        <IconButton aria-label="Close modal" onClick={handleClose} size="small">
+          <CloseRoundedIcon fontSize="small" />
+        </IconButton>
+      </DialogTitle>
 
-          <div className="overflow-hidden rounded-md border border-dash-border">
-            <div className="space-y-3 p-3 lg:hidden">
-              {items.map((item, index) => (
-                <div
-                  key={`mobile-${item.product_id}-${item.selected_variant}-${index}`}
-                  className="rounded-md border border-dash-border bg-white p-3"
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+        <DialogContent dividers sx={{ pt: 2.5 }}>
+          <Stack spacing={3}>
+            <Box
+              sx={{
+                display: "grid",
+                gap: 2,
+                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              }}
+            >
+              <FormControl fullWidth size="small">
+                <InputLabel id="order-edit-status-label">Status</InputLabel>
+                <Select
+                  labelId="order-edit-status-label"
+                  label="Status"
+                  value={status}
+                  onChange={(event) => setStatus(event.target.value)}
                 >
-                  <div className="flex gap-3">
-                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-slate-100">
-                      {item.image ? (
-                        <Image src={item.image} alt={item.title} fill unoptimized className="object-contain p-1" />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-dash-muted">
-                          <ShoppingBag className="h-4 w-4 opacity-40" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="line-clamp-2 text-sm font-medium text-dash-text">{item.title}</p>
-                      <p className="mt-0.5 text-xs text-dash-muted">{formatVariantDisplay(item)}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeItem(index)}
-                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-red-500 text-white hover:bg-red-600"
-                      aria-label="Remove item"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="mt-3 grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="mb-1 block text-[10px] font-semibold text-dash-muted uppercase">Qty</label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={999}
-                        value={item.quantity}
-                        onChange={(event) => updateItem(index, { quantity: event.target.value })}
-                        className={tableInputClass}
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-[10px] font-semibold text-dash-muted uppercase">Price</label>
-                      <input
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        value={item.price}
-                        onChange={(event) => updateItem(index, { price: event.target.value })}
-                        className={tableInputClass}
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-[10px] font-semibold text-dash-muted uppercase">Discount</label>
-                      <input
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        value={item.discount}
-                        onChange={(event) => updateItem(index, { discount: event.target.value })}
-                        className={tableInputClass}
-                      />
-                    </div>
-                    <div className="flex flex-col justify-end">
-                      <p className="text-[10px] font-semibold text-dash-muted uppercase">Sub Total</p>
-                      <p className="text-sm font-bold text-dash-text">৳{item.line_total.toLocaleString()}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  {ORDER_STATUSES.map((entry) => (
+                    <MenuItem key={entry.value} value={entry.value}>
+                      {entry.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-            <div className="hidden overflow-x-auto lg:block">
-              <table className="min-w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-dash-border bg-slate-50 text-[11px] font-semibold tracking-wide text-dash-muted uppercase">
-                    <th className="px-3 py-2.5">Image</th>
-                    <th className="min-w-[140px] px-3 py-2.5">Name</th>
-                    <th className="min-w-[100px] px-3 py-2.5">Color / Size</th>
-                    <th className="w-20 px-3 py-2.5">Qty</th>
-                    <th className="w-24 px-3 py-2.5">Sell Price</th>
-                    <th className="w-24 px-3 py-2.5">Discount</th>
-                    <th className="w-24 px-3 py-2.5">Sub Total</th>
-                    <th className="w-14 px-3 py-2.5 text-center">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <FormControl fullWidth size="small">
+                <InputLabel id="order-edit-delivery-label">Delivery Method</InputLabel>
+                <Select
+                  labelId="order-edit-delivery-label"
+                  label="Delivery Method"
+                  value={deliveryMethod}
+                  onChange={(event) => {
+                    const method = event.target.value;
+                    setDeliveryMethod(method);
+                    const option = deliveryOptions.find((entry) => entry.id === method);
+                    setShippingFee(option?.charge ?? 0);
+                  }}
+                >
+                  {deliveryOptions.map((option) => (
+                    <MenuItem key={option.id} value={option.id}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+
+            <Paper variant="outlined" sx={{ overflow: "hidden" }}>
+              <MobileCardList>
+                <Stack spacing={1.5} sx={{ p: 1.5 }}>
                   {items.map((item, index) => (
-                    <tr key={`${item.product_id}-${item.selected_variant}-${index}`} className="border-b border-dash-border last:border-b-0">
-                      <td className="px-3 py-3">
-                        <div className="relative h-12 w-12 overflow-hidden rounded-md bg-slate-100">
-                          {item.image ? (
-                            <Image src={item.image} alt={item.title} fill unoptimized className="object-contain p-1" />
-                          ) : (
-                            <div className="flex h-full items-center justify-center text-dash-muted">
-                              <ShoppingBag className="h-4 w-4 opacity-40" />
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-3 py-3 font-medium text-dash-text">{item.title}</td>
-                      <td className="px-3 py-3 text-dash-muted">{formatVariantDisplay(item)}</td>
-                      <td className="px-3 py-3">
-                        <input
+                    <Paper
+                      key={`mobile-${item.product_id}-${item.selected_variant}-${index}`}
+                      variant="outlined"
+                      sx={{ p: 1.5 }}
+                    >
+                      <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                        <ProductThumb item={item} />
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography variant="body2" fontWeight={600} sx={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                            {item.title}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {formatVariantDisplay(item)}
+                          </Typography>
+                        </Box>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          aria-label="Remove item"
+                          onClick={() => removeItem(index)}
+                          sx={{ bgcolor: "error.main", color: "common.white", borderRadius: 1, "&:hover": { bgcolor: "error.dark" } }}
+                        >
+                          <CloseRoundedIcon fontSize="small" />
+                        </IconButton>
+                      </Stack>
+                      <Box
+                        sx={{
+                          mt: 1.5,
+                          display: "grid",
+                          gap: 1,
+                          gridTemplateColumns: "1fr 1fr",
+                        }}
+                      >
+                        <TextField
+                          label="Qty"
                           type="number"
-                          min={1}
-                          max={999}
+                          size="small"
+                          inputProps={{ min: 1, max: 999 }}
                           value={item.quantity}
                           onChange={(event) => updateItem(index, { quantity: event.target.value })}
-                          className={tableInputClass}
                         />
-                      </td>
-                      <td className="px-3 py-3">
-                        <input
+                        <TextField
+                          label="Price"
                           type="number"
-                          min={0}
-                          step="0.01"
+                          size="small"
+                          inputProps={{ min: 0, step: "0.01" }}
                           value={item.price}
                           onChange={(event) => updateItem(index, { price: event.target.value })}
-                          className={tableInputClass}
                         />
-                      </td>
-                      <td className="px-3 py-3">
-                        <input
+                        <TextField
+                          label="Discount"
                           type="number"
-                          min={0}
-                          step="0.01"
+                          size="small"
+                          inputProps={{ min: 0, step: "0.01" }}
                           value={item.discount}
                           onChange={(event) => updateItem(index, { discount: event.target.value })}
-                          className={tableInputClass}
                         />
-                      </td>
-                      <td className="px-3 py-3 font-semibold text-dash-text">
-                        ৳{item.line_total.toLocaleString()}
-                      </td>
-                      <td className="px-3 py-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => removeItem(index)}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-red-500 text-white transition-colors hover:bg-red-600"
-                          aria-label="Remove item"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
+                        <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+                          <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: "uppercase" }}>
+                            Sub Total
+                          </Typography>
+                          <Typography variant="body2" fontWeight={800}>
+                            ৳{item.line_total.toLocaleString()}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Paper>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </Stack>
+              </MobileCardList>
 
-            {fieldErrors.items ? (
-              <p className="border-t border-dash-border px-3 py-2 text-sm text-red-600">{fieldErrors.items}</p>
-            ) : null}
+              <DesktopTable>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: "grey.50" }}>
+                      <TableCell>Image</TableCell>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Color / Size</TableCell>
+                      <TableCell sx={{ width: 88 }}>Qty</TableCell>
+                      <TableCell sx={{ width: 110 }}>Sell Price</TableCell>
+                      <TableCell sx={{ width: 110 }}>Discount</TableCell>
+                      <TableCell sx={{ width: 110 }}>Sub Total</TableCell>
+                      <TableCell align="center" sx={{ width: 64 }}>
+                        Action
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {items.map((item, index) => (
+                      <TableRow key={`${item.product_id}-${item.selected_variant}-${index}`}>
+                        <TableCell>
+                          <ProductThumb item={item} />
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight={600}>
+                            {item.title}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" color="text.secondary">
+                            {formatVariantDisplay(item)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            type="number"
+                            size="small"
+                            inputProps={{ min: 1, max: 999 }}
+                            value={item.quantity}
+                            onChange={(event) => updateItem(index, { quantity: event.target.value })}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            type="number"
+                            size="small"
+                            inputProps={{ min: 0, step: "0.01" }}
+                            value={item.price}
+                            onChange={(event) => updateItem(index, { price: event.target.value })}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            type="number"
+                            size="small"
+                            inputProps={{ min: 0, step: "0.01" }}
+                            value={item.discount}
+                            onChange={(event) => updateItem(index, { discount: event.target.value })}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight={700}>
+                            ৳{item.line_total.toLocaleString()}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="center">
+                          <IconButton
+                            size="small"
+                            aria-label="Remove item"
+                            onClick={() => removeItem(index)}
+                            sx={{ bgcolor: "error.main", color: "common.white", borderRadius: 1, "&:hover": { bgcolor: "error.dark" } }}
+                          >
+                            <CloseRoundedIcon fontSize="small" />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </DesktopTable>
 
-            <div className="flex flex-col gap-2 border-t border-dash-border bg-slate-50 p-3 sm:flex-row sm:items-center">
-              <input
-                type="search"
-                value={productSearch}
-                onChange={(event) => setProductSearch(event.target.value)}
-                placeholder="Search products..."
-                className={`${inputClass} sm:max-w-xs`}
-              />
-              <select
-                value={addProductId}
-                onChange={(event) => setAddProductId(event.target.value)}
-                className={`${inputClass} sm:max-w-md`}
+              {fieldErrors.items ? (
+                <Typography variant="body2" color="error" sx={{ borderTop: 1, borderColor: "divider", px: 1.5, py: 1 }}>
+                  {fieldErrors.items}
+                </Typography>
+              ) : null}
+
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={1.5}
+                sx={{ alignItems: { sm: "center" }, borderTop: 1, borderColor: "divider", bgcolor: "grey.50", p: 1.5 }}
               >
-                <option value="">Add product...</option>
-                {availableProducts.map((product) => (
-                  <option key={product._id} value={product._id}>
-                    {product.title_bn || product.title_en}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                onClick={handleAddProduct}
-                disabled={!addProductId}
-                className="inline-flex items-center justify-center gap-2 rounded-md border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 transition-colors hover:bg-indigo-100 disabled:opacity-50"
-              >
-                <Plus className="h-4 w-4" />
-                Add Product
-              </button>
-            </div>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
-            <div className="space-y-4">
-              <div>
-                <label className={labelClass}>Customer Name</label>
-                <input value={name} onChange={(event) => setName(event.target.value)} className={inputClass} />
-                <FieldError message={fieldErrors.name} />
-              </div>
-              <div>
-                <label className={labelClass}>Phone</label>
-                <input value={phone} onChange={(event) => setPhone(event.target.value)} className={inputClass} />
-                <FieldError message={fieldErrors.phone} />
-              </div>
-              <div>
-                <label className={labelClass}>Address</label>
-                <textarea
-                  rows={3}
-                  value={address}
-                  onChange={(event) => setAddress(event.target.value)}
-                  className={`${inputClass} resize-none`}
+                <TextField
+                  type="search"
+                  size="small"
+                  value={productSearch}
+                  onChange={(event) => setProductSearch(event.target.value)}
+                  placeholder="Search products..."
+                  sx={{ maxWidth: { sm: 240 }, width: 1 }}
                 />
-                <FieldError message={fieldErrors.address} />
-              </div>
-              <div>
-                <label className={labelClass}>Delivery Area</label>
-                <input
+                <FormControl size="small" sx={{ maxWidth: { sm: 360 }, width: 1 }}>
+                  <InputLabel id="order-add-product-label">Add product...</InputLabel>
+                  <Select
+                    labelId="order-add-product-label"
+                    label="Add product..."
+                    value={addProductId}
+                    onChange={(event) => setAddProductId(event.target.value)}
+                  >
+                    <MenuItem value="">
+                      <em>Add product...</em>
+                    </MenuItem>
+                    {availableProducts.map((product) => (
+                      <MenuItem key={product._id} value={product._id}>
+                        {product.title_bn || product.title_en}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  startIcon={<AddRoundedIcon />}
+                  onClick={handleAddProduct}
+                  disabled={!addProductId}
+                  sx={{ flexShrink: 0 }}
+                >
+                  Add Product
+                </Button>
+              </Stack>
+            </Paper>
+
+            <Box
+              sx={{
+                display: "grid",
+                gap: 3,
+                gridTemplateColumns: { xs: "1fr", lg: "minmax(0,1fr) 280px" },
+              }}
+            >
+              <Stack spacing={2}>
+                <Box>
+                  <TextField
+                    label="Customer Name"
+                    fullWidth
+                    size="small"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                  />
+                  <FieldError message={fieldErrors.name} />
+                </Box>
+                <Box>
+                  <TextField
+                    label="Phone"
+                    fullWidth
+                    size="small"
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                  />
+                  <FieldError message={fieldErrors.phone} />
+                </Box>
+                <Box>
+                  <TextField
+                    label="Address"
+                    fullWidth
+                    size="small"
+                    multiline
+                    rows={3}
+                    value={address}
+                    onChange={(event) => setAddress(event.target.value)}
+                  />
+                  <FieldError message={fieldErrors.address} />
+                </Box>
+                <TextField
+                  label="Delivery Area"
+                  fullWidth
+                  size="small"
                   value={deliveryArea}
                   onChange={(event) => setDeliveryArea(event.target.value)}
                   placeholder="Delivery Area"
-                  className={inputClass}
                 />
-              </div>
-            </div>
+              </Stack>
 
-            <div className="rounded-md border border-dash-border bg-slate-50 p-4 text-sm">
-              <div className="flex justify-between text-dash-muted">
-                <span>Sub Total</span>
-                <span className="font-semibold text-dash-text">৳{pricing.subtotal.toLocaleString()}</span>
-              </div>
-              {pricing.itemDiscount > 0 ? (
-                <div className="mt-2 flex justify-between text-emerald-600">
-                  <span>Item Discount</span>
-                  <span className="font-semibold">-৳{pricing.itemDiscount.toLocaleString()}</span>
-                </div>
-              ) : null}
-              <div className="mt-3">
-                <label className="mb-1 block text-xs font-semibold text-dash-muted">Shipping Fee</label>
-                <input
+              <Paper variant="outlined" sx={{ bgcolor: "grey.50", p: 2 }}>
+                <Stack direction="row" justifyContent="space-between">
+                  <Typography variant="body2" color="text.secondary">
+                    Sub Total
+                  </Typography>
+                  <Typography variant="body2" fontWeight={700}>
+                    ৳{pricing.subtotal.toLocaleString()}
+                  </Typography>
+                </Stack>
+                {pricing.itemDiscount > 0 ? (
+                  <Stack direction="row" justifyContent="space-between" sx={{ mt: 1 }}>
+                    <Typography variant="body2" color="success.main">
+                      Item Discount
+                    </Typography>
+                    <Typography variant="body2" fontWeight={700} color="success.main">
+                      -৳{pricing.itemDiscount.toLocaleString()}
+                    </Typography>
+                  </Stack>
+                ) : null}
+                <TextField
+                  label="Shipping Fee"
                   type="number"
-                  min={0}
-                  step="0.01"
+                  size="small"
+                  fullWidth
+                  sx={{ mt: 2 }}
+                  inputProps={{ min: 0, step: "0.01" }}
                   value={shippingFee}
                   onChange={(event) => setShippingFee(event.target.value)}
-                  className={tableInputClass}
                 />
-              </div>
-              <div className="mt-3">
-                <label className="mb-1 block text-xs font-semibold text-dash-muted">Discount</label>
-                <input
+                <TextField
+                  label="Discount"
                   type="number"
-                  min={0}
-                  step="0.01"
+                  size="small"
+                  fullWidth
+                  sx={{ mt: 1.5 }}
+                  inputProps={{ min: 0, step: "0.01" }}
                   value={orderDiscount}
                   onChange={(event) => setOrderDiscount(event.target.value)}
-                  className={tableInputClass}
                 />
-              </div>
-              <div className="mt-4 flex justify-between border-t border-dash-border pt-3">
-                <span className="font-bold text-dash-text">Total</span>
-                <span className="text-lg font-bold text-indigo-600">৳{pricing.total.toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ mt: 2, pt: 1.5, borderTop: 1, borderColor: "divider" }}
+                >
+                  <Typography fontWeight={800}>Total</Typography>
+                  <Typography variant="h6" fontWeight={800} color="primary.main">
+                    ৳{pricing.total.toLocaleString()}
+                  </Typography>
+                </Stack>
+              </Paper>
+            </Box>
 
-          {submitError ? (
-            <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
-              {submitError}
-            </p>
-          ) : null}
-        </div>
+            {submitError ? (
+              <Paper variant="outlined" sx={{ borderColor: "error.light", bgcolor: "rgba(211, 47, 47, 0.04)", px: 1.5, py: 1 }}>
+                <Typography variant="body2" color="error.main">
+                  {submitError}
+                </Typography>
+              </Paper>
+            ) : null}
+          </Stack>
+        </DialogContent>
 
-        <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-dash-border bg-white p-5 sm:flex-row sm:justify-end">
-          <button
-            type="button"
-            onClick={handleClose}
-            disabled={isPending}
-            className="rounded-md border border-dash-border px-4 py-2.5 text-sm font-semibold text-dash-muted"
-          >
+        <DialogActions sx={{ px: 3, py: 2, flexDirection: { xs: "column-reverse", sm: "row" }, gap: 1 }}>
+          <Button type="button" variant="outlined" color="inherit" onClick={handleClose} disabled={isPending} sx={{ width: { xs: 1, sm: "auto" } }}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
+            variant="contained"
             disabled={isPending}
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+            startIcon={isPending ? <CircularProgress size={16} color="inherit" /> : null}
+            sx={{ width: { xs: 1, sm: "auto" } }}
           >
-            {isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              "Save Changes"
-            )}
-          </button>
-        </div>
-      </form>
-    </ModalShell>
+            {isPending ? "Saving..." : "Save Changes"}
+          </Button>
+        </DialogActions>
+      </Box>
+    </Dialog>
   );
 }

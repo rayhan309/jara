@@ -2,64 +2,85 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "motion/react";
-import {
-  Eye,
-  ExternalLink,
-  Loader2,
-  Repeat2,
-  TrendingUp,
-  Users,
-  Wallet,
-  X,
-} from "lucide-react";
-import { HiOutlineUsers } from "react-icons/hi2";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import CircularProgress from "@mui/material/CircularProgress";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
+import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import RepeatRoundedIcon from "@mui/icons-material/RepeatRounded";
+import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import { useAdminCustomers } from "@/hooks/useDashboard";
 import { usePagination } from "@/hooks/usePagination";
 import TablePagination from "@/components/dashboard/TablePagination";
 import DashPageHeader from "@/components/dashboard/DashPageHeader";
-import {
-  DesktopTable,
-  MobileCardList,
-  MobileDashCard,
-  MobileDashRow,
-  mobileDashModalClass,
-} from "@/components/shared/ResponsiveTable";
-import {
-  formatCustomerSpent,
-} from "@/lib/customerHelpers";
+import StatusBadge from "@/components/dashboard/StatusBadge";
+import { formatCustomerSpent } from "@/lib/customerHelpers";
 import { formatRelativeTime } from "@/lib/dashboardStats";
 import {
   formatDisplayOrderNumber,
   formatOrderDate,
   formatOrderTotal,
-  getOrderStatusClass,
-  getOrderStatusLabel,
 } from "@/lib/orderHelpers";
-
-const inputClass =
-  "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
 
 function StatCard({ label, value, hint, icon: Icon }) {
   return (
-    <div className="dash-card p-4 sm:p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[10px] font-semibold tracking-[0.1em] text-slate-500 uppercase">
+    <Paper elevation={0} sx={{ p: { xs: 2, sm: 2.5 }, border: 1, borderColor: "divider" }}>
+      <Stack direction="row" spacing={1.5} sx={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            variant="caption"
+            fontWeight={700}
+            color="text.secondary"
+            sx={{ letterSpacing: "0.1em", textTransform: "uppercase" }}
+          >
             {label}
-          </p>
-          <p className="mt-2 text-xl font-bold tabular-nums tracking-tight text-dash-text sm:text-2xl">
+          </Typography>
+          <Typography variant="h5" fontWeight={800} sx={{ mt: 1, letterSpacing: "-0.02em" }}>
             {value}
-          </p>
-          {hint ? <p className="mt-1 text-[11px] text-slate-500">{hint}</p> : null}
-        </div>
+          </Typography>
+          {hint ? (
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+              {hint}
+            </Typography>
+          ) : null}
+        </Box>
         {Icon ? (
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-            <Icon className="h-4 w-4" strokeWidth={1.75} />
-          </span>
+          <Box
+            sx={{
+              width: 36,
+              height: 36,
+              borderRadius: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              bgcolor: "primary.50",
+              color: "primary.main",
+              flexShrink: 0,
+            }}
+          >
+            <Icon sx={{ fontSize: 18 }} />
+          </Box>
         ) : null}
-      </div>
-    </div>
+      </Stack>
+    </Paper>
   );
 }
 
@@ -67,19 +88,17 @@ function CustomerAvatar({ name }) {
   const initial = (name || "?").trim().charAt(0).toUpperCase() || "?";
 
   return (
-    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-600 to-slate-800 text-xs font-bold text-white shadow-sm">
-      {initial}
-    </span>
-  );
-}
-
-function OrderStatusBadge({ status }) {
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${getOrderStatusClass(status)}`}
+    <Avatar
+      sx={{
+        width: 36,
+        height: 36,
+        fontSize: 13,
+        fontWeight: 700,
+        bgcolor: "grey.700",
+      }}
     >
-      {getOrderStatusLabel(status)}
-    </span>
+      {initial}
+    </Avatar>
   );
 }
 
@@ -87,127 +106,154 @@ function CustomerViewModal({ open, customer, onClose }) {
   if (!customer) return null;
 
   return (
-    <AnimatePresence>
-      {open ? (
-        <>
-          <motion.button
-            type="button"
-            aria-label="Close modal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]"
-          />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 16 }}
-            className={`${mobileDashModalClass} sm:max-w-2xl`}
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+      <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1.5, pr: 1 }}>
+        <CustomerAvatar name={customer.name} />
+        <Box sx={{ minWidth: 0, flex: 1 }}>
+          <Typography variant="h6" fontWeight={700} noWrap>
+            {customer.name}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {customer.phone}
+          </Typography>
+        </Box>
+        <IconButton aria-label="Close" onClick={onClose} size="small">
+          <CloseRoundedIcon fontSize="small" />
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent dividers>
+        <Stack spacing={2.5}>
+          <Box
+            sx={{
+              display: "grid",
+              gap: 1.5,
+              gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
+            }}
           >
-            <div className="flex shrink-0 items-center gap-3 border-b border-dash-border px-5 py-4">
-              <CustomerAvatar name={customer.name} />
-              <div className="min-w-0 flex-1">
-                <h2 className="truncate text-lg font-bold text-dash-text">{customer.name}</h2>
-                <p className="text-sm text-slate-500">{customer.phone}</p>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-dash-muted transition-colors hover:bg-slate-100"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+            <Paper elevation={0} sx={{ p: 1.5, border: 1, borderColor: "divider", bgcolor: "grey.50" }}>
+              <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase" }}>
+                Orders
+              </Typography>
+              <Typography variant="h6" fontWeight={800} sx={{ mt: 0.5 }}>
+                {customer.orderCount}
+              </Typography>
+            </Paper>
+            <Paper elevation={0} sx={{ p: 1.5, border: 1, borderColor: "primary.100", bgcolor: "primary.50" }}>
+              <Typography variant="caption" fontWeight={700} color="primary" sx={{ textTransform: "uppercase" }}>
+                Total spent
+              </Typography>
+              <Typography variant="h6" fontWeight={800} color="primary.dark" sx={{ mt: 0.5 }}>
+                {formatCustomerSpent(customer.totalSpent)}
+              </Typography>
+            </Paper>
+            <Paper elevation={0} sx={{ p: 1.5, border: 1, borderColor: "divider", bgcolor: "grey.50" }}>
+              <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase" }}>
+                Last order
+              </Typography>
+              <Typography variant="body2" fontWeight={700} sx={{ mt: 0.5 }}>
+                {formatRelativeTime(customer.lastOrderAt)}
+              </Typography>
+            </Paper>
+          </Box>
 
-            <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-5 sm:p-6">
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-3">
-                  <p className="text-[10px] font-semibold tracking-wide text-slate-500 uppercase">
-                    Orders
-                  </p>
-                  <p className="mt-1 text-lg font-bold tabular-nums text-dash-text">
-                    {customer.orderCount}
-                  </p>
-                </div>
-                <div className="rounded-lg border border-indigo-100 bg-indigo-50/50 p-3">
-                  <p className="text-[10px] font-semibold tracking-wide text-indigo-600 uppercase">
-                    Total spent
-                  </p>
-                  <p className="mt-1 text-lg font-bold tabular-nums text-indigo-700">
-                    {formatCustomerSpent(customer.totalSpent)}
-                  </p>
-                </div>
-                <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-3">
-                  <p className="text-[10px] font-semibold tracking-wide text-slate-500 uppercase">
-                    Last order
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-dash-text">
-                    {formatRelativeTime(customer.lastOrderAt)}
-                  </p>
-                </div>
-              </div>
+          <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: "divider" }}>
+            <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase" }}>
+              Address
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1, lineHeight: 1.6 }}>
+              {customer.address}
+            </Typography>
+            <Button
+              component={Link}
+              href={`/orders-traking?phone=${encodeURIComponent(customer.phone)}`}
+              target="_blank"
+              size="small"
+              endIcon={<OpenInNewRoundedIcon sx={{ fontSize: 16 }} />}
+              sx={{ mt: 1.5, px: 0 }}
+            >
+              Track orders
+            </Button>
+          </Paper>
 
-              <div className="rounded-lg border border-dash-border p-4">
-                <p className="text-[10px] font-semibold tracking-wide text-slate-500 uppercase">
-                  Address
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-dash-text">{customer.address}</p>
-                <Link
-                  href={`/orders-traking?phone=${encodeURIComponent(customer.phone)}`}
-                  target="_blank"
-                  className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700"
+          <Box>
+            <Typography
+              variant="caption"
+              fontWeight={700}
+              color="text.secondary"
+              sx={{
+                textTransform: "uppercase",
+                display: "block",
+                pb: 1,
+                borderBottom: 1,
+                borderColor: "divider",
+              }}
+            >
+              Order history
+            </Typography>
+            <Stack spacing={1} sx={{ mt: 1.5 }}>
+              {customer.orders.map((order) => (
+                <Paper
+                  key={order._id}
+                  elevation={0}
+                  sx={{
+                    p: 1.5,
+                    border: 1,
+                    borderColor: "divider",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 1,
+                  }}
                 >
-                  Track orders
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-
-              <div>
-                <p className="border-b border-dash-border pb-2 text-[10px] font-semibold tracking-wide text-slate-500 uppercase">
-                  Order history
-                </p>
-                <div className="mt-3 space-y-2">
-                  {customer.orders.map((order) => (
-                    <div
-                      key={order._id}
-                      className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200/80 bg-white p-3"
-                    >
-                      <div className="min-w-0">
-                        <p className="font-semibold tabular-nums text-indigo-600">
-                          #{formatDisplayOrderNumber(order.order_number)}
-                        </p>
-                        <p className="text-xs text-slate-400">{formatOrderDate(order.createdAt)}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <OrderStatusBadge status={order.status} />
-                        <span className="text-sm font-semibold tabular-nums text-dash-text">
-                          {formatOrderTotal(order)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </>
-      ) : null}
-    </AnimatePresence>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="body2" fontWeight={700} color="primary">
+                      #{formatDisplayOrderNumber(order.order_number)}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {formatOrderDate(order.createdAt)}
+                    </Typography>
+                  </Box>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <StatusBadge status={order.status} />
+                    <Typography variant="body2" fontWeight={700}>
+                      {formatOrderTotal(order)}
+                    </Typography>
+                  </Stack>
+                </Paper>
+              ))}
+            </Stack>
+          </Box>
+        </Stack>
+      </DialogContent>
+    </Dialog>
   );
 }
 
 function CustomerRowActions({ customer, onView }) {
   return (
-    <button
-      type="button"
+    <IconButton
       aria-label="View customer"
       title="View"
+      size="small"
       onClick={() => onView(customer)}
-      className="inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-indigo-600"
     >
-      <Eye className="h-3.5 w-3.5" strokeWidth={1.75} />
-    </button>
+      <VisibilityOutlinedIcon fontSize="small" />
+    </IconButton>
+  );
+}
+
+function MobileRow({ label, value }) {
+  return (
+    <Stack direction="row" justifyContent="space-between" spacing={2}>
+      <Typography variant="body2" color="text.secondary">
+        {label}
+      </Typography>
+      <Typography variant="body2" fontWeight={600} sx={{ textAlign: "right" }}>
+        {value}
+      </Typography>
+    </Stack>
   );
 }
 
@@ -235,209 +281,226 @@ export default function CustomersManager() {
     usePagination(filteredCustomers);
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <Stack spacing={3}>
       <DashPageHeader
         eyebrow="CRM"
         title="Customer Directory"
         description="Customer profiles and purchase history from live orders."
         action={
-          <span className="rounded-md border border-dash-border bg-white px-3 py-1.5 text-xs font-medium text-dash-muted">
-            {customers.length} customers
-          </span>
+          <Chip label={`${customers.length} customers`} variant="outlined" size="small" />
         }
       />
 
       {!isLoading && !isError && customers.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <StatCard label="Total customers" value={stats.totalCustomers} icon={HiOutlineUsers} />
+        <Box
+          sx={{
+            display: "grid",
+            gap: 2,
+            gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" },
+          }}
+        >
+          <StatCard label="Total customers" value={stats.totalCustomers} icon={PeopleAltOutlinedIcon} />
           <StatCard
             label="Repeat customers"
             value={stats.repeatCustomers}
             hint="More than one order"
-            icon={Repeat2}
+            icon={RepeatRoundedIcon}
           />
           <StatCard
             label="Lifetime value"
             value={formatCustomerSpent(stats.totalSpent)}
-            icon={Wallet}
+            icon={AccountBalanceWalletOutlinedIcon}
           />
-        </div>
+        </Box>
       ) : null}
 
       {customers.length > 0 ? (
-        <input
+        <TextField
+          fullWidth
           type="search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search by name, phone, or address..."
-          className={`${inputClass} w-full`}
         />
       ) : null}
 
       {isLoading ? (
-        <div className="dash-card flex min-h-[280px] items-center justify-center">
-          <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
-        </div>
+        <Paper
+          elevation={0}
+          sx={{
+            minHeight: 280,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: 1,
+            borderColor: "divider",
+          }}
+        >
+          <CircularProgress size={28} />
+        </Paper>
       ) : isError ? (
-        <div className="dash-card border-red-200 bg-red-50 p-6 text-center">
-          <p className="text-sm text-red-600">{error?.message || "Failed to load customers."}</p>
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="mt-3 text-sm font-semibold text-indigo-600"
-          >
+        <Paper
+          elevation={0}
+          sx={{ p: 3, border: 1, borderColor: "error.light", bgcolor: "error.50", textAlign: "center" }}
+        >
+          <Typography variant="body2" color="error">
+            {error?.message || "Failed to load customers."}
+          </Typography>
+          <Button onClick={() => refetch()} sx={{ mt: 1.5 }}>
             Try again
-          </button>
-        </div>
+          </Button>
+        </Paper>
       ) : filteredCustomers.length === 0 ? (
-        <div className="dash-card flex min-h-[280px] flex-col items-center justify-center p-10 text-center">
-          <Users className="mb-4 h-10 w-10 text-indigo-600" />
-          <h2 className="text-lg font-bold text-dash-text">
+        <Paper
+          elevation={0}
+          sx={{
+            minHeight: 280,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            p: 5,
+            textAlign: "center",
+            border: 1,
+            borderColor: "divider",
+          }}
+        >
+          <PeopleAltOutlinedIcon sx={{ fontSize: 40, color: "primary.main", mb: 2 }} />
+          <Typography variant="h6" fontWeight={700}>
             {customers.length === 0 ? "No customers yet" : "No matching customers"}
-          </h2>
-          <p className="mt-2 text-sm text-slate-500">
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             {customers.length === 0
               ? "Customers will appear here after their first order."
               : "Try a different search term."}
-          </p>
-        </div>
+          </Typography>
+        </Paper>
       ) : (
-        <div className="dash-card overflow-hidden">
-          <div className="flex items-center justify-between gap-3 border-b border-dash-border px-4 py-3 sm:px-5">
-            <p className="text-xs text-slate-500">
+        <Paper elevation={0} sx={{ overflow: "hidden", border: 1, borderColor: "divider" }}>
+          <Stack
+            direction="row"
+            spacing={1.5}
+            sx={{
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: { xs: 2, sm: 2.5 },
+              py: 1.5,
+              borderBottom: 1,
+              borderColor: "divider",
+            }}
+          >
+            <Typography variant="caption" color="text.secondary">
               {filteredCustomers.length === customers.length
                 ? `${customers.length} total customers`
                 : `${filteredCustomers.length} of ${customers.length} customers`}
-            </p>
+            </Typography>
             {stats.repeatCustomers > 0 ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
-                <TrendingUp className="h-3 w-3" />
-                {stats.repeatCustomers} repeat
-              </span>
+              <Chip
+                size="small"
+                color="success"
+                variant="outlined"
+                icon={<TrendingUpRoundedIcon />}
+                label={`${stats.repeatCustomers} repeat`}
+              />
             ) : null}
-          </div>
+          </Stack>
 
-          <MobileCardList className="space-y-0 divide-y divide-dash-border p-0 lg:hidden">
+          <Box sx={{ display: { xs: "block", lg: "none" } }}>
             {paginatedItems.map((customer) => (
-              <div key={customer.id} className="p-3.5">
-                <MobileDashCard className="border-0 p-0 shadow-none">
-                  <div className="flex items-start gap-3">
-                    <CustomerAvatar name={customer.name} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="font-semibold text-dash-text">{customer.name}</p>
-                          <p className="mt-0.5 text-xs font-medium text-slate-500">{customer.phone}</p>
-                        </div>
-                        {customer.orderCount > 1 ? (
-                          <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-                            Repeat
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-3 space-y-2 border-t border-dash-border pt-3">
-                    <MobileDashRow label="Orders" value={customer.orderCount} />
-                    <MobileDashRow
-                      label="Total spent"
-                      value={formatCustomerSpent(customer.totalSpent)}
-                    />
-                    <MobileDashRow
-                      label="Last order"
-                      value={formatRelativeTime(customer.lastOrderAt)}
-                    />
-                    <MobileDashRow label="Address" value={customer.address} />
-                  </div>
-                  <div className="mt-3 flex justify-end">
-                    <CustomerRowActions customer={customer} onView={setViewCustomer} />
-                  </div>
-                </MobileDashCard>
-              </div>
+              <Box key={customer.id} sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+                <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                  <CustomerAvatar name={customer.name} />
+                  <Box sx={{ minWidth: 0, flex: 1 }}>
+                    <Stack direction="row" spacing={1} justifyContent="space-between" alignItems="flex-start">
+                      <Box sx={{ minWidth: 0 }}>
+                        <Typography fontWeight={700}>{customer.name}</Typography>
+                        <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                          {customer.phone}
+                        </Typography>
+                      </Box>
+                      {customer.orderCount > 1 ? (
+                        <Chip size="small" color="success" label="Repeat" />
+                      ) : null}
+                    </Stack>
+                  </Box>
+                </Stack>
+                <Stack spacing={1} sx={{ mt: 1.5, pt: 1.5, borderTop: 1, borderColor: "divider" }}>
+                  <MobileRow label="Orders" value={customer.orderCount} />
+                  <MobileRow label="Total spent" value={formatCustomerSpent(customer.totalSpent)} />
+                  <MobileRow label="Last order" value={formatRelativeTime(customer.lastOrderAt)} />
+                  <MobileRow label="Address" value={customer.address} />
+                </Stack>
+                <Box sx={{ mt: 1.5, display: "flex", justifyContent: "flex-end" }}>
+                  <CustomerRowActions customer={customer} onView={setViewCustomer} />
+                </Box>
+              </Box>
             ))}
-          </MobileCardList>
+          </Box>
 
-          <DesktopTable>
-            <table className="min-w-full border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-dash-border bg-slate-50/90">
-                  <th className="min-w-[180px] px-5 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
-                    Customer
-                  </th>
-                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
-                    Phone
-                  </th>
-                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
-                    Orders
-                  </th>
-                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
-                    Total spent
-                  </th>
-                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
-                    Last order
-                  </th>
-                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
-                    Address
-                  </th>
-                  <th className="w-[72px] px-4 py-2.5 text-right text-[10px] font-semibold tracking-[0.08em] text-slate-500 uppercase">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
+          <Box sx={{ display: { xs: "none", lg: "block" }, overflowX: "auto" }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Customer</TableCell>
+                  <TableCell>Phone</TableCell>
+                  <TableCell>Orders</TableCell>
+                  <TableCell>Total spent</TableCell>
+                  <TableCell>Last order</TableCell>
+                  <TableCell>Address</TableCell>
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {paginatedItems.map((customer) => (
-                  <tr
-                    key={customer.id}
-                    className="group transition-colors hover:bg-slate-50/70"
-                  >
-                    <td className="px-5 py-2.5">
-                      <div className="flex items-center gap-3">
+                  <TableRow key={customer.id} hover>
+                    <TableCell>
+                      <Stack direction="row" spacing={1.5} alignItems="center">
                         <CustomerAvatar name={customer.name} />
-                        <div className="min-w-0">
-                          <p className="truncate text-[13px] font-medium text-dash-text">
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography variant="body2" fontWeight={600} noWrap>
                             {customer.name}
-                          </p>
+                          </Typography>
                           {customer.orderCount > 1 ? (
-                            <span className="mt-0.5 inline-flex rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
-                              Repeat customer
-                            </span>
+                            <Chip size="small" color="success" label="Repeat customer" sx={{ mt: 0.5, height: 20 }} />
                           ) : (
-                            <span className="mt-0.5 text-[10px] text-slate-400">New customer</span>
+                            <Typography variant="caption" color="text.secondary">
+                              New customer
+                            </Typography>
                           )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span className="text-[13px] font-medium tabular-nums text-slate-600">
+                        </Box>
+                      </Stack>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" fontWeight={500} sx={{ fontVariantNumeric: "tabular-nums" }}>
                         {customer.phone}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span className="inline-flex min-w-[1.75rem] items-center justify-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold tabular-nums text-slate-700">
-                        {customer.orderCount}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span className="text-[13px] font-semibold tabular-nums text-dash-text">
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Chip size="small" label={customer.orderCount} />
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" fontWeight={700} sx={{ fontVariantNumeric: "tabular-nums" }}>
                         {formatCustomerSpent(customer.totalSpent)}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2.5 text-[11px] text-slate-400">
-                      {formatRelativeTime(customer.lastOrderAt)}
-                    </td>
-                    <td className="max-w-[200px] px-4 py-2.5">
-                      <p className="truncate text-[13px] text-slate-500">{customer.address}</p>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <div className="flex justify-end opacity-80 transition-opacity group-hover:opacity-100">
-                        <CustomerRowActions customer={customer} onView={setViewCustomer} />
-                      </div>
-                    </td>
-                  </tr>
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="caption" color="text.secondary" noWrap>
+                        {formatRelativeTime(customer.lastOrderAt)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ maxWidth: 200 }}>
+                      <Typography variant="body2" color="text.secondary" noWrap>
+                        {customer.address}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <CustomerRowActions customer={customer} onView={setViewCustomer} />
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </DesktopTable>
+              </TableBody>
+            </Table>
+          </Box>
 
           <TablePagination
             page={page}
@@ -446,7 +509,7 @@ export default function CustomersManager() {
             pageSize={pageSize}
             onPageChange={setPage}
           />
-        </div>
+        </Paper>
       )}
 
       <CustomerViewModal
@@ -454,6 +517,6 @@ export default function CustomersManager() {
         customer={viewCustomer}
         onClose={() => setViewCustomer(null)}
       />
-    </div>
+    </Stack>
   );
 }

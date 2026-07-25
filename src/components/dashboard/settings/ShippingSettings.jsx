@@ -1,11 +1,26 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Switch from "@mui/material/Switch";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import { DEFAULT_SETTINGS } from "@/lib/siteSettings";
 import SettingsPageShell from "@/components/dashboard/settings/SettingsPageShell";
-import { inputClass } from "@/components/dashboard/settings/settingsShared";
+import {
+  settingsNestedSx,
+  settingsPaperSx,
+  textFieldSize,
+} from "@/components/dashboard/settings/settingsShared";
 import { useSettingsEditor } from "@/components/dashboard/settings/useSettingsEditor";
 
 function createDeliveryArea() {
@@ -65,13 +80,13 @@ export default function ShippingSettings() {
 
     const invalidArea = deliveryAreas.find((area) => !area.label.trim());
     if (invalidArea) {
-      toast.error("সব ডেলিভারি এরিয়ার নাম দিন");
+      toast.error("Enter a name for every delivery area");
       return;
     }
 
     const invalidClass = shippingClasses.find((entry) => !entry.name.trim());
     if (invalidClass) {
-      toast.error("সব শিপিং ক্লাসের নাম দিন");
+      toast.error("Enter a name for every shipping class");
       return;
     }
 
@@ -109,7 +124,7 @@ export default function ShippingSettings() {
   return (
     <SettingsPageShell
       title="Shipping"
-      description="Delivery area ar shipping class charge manage korun."
+      description="Manage delivery areas and shipping class charges."
       onSubmit={handleSave}
       isPending={isPending}
       isLoading={isLoading}
@@ -117,34 +132,48 @@ export default function ShippingSettings() {
       error={error}
       onRetry={refetch}
     >
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_1.9fr]">
-        <section className="dash-card p-5 sm:p-6">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-bold text-dash-text">Delivery Areas</h2>
-              <p className="mt-1 text-sm text-dash-muted">
-                Checkout-এর delivery options এখানে control হবে।
-              </p>
-            </div>
-            <button
+      <Box
+        sx={{
+          display: "grid",
+          gap: 3,
+          gridTemplateColumns: { xs: "1fr", lg: "1.1fr 1.9fr" },
+        }}
+      >
+        <Paper elevation={0} sx={settingsPaperSx}>
+          <Stack
+            direction="row"
+            spacing={1.5}
+            alignItems="flex-start"
+            justifyContent="space-between"
+          >
+            <Box>
+              <Typography variant="h6" fontWeight={700}>
+                Delivery Areas
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Controls delivery options shown at checkout.
+              </Typography>
+            </Box>
+            <Button
               type="button"
+              variant="outlined"
+              size="small"
+              startIcon={<AddRoundedIcon />}
               onClick={() => setDeliveryAreas((current) => [...current, createDeliveryArea()])}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100"
+              sx={{ flexShrink: 0 }}
             >
-              <Plus className="h-3.5 w-3.5" />
               Add Area
-            </button>
-          </div>
+            </Button>
+          </Stack>
 
-          <div className="mt-5 space-y-3">
+          <Stack spacing={1.5} sx={{ mt: 2.5 }}>
             {deliveryAreas.map((area) => (
-              <div
-                key={area.id}
-                className="rounded-md border border-dash-border bg-slate-50/70 p-3"
-              >
-                <label className="mb-1 block text-xs font-semibold text-dash-muted">Area Name</label>
-                <div className="flex items-center gap-2">
-                  <input
+              <Paper key={area.id} elevation={0} sx={settingsNestedSx}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <TextField
+                    label="Area Name"
+                    size={textFieldSize}
+                    fullWidth
                     value={area.label}
                     onChange={(event) =>
                       setDeliveryAreas((current) =>
@@ -153,155 +182,194 @@ export default function ShippingSettings() {
                         )
                       )
                     }
-                    placeholder="ঢাকার ভিতরে"
-                    className={inputClass}
+                    placeholder="Inside Dhaka"
                   />
-                  <button
+                  <IconButton
                     type="button"
+                    color="error"
+                    disabled={!canRemoveAreas}
+                    aria-label="Remove area"
                     onClick={() =>
                       setDeliveryAreas((current) => current.filter((entry) => entry.id !== area.id))
                     }
-                    disabled={!canRemoveAreas}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-red-200 bg-red-50 text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-                    aria-label="Remove area"
+                    sx={{
+                      border: 1,
+                      borderColor: "error.light",
+                      borderRadius: 1,
+                      bgcolor: "error.50",
+                    }}
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
+                    <DeleteOutlineRoundedIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              </Paper>
             ))}
-          </div>
-        </section>
+          </Stack>
+        </Paper>
 
-        <section className="dash-card p-5 sm:p-6">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-bold text-dash-text">Shipping Classes</h2>
-              <p className="mt-1 text-sm text-dash-muted">
-                Product-wise shipping charge set করুন।
-              </p>
-            </div>
-            <button
+        <Paper elevation={0} sx={settingsPaperSx}>
+          <Stack
+            direction="row"
+            spacing={1.5}
+            alignItems="flex-start"
+            justifyContent="space-between"
+          >
+            <Box>
+              <Typography variant="h6" fontWeight={700}>
+                Shipping Classes
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Set product-wise shipping charges.
+              </Typography>
+            </Box>
+            <Button
               type="button"
+              variant="outlined"
+              size="small"
+              startIcon={<AddRoundedIcon />}
               onClick={() =>
                 setShippingClasses((current) => [...current, createShippingClass(deliveryAreas)])
               }
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100"
+              sx={{ flexShrink: 0 }}
             >
-              <Plus className="h-3.5 w-3.5" />
               Add Class
-            </button>
-          </div>
+            </Button>
+          </Stack>
 
-          <div className="mt-5 space-y-4">
+          <Stack spacing={2} sx={{ mt: 2.5 }}>
             {shippingClasses.map((entry) => (
-              <div
-                key={entry.id}
-                className="rounded-md border border-dash-border bg-slate-50/70 p-4"
-              >
-                <div className="grid gap-3 md:grid-cols-[1.1fr_1fr_auto] md:items-end">
-                  <div>
-                    <label className="mb-1 block text-xs font-semibold text-dash-muted">Class Name</label>
-                    <input
-                      value={entry.name}
-                      onChange={(event) =>
-                        setShippingClasses((current) =>
-                          current.map((item) =>
-                            item.id === entry.id ? { ...item, name: event.target.value } : item
-                          )
+              <Paper key={entry.id} elevation={0} sx={settingsNestedSx}>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gap: 1.5,
+                    gridTemplateColumns: { xs: "1fr", md: "1.1fr 1fr auto" },
+                    alignItems: { md: "end" },
+                  }}
+                >
+                  <TextField
+                    label="Class Name"
+                    size={textFieldSize}
+                    fullWidth
+                    value={entry.name}
+                    onChange={(event) =>
+                      setShippingClasses((current) =>
+                        current.map((item) =>
+                          item.id === entry.id ? { ...item, name: event.target.value } : item
                         )
-                      }
-                      placeholder="Standard"
-                      className={inputClass}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-semibold text-dash-muted">Description</label>
-                    <input
-                      value={entry.description}
-                      onChange={(event) =>
-                        setShippingClasses((current) =>
-                          current.map((item) =>
-                            item.id === entry.id
-                              ? { ...item, description: event.target.value }
-                              : item
-                          )
+                      )
+                    }
+                    placeholder="Standard"
+                  />
+                  <TextField
+                    label="Description"
+                    size={textFieldSize}
+                    fullWidth
+                    value={entry.description}
+                    onChange={(event) =>
+                      setShippingClasses((current) =>
+                        current.map((item) =>
+                          item.id === entry.id
+                            ? { ...item, description: event.target.value }
+                            : item
                         )
-                      }
-                      placeholder="Optional note"
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="inline-flex items-center gap-2 rounded-md border border-dash-border bg-white px-3 py-2.5 text-xs font-semibold text-dash-text">
-                      <input
-                        type="checkbox"
-                        checked={entry.freeDelivery}
-                        onChange={(event) =>
-                          setShippingClasses((current) =>
-                            current.map((item) =>
-                              item.id === entry.id
-                                ? { ...item, freeDelivery: event.target.checked }
-                                : item
+                      )
+                    }
+                    placeholder="Optional note"
+                  />
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          size="small"
+                          checked={entry.freeDelivery}
+                          onChange={(event) =>
+                            setShippingClasses((current) =>
+                              current.map((item) =>
+                                item.id === entry.id
+                                  ? { ...item, freeDelivery: event.target.checked }
+                                  : item
+                              )
                             )
-                          )
-                        }
-                        className="h-4 w-4 accent-indigo-600"
-                      />
-                      Free Delivery
-                    </label>
-                    <button
+                          }
+                        />
+                      }
+                      label="Free Delivery"
+                      sx={{
+                        m: 0,
+                        px: 1,
+                        border: 1,
+                        borderColor: "divider",
+                        borderRadius: 1,
+                        bgcolor: "background.paper",
+                      }}
+                    />
+                    <IconButton
                       type="button"
+                      color="error"
+                      disabled={!canRemoveClasses}
+                      aria-label="Remove class"
                       onClick={() =>
                         setShippingClasses((current) =>
                           current.filter((item) => item.id !== entry.id)
                         )
                       }
-                      disabled={!canRemoveClasses}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-red-200 bg-red-50 text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-                      aria-label="Remove class"
+                      sx={{
+                        border: 1,
+                        borderColor: "error.light",
+                        borderRadius: 1,
+                        bgcolor: "error.50",
+                      }}
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
+                      <DeleteOutlineRoundedIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
+                </Box>
 
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <Box
+                  sx={{
+                    mt: 2,
+                    display: "grid",
+                    gap: 1.5,
+                    gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                  }}
+                >
                   {deliveryAreas.map((area) => (
-                    <div key={`${entry.id}-${area.id}`}>
-                      <label className="mb-1 block text-xs font-semibold text-dash-muted">
-                        {deliveryAreaLookup[area.id]}
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        value={entry.charges?.[area.id] ?? 0}
-                        onChange={(event) =>
-                          setShippingClasses((current) =>
-                            current.map((item) =>
-                              item.id === entry.id
-                                ? {
-                                    ...item,
-                                    charges: {
-                                      ...item.charges,
-                                      [area.id]: event.target.value,
-                                    },
-                                  }
-                                : item
-                            )
+                    <TextField
+                      key={`${entry.id}-${area.id}`}
+                      label={deliveryAreaLookup[area.id]}
+                      size={textFieldSize}
+                      fullWidth
+                      type="number"
+                      inputProps={{ min: 0 }}
+                      value={entry.charges?.[area.id] ?? 0}
+                      disabled={entry.freeDelivery}
+                      onChange={(event) =>
+                        setShippingClasses((current) =>
+                          current.map((item) =>
+                            item.id === entry.id
+                              ? {
+                                  ...item,
+                                  charges: {
+                                    ...item.charges,
+                                    [area.id]: event.target.value,
+                                  },
+                                }
+                              : item
                           )
-                        }
-                        disabled={entry.freeDelivery}
-                        className={`${inputClass} disabled:bg-slate-100 disabled:text-slate-400`}
-                      />
-                    </div>
+                        )
+                      }
+                      InputProps={{
+                        startAdornment: <InputAdornment position="start">৳</InputAdornment>,
+                      }}
+                    />
                   ))}
-                </div>
-              </div>
+                </Box>
+              </Paper>
             ))}
-          </div>
-        </section>
-      </div>
+          </Stack>
+        </Paper>
+      </Box>
     </SettingsPageShell>
   );
 }

@@ -1,8 +1,36 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Loader2, Pencil, Plus, Save, Trash2, UserCog, X } from "lucide-react";
 import toast from "react-hot-toast";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import CircularProgress from "@mui/material/CircularProgress";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import FormControl from "@mui/material/FormControl";
+import IconButton from "@mui/material/IconButton";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Paper from "@mui/material/Paper";
+import Select from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import { ADMIN_ROLE_OPTIONS, getRoleLabel } from "@/lib/adminRoles";
 import {
   useAdminUsers,
@@ -12,9 +40,6 @@ import {
 } from "@/hooks/useAdminUsers";
 import { getAdminAuth } from "@/lib/auth";
 import DashPageHeader from "@/components/dashboard/DashPageHeader";
-
-const inputClass =
-  "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
 
 const emptyForm = {
   username: "",
@@ -116,275 +141,301 @@ export default function UsersManager() {
 
   if (isLoading) {
     return (
-      <div className="dash-card flex min-h-[280px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-      </div>
+      <Paper
+        elevation={0}
+        sx={{
+          minHeight: 280,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: 1,
+          borderColor: "divider",
+        }}
+      >
+        <CircularProgress size={32} />
+      </Paper>
     );
   }
 
   if (isError) {
     return (
-      <div className="dash-card border-red-200 bg-red-50 p-6 text-center">
-        <p className="text-sm text-red-600">{error?.message || "Failed to load users."}</p>
-        <button type="button" onClick={() => refetch()} className="mt-3 text-sm font-semibold text-indigo-600">
+      <Paper
+        elevation={0}
+        sx={{ p: 3, border: 1, borderColor: "error.light", bgcolor: "error.50", textAlign: "center" }}
+      >
+        <Typography variant="body2" color="error">
+          {error?.message || "Failed to load users."}
+        </Typography>
+        <Button onClick={() => refetch()} sx={{ mt: 1.5 }}>
           Try again
-        </button>
-      </div>
+        </Button>
+      </Paper>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <Stack spacing={3}>
       <DashPageHeader
         eyebrow="Admin"
         title="User Management"
         description="Add and manage Super Admin, Shop Manager, and Moderator accounts."
         action={
-          <button
-            type="button"
+          <Button
+            variant="contained"
+            startIcon={<AddRoundedIcon />}
             onClick={() => setShowForm((prev) => !prev)}
-            className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
           >
-            <Plus className="h-4 w-4" />
             Add User
-          </button>
+          </Button>
         }
       />
 
       {showForm ? (
-        <form onSubmit={handleCreate} className="dash-card grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-dash-muted">Username</label>
-            <input
-              type="text"
-              value={form.username}
-              onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
-              className={inputClass}
-              required
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-dash-muted">Display Name</label>
-            <input
-              type="text"
-              value={form.name}
-              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-              className={inputClass}
-              placeholder="Optional"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-dash-muted">Password</label>
-            <input
-              type="password"
-              value={form.password}
-              onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-              className={inputClass}
-              required
-              minLength={6}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-dash-muted">Role</label>
-            <select
+        <Paper
+          component="form"
+          onSubmit={handleCreate}
+          elevation={0}
+          sx={{
+            p: { xs: 2.5, sm: 3 },
+            border: 1,
+            borderColor: "divider",
+            display: "grid",
+            gap: 2,
+            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+          }}
+        >
+          <TextField
+            fullWidth
+            required
+            label="Username"
+            value={form.username}
+            onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
+          />
+          <TextField
+            fullWidth
+            label="Display Name"
+            placeholder="Optional"
+            value={form.name}
+            onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+          />
+          <TextField
+            fullWidth
+            required
+            type="password"
+            label="Password"
+            inputProps={{ minLength: 6 }}
+            value={form.password}
+            onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+          />
+          <FormControl fullWidth>
+            <InputLabel id="create-user-role-label">Role</InputLabel>
+            <Select
+              labelId="create-user-role-label"
+              label="Role"
               value={form.role}
               onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value }))}
-              className={inputClass}
             >
               {ADMIN_ROLE_OPTIONS.filter((role) => role.value !== "super_admin").map((role) => (
-                <option key={role.value} value={role.value}>
+                <MenuItem key={role.value} value={role.value}>
                   {role.label}
-                </option>
+                </MenuItem>
               ))}
-            </select>
-          </div>
-          <div className="sm:col-span-2 flex gap-2">
-            <button
+            </Select>
+          </FormControl>
+          <Stack direction="row" spacing={1} sx={{ gridColumn: { sm: "1 / -1" } }}>
+            <Button
               type="submit"
+              variant="contained"
               disabled={isCreating}
-              className="inline-flex items-center gap-2 bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+              startIcon={
+                isCreating ? <CircularProgress size={16} color="inherit" /> : <SaveRoundedIcon />
+              }
             >
-              {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Create User
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowForm(false)}
-              className="border border-dash-border px-4 py-2.5 text-sm font-semibold text-dash-text"
-            >
+            </Button>
+            <Button variant="outlined" color="inherit" onClick={() => setShowForm(false)}>
               Cancel
-            </button>
-          </div>
-        </form>
+            </Button>
+          </Stack>
+        </Paper>
       ) : null}
 
-      {editingUser ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <form
-            onSubmit={handleEditSubmit}
-            className="dash-card w-full max-w-md space-y-4 p-5 sm:p-6"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-bold text-dash-text">Edit User</h2>
-                <p className="text-sm text-dash-muted">@{editingUser.username}</p>
-              </div>
-              <button
-                type="button"
-                onClick={closeEdit}
-                className="rounded-md p-1 text-dash-muted hover:bg-slate-100"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+      <Dialog open={Boolean(editingUser)} onClose={closeEdit} fullWidth maxWidth="sm">
+        <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+          <Box>
+            <Typography component="span" variant="h6" fontWeight={700} display="block">
+              Edit User
+            </Typography>
+            {editingUser ? (
+              <Typography variant="body2" color="text.secondary">
+                @{editingUser.username}
+              </Typography>
+            ) : null}
+          </Box>
+          <IconButton aria-label="Close" onClick={closeEdit} size="small">
+            <CloseRoundedIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
 
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-dash-muted">Display Name</label>
-              <input
-                type="text"
+        <Box component="form" onSubmit={handleEditSubmit}>
+          <DialogContent dividers>
+            <Stack spacing={2.5}>
+              <TextField
+                fullWidth
+                required
+                label="Display Name"
                 value={editForm.name}
                 onChange={(event) => setEditForm((prev) => ({ ...prev, name: event.target.value }))}
-                className={inputClass}
-                required
               />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-dash-muted">Role</label>
-              <select
-                value={editForm.role}
-                onChange={(event) => setEditForm((prev) => ({ ...prev, role: event.target.value }))}
-                className={inputClass}
-                disabled={editingUser.role === "super_admin"}
-              >
-                {ADMIN_ROLE_OPTIONS.map((role) => (
-                  <option key={role.value} value={role.value}>
-                    {role.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-dash-muted">
-                New Password (optional)
-              </label>
-              <input
+              <FormControl fullWidth disabled={editingUser?.role === "super_admin"}>
+                <InputLabel id="edit-user-role-label">Role</InputLabel>
+                <Select
+                  labelId="edit-user-role-label"
+                  label="Role"
+                  value={editForm.role}
+                  onChange={(event) => setEditForm((prev) => ({ ...prev, role: event.target.value }))}
+                >
+                  {ADMIN_ROLE_OPTIONS.map((role) => (
+                    <MenuItem key={role.value} value={role.value}>
+                      {role.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                fullWidth
                 type="password"
+                label="New Password (optional)"
+                placeholder="Leave blank to keep current password"
+                inputProps={{ minLength: 6 }}
                 value={editForm.password}
                 onChange={(event) => setEditForm((prev) => ({ ...prev, password: event.target.value }))}
-                className={inputClass}
-                placeholder="Leave blank to keep current password"
-                minLength={6}
               />
-            </div>
+            </Stack>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 2 }}>
+            <Button onClick={closeEdit} color="inherit">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isUpdating}
+              startIcon={
+                isUpdating ? <CircularProgress size={16} color="inherit" /> : <SaveRoundedIcon />
+              }
+            >
+              Save
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
 
-            <div className="flex gap-2 pt-1">
-              <button
-                type="submit"
-                disabled={isUpdating}
-                className="inline-flex items-center gap-2 bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
-              >
-                {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                Save
-              </button>
-              <button
-                type="button"
-                onClick={closeEdit}
-                className="border border-dash-border px-4 py-2.5 text-sm font-semibold text-dash-text"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      ) : null}
-
-      <div className="dash-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="border-b border-dash-border bg-slate-50 text-[11px] font-semibold tracking-wide text-dash-muted uppercase">
-              <tr>
-                <th className="px-4 py-3 text-left">User</th>
-                <th className="px-4 py-3 text-left">Role</th>
-                <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+      <Paper elevation={0} sx={{ overflow: "hidden", border: 1, borderColor: "divider" }}>
+        <Box sx={{ overflowX: "auto" }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>User</TableCell>
+                <TableCell>Role</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {sortedUsers.map((user) => {
                 const isSelf = auth?.userId === user._id;
                 return (
-                  <tr key={user._id} className="border-b border-dash-border last:border-b-0">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-indigo-50 text-indigo-600">
-                          <UserCog className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-dash-text">{user.name}</p>
-                          <p className="text-xs text-dash-muted">@{user.username}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-dash-text">{getRoleLabel(user.role)}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-md px-2 py-1 text-xs font-semibold ${
-                          user.active
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-slate-100 text-slate-500"
-                        }`}
-                      >
-                        {user.active ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          type="button"
-                          disabled={isUpdating}
-                          onClick={() => openEdit(user)}
-                          className="inline-flex items-center gap-1 rounded-md border border-dash-border px-3 py-1.5 text-xs font-semibold text-dash-text hover:bg-slate-50 disabled:opacity-50"
+                  <TableRow key={user._id} hover>
+                    <TableCell>
+                      <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Box
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 1,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            bgcolor: "primary.50",
+                            color: "primary.main",
+                          }}
                         >
-                          <Pencil className="h-3.5 w-3.5" />
+                          <ManageAccountsOutlinedIcon sx={{ fontSize: 18 }} />
+                        </Box>
+                        <Box>
+                          <Typography variant="body2" fontWeight={700}>
+                            {user.name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            @{user.username}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </TableCell>
+                    <TableCell>{getRoleLabel(user.role)}</TableCell>
+                    <TableCell>
+                      <Chip
+                        size="small"
+                        color={user.active ? "success" : "default"}
+                        label={user.active ? "Active" : "Inactive"}
+                      />
+                    </TableCell>
+                    <TableCell align="right">
+                      <Stack direction="row" spacing={1} justifyContent="flex-end" flexWrap="wrap" useFlexGap>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="inherit"
+                          disabled={isUpdating}
+                          startIcon={<EditOutlinedIcon />}
+                          onClick={() => openEdit(user)}
+                        >
                           Edit
-                        </button>
-                        <button
-                          type="button"
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="inherit"
                           disabled={isSelf || isUpdating}
                           onClick={() => toggleActive(user)}
-                          className="rounded-md border border-dash-border px-3 py-1.5 text-xs font-semibold text-dash-text hover:bg-slate-50 disabled:opacity-50"
                         >
                           {user.active ? "Deactivate" : "Activate"}
-                        </button>
-                        <button
-                          type="button"
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="error"
                           disabled={isSelf || isDeleting}
+                          startIcon={<DeleteOutlineRoundedIcon />}
                           onClick={() => handleDelete(user)}
-                          className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
                           Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                        </Button>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </Box>
+      </Paper>
 
-      <div className="rounded-md border border-dash-border bg-slate-50 px-4 py-3 text-xs text-dash-muted">
-        <p className="font-semibold text-dash-text">Role permissions</p>
-        <ul className="mt-2 space-y-1">
-          <li>Super Admin — full access + user management</li>
-          <li>Shop Manager — products, categories, customers</li>
-          <li>Moderator — orders only</li>
-        </ul>
-      </div>
-    </div>
+      <Alert severity="info" variant="outlined" icon={false}>
+        <Typography variant="body2" fontWeight={700} sx={{ mb: 0.5 }}>
+          Role permissions
+        </Typography>
+        <Typography variant="caption" component="div" color="text.secondary">
+          Super Admin — full access + user management
+        </Typography>
+        <Typography variant="caption" component="div" color="text.secondary">
+          Shop Manager — products, categories, customers
+        </Typography>
+        <Typography variant="caption" component="div" color="text.secondary">
+          Moderator — orders only
+        </Typography>
+      </Alert>
+    </Stack>
   );
 }

@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import OrdersManager from "@/components/dashboard/OrdersManager";
 import DashPageHeader from "@/components/dashboard/DashPageHeader";
 
@@ -10,8 +14,8 @@ export default function RepeatCustomerReport() {
   const phone = searchParams.get("phone") || "";
 
   return (
-    <div className="space-y-5">
-      <div className="dash-card p-5 sm:p-6">
+    <Stack spacing={2.5}>
+      <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3 }, border: 1, borderColor: "divider" }}>
         <DashPageHeader
           eyebrow="Reports"
           title="Repeat Customer Report"
@@ -22,17 +26,19 @@ export default function RepeatCustomerReport() {
           }
           animate={false}
           action={
-            <Link
+            <Button
+              component={Link}
               href="/dashboard/orders"
-              className="text-sm font-semibold text-indigo-600 transition-colors hover:text-indigo-700"
+              startIcon={<ArrowBackRoundedIcon />}
+              color="primary"
             >
               Back to Orders
-            </Link>
+            </Button>
           }
         />
-      </div>
+      </Paper>
 
       <OrdersManager initialSearch={phone} reportMode />
-    </div>
+    </Stack>
   );
 }

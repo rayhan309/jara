@@ -10,7 +10,7 @@ export function useSettingsEditor() {
 
   function save(partial, { onSuccess, successMessage = "Settings saved successfully" } = {}) {
     if (!settings) {
-      toast.error("Settings load হয়নি");
+      toast.error("Settings have not loaded yet");
       return;
     }
 

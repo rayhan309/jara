@@ -1,6 +1,11 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
+import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
 export default function TablePagination({
   page,
@@ -14,40 +19,58 @@ export default function TablePagination({
   const start = (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, totalItems);
 
-  const btnClass =
-    "inline-flex h-8 w-8 items-center justify-center rounded-md border border-dash-border bg-white text-dash-text transition-colors hover:border-indigo-200 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-40";
-
   return (
-    <div className="flex flex-col items-center justify-between gap-3 border-t border-dash-border bg-slate-50/50 px-4 py-3 sm:flex-row">
-      <p className="text-center text-xs text-dash-muted sm:text-left">
-        Showing <span className="font-semibold text-dash-text">{start}</span>–
-        <span className="font-semibold text-dash-text">{end}</span> of{" "}
-        <span className="font-semibold text-dash-text">{totalItems}</span>
-      </p>
+    <Stack
+      direction={{ xs: "column", sm: "row" }}
+      spacing={1.5}
+      sx={{
+        alignItems: "center",
+        justifyContent: "space-between",
+        borderTop: 1,
+        borderColor: "divider",
+        bgcolor: "grey.50",
+        px: 2,
+        py: 1.5,
+      }}
+    >
+      <Typography variant="caption" color="text.secondary" sx={{ textAlign: { xs: "center", sm: "left" } }}>
+        Showing{" "}
+        <Box component="span" fontWeight={700} color="text.primary">
+          {start}
+        </Box>
+        –
+        <Box component="span" fontWeight={700} color="text.primary">
+          {end}
+        </Box>{" "}
+        of{" "}
+        <Box component="span" fontWeight={700} color="text.primary">
+          {totalItems}
+        </Box>
+      </Typography>
 
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
+      <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+        <IconButton
           aria-label="Previous page"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          className={btnClass}
+          size="small"
+          sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}
         >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <span className="min-w-[88px] text-center text-xs font-semibold text-dash-text">
+          <ChevronLeftRoundedIcon fontSize="small" />
+        </IconButton>
+        <Typography variant="caption" fontWeight={700} sx={{ minWidth: 88, textAlign: "center" }}>
           Page {page} / {totalPages}
-        </span>
-        <button
-          type="button"
+        </Typography>
+        <IconButton
           aria-label="Next page"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
-          className={btnClass}
+          size="small"
+          sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}
         >
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
+          <ChevronRightRoundedIcon fontSize="small" />
+        </IconButton>
+      </Stack>
+    </Stack>
   );
 }

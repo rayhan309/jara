@@ -1,5 +1,8 @@
 "use client";
 
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
 import { motion } from "motion/react";
 
 export default function DashPageHeader({
@@ -7,33 +10,49 @@ export default function DashPageHeader({
   title,
   description,
   action,
-  className = "",
+  sx = {},
   animate = true,
 }) {
   const content = (
-    <div
-      className={`flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between ${className}`}
+    <Stack
+      direction={{ xs: "column", sm: "row" }}
+      spacing={2}
+      sx={{ alignItems: { sm: "center" }, justifyContent: "space-between", ...sx }}
     >
-      <div className="min-w-0">
+      <Box sx={{ minWidth: 0 }}>
         {eyebrow ? (
-          <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">
+          <Typography
+            variant="caption"
+            fontWeight={700}
+            color="primary"
+            sx={{ letterSpacing: "0.16em", textTransform: "uppercase" }}
+          >
             {eyebrow}
-          </p>
+          </Typography>
         ) : null}
-        <h1 className="text-xl font-bold tracking-tight text-dash-text sm:text-2xl">{title}</h1>
+        <Typography variant="h5" fontWeight={800} sx={{ letterSpacing: "-0.02em" }}>
+          {title}
+        </Typography>
         {description ? (
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-dash-muted">{description}</p>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75, maxWidth: 560, lineHeight: 1.6 }}>
+            {description}
+          </Typography>
         ) : null}
-      </div>
-      {action ? <div className="shrink-0 self-start sm:self-auto">{action}</div> : null}
-    </div>
+      </Box>
+      {action ? <Box sx={{ flexShrink: 0, alignSelf: { xs: "flex-start", sm: "auto" } }}>{action}</Box> : null}
+    </Stack>
   );
 
   if (!animate) return content;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28 }}>
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28 }}
+    >
       {content}
-    </motion.div>
+    </Box>
   );
 }

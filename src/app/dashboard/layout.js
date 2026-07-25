@@ -2,6 +2,7 @@ import AdminAuthGuard from "@/components/auth/AdminAuthGuard";
 import AdminRoleGuard from "@/components/auth/AdminRoleGuard";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import DashboardDataProvider from "@/components/providers/DashboardDataProvider";
+import DashboardMuiThemeProvider from "@/components/providers/DashboardMuiThemeProvider";
 import { getAdminSession } from "@/lib/adminAuthServer";
 import { getDashboardPrefetch } from "@/lib/dashboardPrefetch";
 import { getSiteSettings } from "@/lib/siteSettingsServer";
@@ -37,7 +38,7 @@ export default async function DashboardLayout({ children }) {
     : null;
 
   return (
-    <div className="font-dashboard">
+    <DashboardMuiThemeProvider>
       <AdminAuthGuard initialProfile={initialProfile}>
         <AdminRoleGuard>
           <DashboardDataProvider prefetch={prefetch}>
@@ -45,6 +46,6 @@ export default async function DashboardLayout({ children }) {
           </DashboardDataProvider>
         </AdminRoleGuard>
       </AdminAuthGuard>
-    </div>
+    </DashboardMuiThemeProvider>
   );
 }

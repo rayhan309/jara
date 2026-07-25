@@ -1,7 +1,14 @@
 "use client";
 
-import { Loader2, Save } from "lucide-react";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import DashPageHeader from "@/components/dashboard/DashPageHeader";
+import { settingsPaperSx } from "@/components/dashboard/settings/settingsShared";
 
 export default function SettingsPageShell({
   title,
@@ -16,42 +23,65 @@ export default function SettingsPageShell({
 }) {
   if (isLoading) {
     return (
-      <div className="dash-card flex min-h-[280px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-      </div>
+      <Paper
+        elevation={0}
+        sx={{
+          ...settingsPaperSx,
+          minHeight: 280,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress size={32} />
+      </Paper>
     );
   }
 
   if (isError) {
     return (
-      <div className="dash-card border-red-200 bg-red-50 p-6 text-center">
-        <p className="text-sm text-red-600">{error?.message || "Failed to load settings."}</p>
-        <button type="button" onClick={onRetry} className="mt-3 text-sm font-semibold text-indigo-600">
+      <Paper
+        elevation={0}
+        sx={{
+          ...settingsPaperSx,
+          borderColor: "error.light",
+          bgcolor: "error.50",
+          textAlign: "center",
+        }}
+      >
+        <Alert severity="error" sx={{ justifyContent: "center", bgcolor: "transparent" }}>
+          {error?.message || "Failed to load settings."}
+        </Alert>
+        <Button type="button" onClick={onRetry} sx={{ mt: 1.5 }}>
           Try again
-        </button>
-      </div>
+        </Button>
+      </Paper>
     );
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <DashPageHeader
-        eyebrow="Settings"
-        title={title}
-        description={description}
-        action={
-          <button
-            type="submit"
-            disabled={isPending}
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save
-          </button>
-        }
-      />
+    <Box component="form" onSubmit={onSubmit}>
+      <Stack spacing={3}>
+        <DashPageHeader
+          eyebrow="Settings"
+          title={title}
+          description={description}
+          action={
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isPending}
+              startIcon={
+                isPending ? <CircularProgress size={16} color="inherit" /> : <SaveRoundedIcon />
+              }
+            >
+              Save
+            </Button>
+          }
+        />
 
-      {children}
-    </form>
+        {children}
+      </Stack>
+    </Box>
   );
 }

@@ -2,9 +2,16 @@
 
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Paper from "@mui/material/Paper";
+import Switch from "@mui/material/Switch";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { DEFAULT_SETTINGS, normalizeMetaPixelId } from "@/lib/siteSettings";
 import SettingsPageShell from "@/components/dashboard/settings/SettingsPageShell";
-import { inputClass } from "@/components/dashboard/settings/settingsShared";
+import { settingsPaperSx, textFieldSize } from "@/components/dashboard/settings/settingsShared";
 import { useSettingsEditor } from "@/components/dashboard/settings/useSettingsEditor";
 
 export default function PixelSettings() {
@@ -23,7 +30,7 @@ export default function PixelSettings() {
 
     const cleanedPixelId = normalizeMetaPixelId(metaPixelId);
     if (metaPixelEnabled && cleanedPixelId.length < 10) {
-      toast.error("Meta Pixel ID সঠিক দিন (কমপক্ষে ১০ ডিজিট)");
+      toast.error("Enter a valid Meta Pixel ID (at least 10 digits)");
       return;
     }
 
@@ -33,10 +40,18 @@ export default function PixelSettings() {
     });
   }
 
+  const pixelReady = metaPixelEnabled && normalizeMetaPixelId(metaPixelId).length >= 10;
+  const statusSeverity = pixelReady ? "success" : metaPixelEnabled ? "warning" : "info";
+  const statusMessage = pixelReady
+    ? "Active — Meta Pixel will load on the storefront"
+    : metaPixelEnabled
+      ? "Enter a Pixel ID and click Save"
+      : "Pixel is off — tracking is disabled";
+
   return (
     <SettingsPageShell
       title="Meta Pixel"
-      description="Meta Events Manager থেকে Pixel ID দিন। Storefront-এ PageView, AddToCart, Purchase track হবে।"
+      description="Enter your Pixel ID from Meta Events Manager. The storefront will track PageView, AddToCart, and Purchase."
       onSubmit={handleSubmit}
       isPending={isPending}
       isLoading={isLoading}
@@ -44,46 +59,56 @@ export default function PixelSettings() {
       error={error}
       onRetry={refetch}
     >
-      <section className="dash-card p-5 sm:p-6">
-        <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-dash-muted">Pixel ID</label>
-            <input
-              type="text"
+      <Paper elevation={0} sx={settingsPaperSx}>
+        <Box
+          sx={{
+            display: "grid",
+            gap: 2,
+            gridTemplateColumns: { xs: "1fr", sm: "1fr auto" },
+            alignItems: { sm: "end" },
+          }}
+        >
+          <Box>
+            <TextField
+              label="Pixel ID"
+              size={textFieldSize}
+              fullWidth
               inputMode="numeric"
               value={metaPixelId}
               onChange={(event) => setMetaPixelId(event.target.value)}
               placeholder="1234567890123456"
-              className={`${inputClass} font-mono`}
+              sx={{ "& input": { fontFamily: "monospace" } }}
             />
-            <p className="mt-2 text-xs text-dash-muted">
-              Events Manager → Data Sources → আপনার Pixel → Settings → Pixel ID
-            </p>
-          </div>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+              Events Manager → Data Sources → Your Pixel → Settings → Pixel ID
+            </Typography>
+          </Box>
 
-          <label className="inline-flex h-fit items-center gap-2 rounded-md border border-dash-border bg-white px-3 py-2.5 text-xs font-semibold text-dash-text">
-            <input
-              type="checkbox"
-              checked={metaPixelEnabled}
-              onChange={(event) => setMetaPixelEnabled(event.target.checked)}
-              className="h-4 w-4 accent-indigo-600"
-            />
-            Pixel চালু করুন
-          </label>
-        </div>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={metaPixelEnabled}
+                onChange={(event) => setMetaPixelEnabled(event.target.checked)}
+              />
+            }
+            label="Enable Pixel"
+            sx={{
+              m: 0,
+              height: "fit-content",
+              px: 1.5,
+              py: 0.75,
+              border: 1,
+              borderColor: "divider",
+              borderRadius: 1,
+              bgcolor: "background.paper",
+            }}
+          />
+        </Box>
 
-        <div className="mt-4 rounded-md border border-dash-border bg-slate-50 px-4 py-3 text-xs text-dash-muted">
-          {metaPixelEnabled && normalizeMetaPixelId(metaPixelId).length >= 10 ? (
-            <span className="font-semibold text-emerald-700">
-              Active — storefront-এ Meta Pixel লোড হবে
-            </span>
-          ) : metaPixelEnabled ? (
-            <span className="font-semibold text-amber-700">Pixel ID দিন এবং Save চাপুন</span>
-          ) : (
-            <span>Pixel বন্ধ আছে — tracking হবে না</span>
-          )}
-        </div>
-      </section>
+        <Alert severity={statusSeverity} sx={{ mt: 2 }}>
+          {statusMessage}
+        </Alert>
+      </Paper>
     </SettingsPageShell>
   );
 }

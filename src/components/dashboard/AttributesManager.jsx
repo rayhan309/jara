@@ -2,9 +2,30 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { AnimatePresence, motion } from "motion/react";
-import { Loader2, Pencil, Plus, SlidersHorizontal, Trash2, X } from "lucide-react";
-import { FieldError } from "@/components/dashboard/DashboardFormUi";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
+import { CardActions, FieldError } from "@/components/dashboard/DashboardFormUi";
 import DashPageHeader from "@/components/dashboard/DashPageHeader";
 import { slugify } from "@/lib/slugify";
 import {
@@ -13,18 +34,6 @@ import {
   useProductAttributes,
   useUpdateProductAttribute,
 } from "@/hooks/useProductAttributes";
-import {
-  DesktopTable,
-  MobileCardList,
-  MobileDashCard,
-  MobileDashRow,
-  mobileDashModalClass,
-} from "@/components/shared/ResponsiveTable";
-
-const inputClass =
-  "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
-
-const labelClass = "mb-1.5 block text-sm font-semibold text-dash-text";
 
 const emptyValues = {
   name: "",
@@ -105,92 +114,79 @@ function AttributeFormModal({ open, onClose, attribute }) {
   }
 
   return (
-    <AnimatePresence>
-      {open ? (
-        <>
-          <motion.button
-            type="button"
-            aria-label="Close"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleClose}
-            className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm"
-          />
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            initial={{ opacity: 0, scale: 0.98, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: 16 }}
-            className={`${mobileDashModalClass} sm:max-w-lg`}
-          >
-            <div className="flex items-center justify-between border-b border-dash-border px-5 py-4">
-              <h2 className="text-lg font-bold text-dash-text">
-                {isEditing ? "Edit Attribute" : "New Attribute"}
-              </h2>
-              <button type="button" onClick={handleClose} className="flex h-8 w-8 items-center justify-center rounded-md text-dash-muted hover:bg-slate-100">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+      <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+        <Typography component="span" variant="h6" fontWeight={700}>
+          {isEditing ? "Edit Attribute" : "New Attribute"}
+        </Typography>
+        <IconButton aria-label="Close" onClick={handleClose} size="small" disabled={isPending}>
+          <CloseRoundedIcon fontSize="small" />
+        </IconButton>
+      </DialogTitle>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-5">
-              <div>
-                <label className={labelClass}>Name (English) *</label>
-                <input
-                  {...register("name", { required: "Name is required." })}
-                  placeholder="Size, Color, Weight..."
-                  className={inputClass}
-                />
-                <FieldError message={errors.name?.message} />
-              </div>
-              <div>
-                <label className={labelClass}>Name (Bangla)</label>
-                <input {...register("name_bn")} placeholder="সাইজ, রং, ওজন..." className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Slug</label>
-                <input
-                  {...register("slug")}
-                  onChange={(event) => {
-                    setSlugEdited(Boolean(event.target.value));
-                    setValue("slug", event.target.value);
-                  }}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className={labelClass}>Option Placeholder</label>
-                <input
-                  {...register("placeholder")}
-                  placeholder="S, M, L, XL"
-                  className={inputClass}
-                />
-                <p className="mt-1 text-[11px] text-dash-muted">Hint shown when adding product variants</p>
-              </div>
-              <div>
-                <label className={labelClass}>Sort Order</label>
-                <input type="number" min="0" {...register("sort_order")} className={inputClass} />
-              </div>
+      <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+        <DialogContent dividers>
+          <Stack spacing={2.5}>
+            <Box>
+              <TextField
+                fullWidth
+                label="Name (EN)"
+                required
+                placeholder="Size, Color, Weight..."
+                {...register("name", { required: "Name is required." })}
+                error={Boolean(errors.name)}
+              />
+              <FieldError message={errors.name?.message} />
+            </Box>
+            <TextField
+              fullWidth
+              label="Name (BN)"
+              placeholder="Size, Color, Weight..."
+              {...register("name_bn")}
+            />
+            <TextField
+              fullWidth
+              label="Slug"
+              {...register("slug")}
+              onChange={(event) => {
+                setSlugEdited(Boolean(event.target.value));
+                setValue("slug", event.target.value);
+              }}
+            />
+            <Box>
+              <TextField
+                fullWidth
+                label="Option Placeholder"
+                placeholder="S, M, L, XL"
+                {...register("placeholder")}
+              />
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+                Hint shown when adding product variants
+              </Typography>
+            </Box>
+            <TextField
+              fullWidth
+              type="number"
+              label="Sort Order"
+              inputProps={{ min: 0 }}
+              {...register("sort_order")}
+            />
 
-              {submitError ? (
-                <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">{submitError}</p>
-              ) : null}
+            {submitError ? <Alert severity="error">{submitError}</Alert> : null}
+          </Stack>
+        </DialogContent>
 
-              <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={handleClose} className="rounded-md border border-dash-border px-4 py-2.5 text-sm font-semibold text-dash-muted">
-                  Cancel
-                </button>
-                <button type="submit" disabled={isPending} className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60">
-                  {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {isEditing ? "Update" : "Create"}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </>
-      ) : null}
-    </AnimatePresence>
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button onClick={handleClose} disabled={isPending} color="inherit">
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" disabled={isPending}>
+            {isPending ? <CircularProgress size={18} color="inherit" sx={{ mr: 1 }} /> : null}
+            {isEditing ? "Update" : "Create"}
+          </Button>
+        </DialogActions>
+      </Box>
+    </Dialog>
   );
 }
 
@@ -205,135 +201,161 @@ export default function AttributesManager() {
     deleteAttribute(attribute._id);
   }
 
+  function openCreate() {
+    setEditingAttribute(null);
+    setModalOpen(true);
+  }
+
+  function openEdit(attribute) {
+    setEditingAttribute(attribute);
+    setModalOpen(true);
+  }
+
   return (
-    <div className="space-y-6">
+    <Stack spacing={3}>
       <DashPageHeader
         eyebrow="Catalog"
         title="Product Attributes"
         description="Create variation types like Size, Weight, Color — used in variable products."
         action={
-          <button
-            type="button"
-            onClick={() => {
-              setEditingAttribute(null);
-              setModalOpen(true);
-            }}
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
-          >
-            <Plus className="h-4 w-4" />
+          <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={openCreate}>
             Add Attribute
-          </button>
+          </Button>
         }
       />
 
       {isLoading ? (
-        <div className="dash-card flex min-h-[240px] items-center justify-center">
-          <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
-        </div>
+        <Paper
+          elevation={0}
+          sx={{
+            minHeight: 240,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: 1,
+            borderColor: "divider",
+          }}
+        >
+          <CircularProgress size={28} />
+        </Paper>
       ) : isError ? (
-        <div className="dash-card border-red-200 bg-red-50 p-6 text-center">
-          <p className="text-sm text-red-600">{error?.message || "Failed to load attributes."}</p>
-          <button type="button" onClick={() => refetch()} className="mt-3 text-sm font-semibold text-indigo-600">
+        <Paper elevation={0} sx={{ p: 3, border: 1, borderColor: "error.light", bgcolor: "error.50", textAlign: "center" }}>
+          <Typography variant="body2" color="error">
+            {error?.message || "Failed to load attributes."}
+          </Typography>
+          <Button onClick={() => refetch()} sx={{ mt: 1.5 }}>
             Try again
-          </button>
-        </div>
+          </Button>
+        </Paper>
       ) : attributes.length === 0 ? (
-        <div className="dash-card flex min-h-[240px] flex-col items-center justify-center p-10 text-center">
-          <SlidersHorizontal className="mb-4 h-10 w-10 text-indigo-600" />
-          <h2 className="text-lg font-bold text-dash-text">No attributes yet</h2>
-          <p className="mt-2 text-sm text-dash-muted">Create Size, Color, Weight or any custom variation type.</p>
-        </div>
+        <Paper
+          elevation={0}
+          sx={{
+            minHeight: 240,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            p: 5,
+            textAlign: "center",
+            border: 1,
+            borderColor: "divider",
+          }}
+        >
+          <TuneRoundedIcon sx={{ fontSize: 40, color: "primary.main", mb: 2 }} />
+          <Typography variant="h6" fontWeight={700}>
+            No attributes yet
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Create Size, Color, Weight or any custom variation type.
+          </Typography>
+        </Paper>
       ) : (
-        <div className="dash-card overflow-hidden">
-          <MobileCardList className="space-y-0 divide-y divide-dash-border p-0 lg:hidden">
+        <Paper elevation={0} sx={{ overflow: "hidden", border: 1, borderColor: "divider" }}>
+          <Box sx={{ display: { xs: "block", lg: "none" } }}>
             {attributes.map((attribute) => (
-              <div key={attribute._id} className="p-3.5">
-                <MobileDashCard className="border-0 p-0 shadow-none">
-                  <p className="font-semibold text-dash-text">{attribute.name}</p>
-                  <p className="text-xs text-slate-500">{attribute.name_bn}</p>
-                  <div className="mt-3 space-y-2 border-t border-dash-border pt-3">
-                    <MobileDashRow label="Slug" value={attribute.slug} />
-                    <MobileDashRow label="Placeholder" value={attribute.placeholder || "—"} />
-                  </div>
-                  <div className="mt-3 flex justify-end gap-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingAttribute(attribute);
-                        setModalOpen(true);
-                      }}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-indigo-600"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(attribute)}
-                      disabled={isDeleting && deletingId === attribute._id}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 hover:bg-red-50 hover:text-red-600"
-                    >
-                      {isDeleting && deletingId === attribute._id ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-3.5 w-3.5" />
-                      )}
-                    </button>
-                  </div>
-                </MobileDashCard>
-              </div>
+              <Box key={attribute._id} sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+                <Typography fontWeight={700}>{attribute.name}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {attribute.name_bn}
+                </Typography>
+                <Stack spacing={1} sx={{ mt: 1.5, pt: 1.5, borderTop: 1, borderColor: "divider" }}>
+                  <Stack direction="row" justifyContent="space-between" spacing={2}>
+                    <Typography variant="body2" color="text.secondary">
+                      Slug
+                    </Typography>
+                    <Typography variant="body2" fontWeight={600}>
+                      {attribute.slug}
+                    </Typography>
+                  </Stack>
+                  <Stack direction="row" justifyContent="space-between" spacing={2}>
+                    <Typography variant="body2" color="text.secondary">
+                      Placeholder
+                    </Typography>
+                    <Typography variant="body2" fontWeight={600}>
+                      {attribute.placeholder || "—"}
+                    </Typography>
+                  </Stack>
+                </Stack>
+                <CardActions
+                  onEdit={() => openEdit(attribute)}
+                  onDelete={() => handleDelete(attribute)}
+                  isDeleting={isDeleting && deletingId === attribute._id}
+                />
+              </Box>
             ))}
-          </MobileCardList>
+          </Box>
 
-          <DesktopTable>
-            <table className="min-w-full border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-dash-border bg-slate-50/90">
-                  <th className="px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Name</th>
-                  <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Bangla</th>
-                  <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Slug</th>
-                  <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Placeholder</th>
-                  <th className="px-4 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wide text-slate-500">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
+          <Box sx={{ display: { xs: "none", lg: "block" }, overflowX: "auto" }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name (EN)</TableCell>
+                  <TableCell>Name (BN)</TableCell>
+                  <TableCell>Slug</TableCell>
+                  <TableCell>Placeholder</TableCell>
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {attributes.map((attribute) => (
-                  <tr key={attribute._id} className="hover:bg-slate-50/70">
-                    <td className="px-5 py-2.5 font-medium text-dash-text">{attribute.name}</td>
-                    <td className="px-4 py-2.5 text-slate-600">{attribute.name_bn}</td>
-                    <td className="px-4 py-2.5 font-mono text-xs text-indigo-600">{attribute.slug}</td>
-                    <td className="px-4 py-2.5 text-slate-500">{attribute.placeholder || "—"}</td>
-                    <td className="px-4 py-2.5">
-                      <div className="flex justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingAttribute(attribute);
-                            setModalOpen(true);
-                          }}
-                          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-indigo-600"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(attribute)}
-                          disabled={isDeleting && deletingId === attribute._id}
-                          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-red-50 hover:text-red-600"
-                        >
-                          {isDeleting && deletingId === attribute._id ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-3.5 w-3.5" />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                  <TableRow key={attribute._id} hover>
+                    <TableCell sx={{ fontWeight: 600 }}>{attribute.name}</TableCell>
+                    <TableCell>{attribute.name_bn}</TableCell>
+                    <TableCell>
+                      <Typography variant="caption" fontFamily="monospace" color="primary">
+                        {attribute.slug}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ color: "text.secondary" }}>{attribute.placeholder || "—"}</TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        aria-label="Edit attribute"
+                        size="small"
+                        onClick={() => openEdit(attribute)}
+                      >
+                        <EditOutlinedIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        aria-label="Delete attribute"
+                        size="small"
+                        color="error"
+                        disabled={isDeleting && deletingId === attribute._id}
+                        onClick={() => handleDelete(attribute)}
+                      >
+                        {isDeleting && deletingId === attribute._id ? (
+                          <CircularProgress size={16} />
+                        ) : (
+                          <DeleteOutlineRoundedIcon fontSize="small" />
+                        )}
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </DesktopTable>
-        </div>
+              </TableBody>
+            </Table>
+          </Box>
+        </Paper>
       )}
 
       <AttributeFormModal
@@ -344,6 +366,6 @@ export default function AttributesManager() {
         }}
         attribute={editingAttribute}
       />
-    </div>
+    </Stack>
   );
 }

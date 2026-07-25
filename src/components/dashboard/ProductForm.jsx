@@ -5,7 +5,31 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { ArrowLeft, ImagePlus, Loader2, Star, Tag, Upload, X } from "lucide-react";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import CircularProgress from "@mui/material/CircularProgress";
+import FormControl from "@mui/material/FormControl";
+import IconButton from "@mui/material/IconButton";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Paper from "@mui/material/Paper";
+import Select from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
+import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
+import StarOutlineRoundedIcon from "@mui/icons-material/StarOutlineRounded";
 import { FieldError } from "@/components/dashboard/DashboardFormUi";
 import { calculateDiscountPercentage } from "@/lib/productHelpers";
 import { inferProductType, PRODUCT_TYPES } from "@/lib/productPricing";
@@ -19,11 +43,6 @@ import { useCategories } from "@/hooks/useCategories";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useProductAttributes } from "@/hooks/useProductAttributes";
 import { useCreateProduct, useUpdateProduct } from "@/hooks/useProducts";
-
-const inputClass =
-  "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
-
-const labelClass = "mb-1.5 block text-sm font-semibold text-dash-text";
 
 const emptyValues = {
   product_type: PRODUCT_TYPES.REGULAR,
@@ -46,44 +65,72 @@ const emptyValues = {
 
 function SectionTitle({ children, action }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
-      <h3 className="text-[11px] font-bold tracking-[0.14em] text-slate-500 uppercase">{children}</h3>
+    <Stack
+      direction="row"
+      alignItems="center"
+      justifyContent="space-between"
+      spacing={1.5}
+      sx={{ pb: 1.5, borderBottom: 1, borderColor: "divider" }}
+    >
+      <Typography
+        variant="caption"
+        fontWeight={700}
+        color="text.secondary"
+        sx={{ letterSpacing: "0.14em", textTransform: "uppercase" }}
+      >
+        {children}
+      </Typography>
       {action}
-    </div>
+    </Stack>
   );
 }
 
-function FormSection({ children, className = "" }) {
+function FormSection({ children }) {
   return (
-    <section className={`rounded-xl border border-slate-100/90 bg-slate-50/35 p-4 sm:p-5 ${className}`}>
+    <Paper elevation={0} sx={{ p: { xs: 2, sm: 2.5 }, border: 1, borderColor: "divider", bgcolor: "grey.50" }}>
       {children}
-    </section>
+    </Paper>
   );
 }
 
 function ProductTypeOption({ active, title, description, onClick }) {
   return (
-    <button
+    <Button
       type="button"
       onClick={onClick}
-      className={`rounded-xl border px-4 py-3.5 text-left transition-all ${
-        active
-          ? "border-indigo-300 bg-indigo-50/80 shadow-sm ring-2 ring-indigo-100"
-          : "border-slate-200 bg-white hover:border-indigo-200 hover:shadow-sm"
-      }`}
+      variant="outlined"
+      sx={{
+        p: 2,
+        height: "100%",
+        justifyContent: "flex-start",
+        textAlign: "left",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        borderColor: active ? "primary.main" : "divider",
+        bgcolor: active ? "primary.50" : "background.paper",
+        boxShadow: active ? 1 : 0,
+      }}
     >
-      <p className={`text-sm font-semibold ${active ? "text-indigo-700" : "text-dash-text"}`}>{title}</p>
-      <p className="mt-1 text-xs leading-relaxed text-slate-500">{description}</p>
-    </button>
+      <Typography variant="body2" fontWeight={700} color={active ? "primary.main" : "text.primary"}>
+        {title}
+      </Typography>
+      <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, whiteSpace: "normal" }}>
+        {description}
+      </Typography>
+    </Button>
   );
 }
 
 function VariantDiscount({ regularPrice, salePrice }) {
   const discount = calculateDiscountPercentage(regularPrice, salePrice);
   return (
-    <span className="inline-flex min-h-[42px] items-center rounded-md border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700">
-      {discount > 0 ? `${discount}% OFF` : "—"}
-    </span>
+    <Chip
+      size="small"
+      color={discount > 0 ? "success" : "default"}
+      variant="outlined"
+      label={discount > 0 ? `${discount}% OFF` : "—"}
+      sx={{ minHeight: 42, borderRadius: 1 }}
+    />
   );
 }
 
@@ -107,24 +154,33 @@ function TagsInput({ tags, onChange }) {
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex min-h-[42px] flex-wrap items-center gap-2 rounded-md border border-dash-border bg-white px-2 py-1.5 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100">
+    <Stack spacing={1}>
+      <Paper
+        elevation={0}
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: 1,
+          minHeight: 42,
+          px: 1,
+          py: 0.75,
+          border: 1,
+          borderColor: "divider",
+        }}
+      >
         {tags.map((tag) => (
-          <span
+          <Chip
             key={tag}
-            className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700"
-          >
-            {tag}
-            <button
-              type="button"
-              onClick={() => onChange(tags.filter((entry) => entry !== tag))}
-              className="text-indigo-400 hover:text-indigo-700"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </span>
+            size="small"
+            label={tag}
+            color="primary"
+            variant="outlined"
+            onDelete={() => onChange(tags.filter((entry) => entry !== tag))}
+            deleteIcon={<CloseRoundedIcon />}
+          />
         ))}
-        <input
+        <TextField
           value={input}
           onChange={(event) => setInput(event.target.value)}
           onKeyDown={handleKeyDown}
@@ -135,11 +191,15 @@ function TagsInput({ tags, onChange }) {
             }
           }}
           placeholder={tags.length ? "Add another tag..." : "Type and press Enter"}
-          className="min-w-[120px] flex-1 border-0 bg-transparent px-1 py-1 text-sm outline-none placeholder:text-slate-400"
+          variant="standard"
+          InputProps={{ disableUnderline: true }}
+          sx={{ minWidth: 120, flex: 1 }}
         />
-      </div>
-      <p className="text-[11px] text-dash-muted">Press Enter or comma to add tags</p>
-    </div>
+      </Paper>
+      <Typography variant="caption" color="text.secondary">
+        Press Enter or comma to add tags
+      </Typography>
+    </Stack>
   );
 }
 
@@ -164,89 +224,129 @@ function ProductImagesPanel({
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <Stack spacing={3}>
+      <Box>
         <SectionTitle>Product Image</SectionTitle>
-        <p className="mt-3 text-xs leading-relaxed text-slate-500">
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 1.5, display: "block", lineHeight: 1.6 }}>
           Main image shown in catalog and product page.
-        </p>
-        <div className="mt-4">
+        </Typography>
+        <Box sx={{ mt: 2 }}>
           {featured ? (
-            <div className="relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shadow-sm">
-              <Image src={featured.url} alt="Featured product" fill unoptimized className="object-cover" />
-              <button
-                type="button"
+            <Box
+              sx={{
+                position: "relative",
+                aspectRatio: "1 / 1",
+                overflow: "hidden",
+                borderRadius: 1,
+                border: 1,
+                borderColor: "divider",
+                bgcolor: "grey.100",
+              }}
+            >
+              <Image src={featured.url} alt="Featured product" fill unoptimized style={{ objectFit: "cover" }} />
+              <IconButton
+                size="small"
                 onClick={() => removeItem(featured)}
-                className="absolute top-2.5 right-2.5 flex h-8 w-8 items-center justify-center rounded-lg bg-white/95 text-red-600 shadow-md transition-colors hover:bg-white"
+                sx={{ position: "absolute", top: 8, right: 8, bgcolor: "background.paper", "&:hover": { bgcolor: "background.paper" } }}
               >
-                <X className="h-4 w-4" />
-              </button>
-              <span className="absolute bottom-2.5 left-2.5 rounded-md bg-black/55 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-white uppercase">
-                Featured
-              </span>
-            </div>
+                <CloseRoundedIcon fontSize="small" color="error" />
+              </IconButton>
+              <Chip
+                size="small"
+                label="Featured"
+                sx={{ position: "absolute", bottom: 8, left: 8, bgcolor: "rgba(0,0,0,0.55)", color: "common.white" }}
+              />
+            </Box>
           ) : (
-            <button
+            <Button
               type="button"
               onClick={onUploadClick}
-              className="flex aspect-square w-full flex-col items-center justify-center gap-2.5 rounded-xl border-2 border-dashed border-indigo-200/80 bg-indigo-50/50 transition-colors hover:border-indigo-300 hover:bg-indigo-50"
+              variant="outlined"
+              fullWidth
+              sx={{
+                aspectRatio: "1 / 1",
+                borderStyle: "dashed",
+                flexDirection: "column",
+                gap: 1,
+              }}
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-indigo-600 shadow-sm">
-                <ImagePlus className="h-5 w-5" />
-              </span>
-              <span className="text-sm font-semibold text-dash-text">Upload main image</span>
-              <span className="text-[11px] text-slate-500">PNG, JPG up to 10MB</span>
-            </button>
+              <AddPhotoAlternateOutlinedIcon color="primary" />
+              <Typography variant="body2" fontWeight={700} color="text.primary">
+                Upload main image
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                PNG, JPG up to 10MB
+              </Typography>
+            </Button>
           )}
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <div className="border-t border-slate-100 pt-6">
+      <Box sx={{ pt: 3, borderTop: 1, borderColor: "divider" }}>
         <SectionTitle
           action={
-            <button
-              type="button"
-              onClick={onUploadClick}
-              className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
-            >
+            <Button size="small" onClick={onUploadClick}>
               + Add
-            </button>
+            </Button>
           }
         >
           Product Gallery
         </SectionTitle>
-        <p className="mt-3 text-xs leading-relaxed text-slate-500">
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 1.5, display: "block", lineHeight: 1.6 }}>
           Additional photos for the product detail page.
-        </p>
-        <div className="mt-4 grid grid-cols-2 gap-2.5">
+        </Typography>
+        <Box
+          sx={{
+            mt: 2,
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: 1.25,
+          }}
+        >
           {gallery.map((item) => (
-            <div
+            <Box
               key={`${item.kind}-${item.index}-${item.url}`}
-              className="relative aspect-square overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm"
+              sx={{
+                position: "relative",
+                aspectRatio: "1 / 1",
+                overflow: "hidden",
+                borderRadius: 1,
+                border: 1,
+                borderColor: "divider",
+                bgcolor: "grey.100",
+              }}
             >
-              <Image src={item.url} alt="" fill unoptimized className="object-cover" />
-              <button
-                type="button"
+              <Image src={item.url} alt="" fill unoptimized style={{ objectFit: "cover" }} />
+              <IconButton
+                size="small"
                 onClick={() => removeItem(item)}
-                className="absolute top-1.5 right-1.5 flex h-7 w-7 items-center justify-center rounded-md bg-white/95 text-red-600 shadow"
+                sx={{ position: "absolute", top: 6, right: 6, bgcolor: "background.paper", "&:hover": { bgcolor: "background.paper" } }}
               >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
+                <CloseRoundedIcon sx={{ fontSize: 16 }} color="error" />
+              </IconButton>
+            </Box>
           ))}
-          <button
+          <Button
             type="button"
             onClick={onUploadClick}
-            className={`flex flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 transition-colors hover:border-indigo-200 hover:bg-indigo-50/40 hover:text-indigo-600 ${
-              gallery.length ? "aspect-square" : "col-span-2 min-h-[108px]"
-            }`}
+            variant="outlined"
+            sx={{
+              borderStyle: "dashed",
+              flexDirection: "column",
+              gap: 0.5,
+              aspectRatio: gallery.length ? "1 / 1" : "auto",
+              gridColumn: gallery.length ? "auto" : "1 / -1",
+              minHeight: gallery.length ? undefined : 108,
+            }}
           >
-            <ImagePlus className="h-5 w-5" />
-            <span className="text-xs font-medium">Add gallery images</span>
-          </button>
-        </div>
-      </div>
-    </div>
+            <AddPhotoAlternateOutlinedIcon fontSize="small" />
+            <Typography variant="caption" fontWeight={600}>
+              Add gallery images
+            </Typography>
+          </Button>
+        </Box>
+      </Box>
+    </Stack>
   );
 }
 
@@ -290,6 +390,7 @@ export default function ProductForm({ product = null }) {
   const quantity = watch("quantity");
   const titleEnValue = watch("title_en");
   const titleBnValue = watch("title_bn");
+  const categoryValue = watch("category");
   const isVariable = productType === PRODUCT_TYPES.VARIABLE;
 
   const selectedAttribute = useMemo(
@@ -307,8 +408,8 @@ export default function ProductForm({ product = null }) {
     [regularPrice, salePrice]
   );
 
-  const titleBnField = register("title_bn", { required: "পণ্যের নাম লিখুন।" });
-  const titleEnField = register("title_en", { required: "English title is required." });
+  const titleBnField = register("title_bn", { required: "Title (BN) is required." });
+  const titleEnField = register("title_en", { required: "Title (EN) is required." });
   const categoryField = register("category", { required: "Please select a category." });
   const regularPriceField = register("regular_price", {
     validate: (value, formValues) => {
@@ -580,407 +681,580 @@ export default function ProductForm({ product = null }) {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
-          <Link
+    <Box sx={{ mx: "auto", maxWidth: 1280 }}>
+      <Stack spacing={3}>
+        <Stack direction="row" spacing={1.5} alignItems="flex-start">
+          <IconButton
+            component={Link}
             href="/dashboard/products"
-            className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-dash-border bg-white text-dash-muted shadow-sm transition-colors hover:border-indigo-200 hover:text-indigo-600"
+            aria-label="Back to products"
+            sx={{ mt: 0.5, border: 1, borderColor: "divider" }}
           >
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-          <div>
-            <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">
+            <ArrowBackRoundedIcon fontSize="small" />
+          </IconButton>
+          <Box>
+            <Typography
+              variant="caption"
+              fontWeight={700}
+              color="primary"
+              sx={{ letterSpacing: "0.16em", textTransform: "uppercase" }}
+            >
               {isEditing ? "Edit Product" : "New Product"}
-            </p>
-            <h1 className="text-xl font-bold text-dash-text sm:text-2xl">
+            </Typography>
+            <Typography variant="h5" fontWeight={800}>
               {isEditing ? "Update Product" : "Add Product"}
-            </h1>
-            <p className="mt-1 text-sm text-slate-500">
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
               Fill in product details, pricing, and media.
-            </p>
-          </div>
-        </div>
-      </div>
+            </Typography>
+          </Box>
+        </Stack>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImagesChange} className="hidden" />
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImagesChange}
+            hidden
+          />
 
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="dash-card min-w-0 overflow-hidden">
-            <div className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-5 py-3.5 sm:px-6">
-              <p className="text-[11px] font-bold tracking-[0.14em] text-slate-500 uppercase">Details</p>
-            </div>
-            <div className="space-y-5 p-5 sm:p-6">
-              <FormSection>
-                <div className="space-y-4">
-                  <SectionTitle>Basic Information</SectionTitle>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="sm:col-span-2">
-                      <label htmlFor="title-bn" className={labelClass}>
-                        পণ্যের নাম <span className="text-red-500">*</span>
-                      </label>
-                      <input id="title-bn" {...titleBnField} className={inputClass} />
-                      <FieldError message={errors.title_bn?.message} />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label htmlFor="title-en" className={labelClass}>
-                        English Title <span className="text-red-500">*</span>
-                      </label>
-                      <input id="title-en" {...titleEnField} className={inputClass} />
-                      <FieldError message={errors.title_en?.message} />
-                    </div>
-                    <div>
-                      <label htmlFor="slug" className={labelClass}>Slug (auto)</label>
-                      <input
+          <Box
+            sx={{
+              display: "grid",
+              gap: 3,
+              alignItems: "start",
+              gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 1fr) 360px" },
+            }}
+          >
+            <Paper elevation={0} sx={{ overflow: "hidden", border: 1, borderColor: "divider", minWidth: 0 }}>
+              <Box sx={{ px: { xs: 2.5, sm: 3 }, py: 1.75, borderBottom: 1, borderColor: "divider", bgcolor: "grey.50" }}>
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  color="text.secondary"
+                  sx={{ letterSpacing: "0.14em", textTransform: "uppercase" }}
+                >
+                  Details
+                </Typography>
+              </Box>
+
+              <Stack spacing={2.5} sx={{ p: { xs: 2.5, sm: 3 } }}>
+                <FormSection>
+                  <Stack spacing={2}>
+                    <SectionTitle>Basic Information</SectionTitle>
+                    <Box
+                      sx={{
+                        display: "grid",
+                        gap: 2,
+                        gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                      }}
+                    >
+                      <Box sx={{ gridColumn: { sm: "1 / -1" } }}>
+                        <TextField
+                          id="title-bn"
+                          fullWidth
+                          label="Title (BN)"
+                          required
+                          {...titleBnField}
+                          error={Boolean(errors.title_bn)}
+                        />
+                        <FieldError message={errors.title_bn?.message} />
+                      </Box>
+                      <Box sx={{ gridColumn: { sm: "1 / -1" } }}>
+                        <TextField
+                          id="title-en"
+                          fullWidth
+                          label="Title (EN)"
+                          required
+                          {...titleEnField}
+                          error={Boolean(errors.title_en)}
+                        />
+                        <FieldError message={errors.title_en?.message} />
+                      </Box>
+                      <TextField
                         id="slug"
+                        fullWidth
+                        label="Slug (auto)"
                         {...register("slug")}
                         onChange={(event) => {
                           setSlugEdited(Boolean(event.target.value));
                           setValue("slug", event.target.value);
                         }}
-                        className={inputClass}
                       />
-                    </div>
-                    <div>
-                      <label htmlFor="brand" className={labelClass}>Brand / Vendor</label>
-                      <input id="brand" {...register("brand_or_vendor")} className={inputClass} />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label htmlFor="description" className={labelClass}>Description</label>
-                      <textarea id="description" rows={4} {...register("description")} className={`${inputClass} resize-none`} />
-                    </div>
-                  </div>
-                </div>
-              </FormSection>
+                      <TextField
+                        id="brand"
+                        fullWidth
+                        label="Brand / Vendor"
+                        {...register("brand_or_vendor")}
+                      />
+                      <Box sx={{ gridColumn: { sm: "1 / -1" } }}>
+                        <TextField
+                          id="description"
+                          fullWidth
+                          multiline
+                          minRows={4}
+                          label="Description"
+                          {...register("description")}
+                        />
+                      </Box>
+                    </Box>
+                  </Stack>
+                </FormSection>
 
-              <FormSection>
-                <div className="space-y-4">
-                  <SectionTitle>Product Type</SectionTitle>
-                  <input type="hidden" {...register("product_type")} />
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <ProductTypeOption
-                      active={productType === PRODUCT_TYPES.REGULAR}
-                      title="Regular Product"
-                      description="Single price and stock for the whole product."
-                      onClick={() => handleProductTypeChange(PRODUCT_TYPES.REGULAR)}
-                    />
-                    <ProductTypeOption
-                      active={productType === PRODUCT_TYPES.VARIABLE}
-                      title="Variable Product"
-                      description="Different price and stock per variant."
-                      onClick={() => handleProductTypeChange(PRODUCT_TYPES.VARIABLE)}
-                    />
-                  </div>
-                </div>
-              </FormSection>
-
-              {!isVariable ? (
                 <FormSection>
-                  <div className="space-y-4">
-                    <SectionTitle>Pricing & Inventory</SectionTitle>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      <div>
-                        <label htmlFor="regular-price" className={labelClass}>
-                          Regular Price (BDT) <span className="text-red-500">*</span>
-                        </label>
-                        <input id="regular-price" type="number" min="1" {...regularPriceField} className={inputClass} />
-                        <FieldError message={errors.regular_price?.message} />
-                      </div>
-                      <div>
-                        <label htmlFor="sale-price" className={labelClass}>
-                          Sale Price (BDT) <span className="text-red-500">*</span>
-                        </label>
-                        <input id="sale-price" type="number" min="1" {...salePriceField} className={inputClass} />
-                        <FieldError message={errors.sale_price?.message} />
-                      </div>
-                      <div>
-                        <label className={labelClass}>Discount</label>
-                        <div className="flex h-[42px] items-center rounded-md border border-emerald-200 bg-emerald-50 px-3 text-sm font-semibold text-emerald-700">
-                          {discountPreview > 0 ? `${discountPreview}% OFF` : "—"}
-                        </div>
-                      </div>
-                      <div>
-                        <label htmlFor="quantity" className={labelClass}>Stock Quantity</label>
-                        <input
+                  <Stack spacing={2}>
+                    <SectionTitle>Product Type</SectionTitle>
+                    <input type="hidden" {...register("product_type")} />
+                    <Box
+                      sx={{
+                        display: "grid",
+                        gap: 1.5,
+                        gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                      }}
+                    >
+                      <ProductTypeOption
+                        active={productType === PRODUCT_TYPES.REGULAR}
+                        title="Regular Product"
+                        description="Single price and stock for the whole product."
+                        onClick={() => handleProductTypeChange(PRODUCT_TYPES.REGULAR)}
+                      />
+                      <ProductTypeOption
+                        active={productType === PRODUCT_TYPES.VARIABLE}
+                        title="Variable Product"
+                        description="Different price and stock per variant."
+                        onClick={() => handleProductTypeChange(PRODUCT_TYPES.VARIABLE)}
+                      />
+                    </Box>
+                  </Stack>
+                </FormSection>
+
+                {!isVariable ? (
+                  <FormSection>
+                    <Stack spacing={2}>
+                      <SectionTitle>Pricing & Inventory</SectionTitle>
+                      <Box
+                        sx={{
+                          display: "grid",
+                          gap: 2,
+                          gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "1fr 1fr 1fr" },
+                        }}
+                      >
+                        <Box>
+                          <TextField
+                            id="regular-price"
+                            fullWidth
+                            type="number"
+                            label="Regular Price (৳)"
+                            required
+                            inputProps={{ min: 1 }}
+                            {...regularPriceField}
+                            error={Boolean(errors.regular_price)}
+                          />
+                          <FieldError message={errors.regular_price?.message} />
+                        </Box>
+                        <Box>
+                          <TextField
+                            id="sale-price"
+                            fullWidth
+                            type="number"
+                            label="Sale Price (৳)"
+                            required
+                            inputProps={{ min: 1 }}
+                            {...salePriceField}
+                            error={Boolean(errors.sale_price)}
+                          />
+                          <FieldError message={errors.sale_price?.message} />
+                        </Box>
+                        <Box>
+                          <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+                            Discount
+                          </Typography>
+                          <Chip
+                            color={discountPreview > 0 ? "success" : "default"}
+                            variant="outlined"
+                            label={discountPreview > 0 ? `${discountPreview}% OFF` : "—"}
+                            sx={{ height: 40, width: "100%", borderRadius: 1 }}
+                          />
+                        </Box>
+                        <TextField
                           id="quantity"
+                          fullWidth
                           type="number"
-                          min="0"
+                          label="Stock Quantity"
+                          inputProps={{ min: 0 }}
                           disabled={stockStatus !== "stock"}
                           {...register("quantity")}
-                          className={`${inputClass} disabled:cursor-not-allowed disabled:bg-slate-50`}
                         />
-                      </div>
-                      <div>
-                        <label htmlFor="stock-status" className={labelClass}>Stock Status</label>
-                        <select id="stock-status" {...register("stock_status")} className={inputClass}>
-                          {VARIANT_STOCK_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>{option.label}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </FormSection>
-              ) : (
-                <FormSection>
-                  <div className="space-y-4">
-                    <SectionTitle
-                      action={
-                        <Link
-                          href="/dashboard/products/attributes"
-                          className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
-                        >
-                          Manage attributes →
-                        </Link>
-                      }
-                    >
-                      Variable Pricing & Inventory
-                    </SectionTitle>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div>
-                        <label htmlFor="variant-type" className={labelClass}>
-                          Attribute <span className="text-red-500">*</span>
-                        </label>
-                        <select id="variant-type" {...register("variant_type", { required: isVariable })} className={inputClass}>
-                          <option value="">Select attribute</option>
-                          {productAttributes.map((attribute) => (
-                            <option key={attribute._id} value={attribute.slug}>
-                              {attribute.name} ({attribute.name_bn})
-                            </option>
-                          ))}
-                        </select>
-                        {!productAttributes.length ? (
-                          <p className="mt-1 text-xs text-amber-600">
-                            No attributes yet.{" "}
-                            <Link href="/dashboard/products/attributes" className="font-semibold underline">
-                              Create one
-                            </Link>
-                          </p>
-                        ) : null}
-                      </div>
-                      <div>
-                        <label htmlFor="variant-options" className={labelClass}>
-                          {selectedAttribute?.name || "Variant"} Options <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          id="variant-options"
-                          {...register("variant_options", {
-                            validate: (value) => {
-                              if (!isVariable) return true;
-                              return value.trim().length > 0 || "Add comma separated options.";
-                            },
-                          })}
-                          placeholder={selectedAttribute?.placeholder || "Option 1, Option 2"}
-                          disabled={!variantType}
-                          className={`${inputClass} disabled:cursor-not-allowed disabled:bg-slate-50`}
-                        />
-                        <FieldError message={errors.variant_options?.message} />
-                        <p className="mt-1 text-[11px] text-dash-muted">Comma separated values</p>
-                      </div>
-                    </div>
-
-                    {variantStock.length > 0 ? (
-                      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-                        <table className="min-w-full border-collapse text-left text-sm">
-                          <thead>
-                            <tr className="border-b border-slate-100 bg-slate-50/90">
-                              <th className="px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Variant</th>
-                              <th className="px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Regular</th>
-                              <th className="px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Sale</th>
-                              <th className="px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Discount</th>
-                              <th className="px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Status</th>
-                              <th className="px-3 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Qty</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100">
-                            {variantStock.map((entry) => (
-                              <tr key={entry.option}>
-                                <td className="px-3 py-3 font-semibold text-dash-text">{entry.option}</td>
-                                <td className="px-3 py-3">
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    value={entry.regular_price ?? ""}
-                                    onChange={(event) =>
-                                      updateVariantEntry(entry.option, { regular_price: event.target.value })
-                                    }
-                                    className={inputClass}
-                                  />
-                                </td>
-                                <td className="px-3 py-3">
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    value={entry.sale_price ?? ""}
-                                    onChange={(event) =>
-                                      updateVariantEntry(entry.option, { sale_price: event.target.value })
-                                    }
-                                    className={inputClass}
-                                  />
-                                </td>
-                                <td className="px-3 py-3">
-                                  <VariantDiscount regularPrice={entry.regular_price} salePrice={entry.sale_price} />
-                                </td>
-                                <td className="px-3 py-3">
-                                  <select
-                                    value={entry.stock_status}
-                                    onChange={(event) => {
-                                      const nextStatus = event.target.value;
-                                      updateVariantEntry(entry.option, {
-                                        stock_status: nextStatus,
-                                        quantity: nextStatus === "stock" ? entry.quantity || 0 : 0,
-                                      });
-                                    }}
-                                    className={inputClass}
-                                  >
-                                    {VARIANT_STOCK_OPTIONS.map((option) => (
-                                      <option key={option.value} value={option.value}>{option.label}</option>
-                                    ))}
-                                  </select>
-                                </td>
-                                <td className="px-3 py-3">
-                                  {entry.stock_status === "stock" ? (
-                                    <input
-                                      type="number"
-                                      min="0"
-                                      value={entry.quantity}
-                                      onChange={(event) =>
-                                        updateVariantEntry(entry.option, {
-                                          quantity: Math.max(0, Number(event.target.value) || 0),
-                                        })
-                                      }
-                                      className={inputClass}
-                                    />
-                                  ) : (
-                                    <span className="text-xs text-dash-muted">—</span>
-                                  )}
-                                </td>
-                              </tr>
+                        <FormControl fullWidth size="small">
+                          <InputLabel id="stock-status-label">Stock Status</InputLabel>
+                          <Select
+                            labelId="stock-status-label"
+                            id="stock-status"
+                            label="Stock Status"
+                            value={stockStatus || "in_stock"}
+                            onChange={(event) => setValue("stock_status", event.target.value)}
+                          >
+                            {VARIANT_STOCK_OPTIONS.map((option) => (
+                              <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                              </MenuItem>
                             ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ) : (
-                      <p className="rounded-lg border border-dashed border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-500">
-                        Select an attribute and add options to configure per-variant pricing.
-                      </p>
-                    )}
-                  </div>
-                </FormSection>
-              )}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                    </Stack>
+                  </FormSection>
+                ) : (
+                  <FormSection>
+                    <Stack spacing={2}>
+                      <SectionTitle
+                        action={
+                          <Button component={Link} href="/dashboard/products/attributes" size="small">
+                            Manage attributes →
+                          </Button>
+                        }
+                      >
+                        Variable Pricing & Inventory
+                      </SectionTitle>
 
-              {submitError ? (
-                <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-600">{submitError}</p>
-              ) : null}
-            </div>
-          </div>
+                      <Box
+                        sx={{
+                          display: "grid",
+                          gap: 2,
+                          gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                        }}
+                      >
+                        <Box>
+                          <FormControl fullWidth size="small" required>
+                            <InputLabel id="variant-type-label">Attribute</InputLabel>
+                            <Select
+                              labelId="variant-type-label"
+                              id="variant-type"
+                              label="Attribute"
+                              value={variantType || ""}
+                              onChange={(event) => setValue("variant_type", event.target.value, { shouldValidate: true })}
+                            >
+                              <MenuItem value="">
+                                <em>Select attribute</em>
+                              </MenuItem>
+                              {productAttributes.map((attribute) => (
+                                <MenuItem key={attribute._id} value={attribute.slug}>
+                                  {attribute.name} ({attribute.name_bn})
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          {!productAttributes.length ? (
+                            <Typography variant="caption" color="warning.main" sx={{ mt: 0.75, display: "block" }}>
+                              No attributes yet.{" "}
+                              <Box component={Link} href="/dashboard/products/attributes" sx={{ fontWeight: 700, textDecoration: "underline", color: "inherit" }}>
+                                Create one
+                              </Box>
+                            </Typography>
+                          ) : null}
+                        </Box>
+                        <Box>
+                          <TextField
+                            id="variant-options"
+                            fullWidth
+                            required
+                            label={`${selectedAttribute?.name || "Variant"} Options`}
+                            placeholder={selectedAttribute?.placeholder || "Option 1, Option 2"}
+                            disabled={!variantType}
+                            {...register("variant_options", {
+                              validate: (value) => {
+                                if (!isVariable) return true;
+                                return value.trim().length > 0 || "Add comma separated options.";
+                              },
+                            })}
+                            error={Boolean(errors.variant_options)}
+                          />
+                          <FieldError message={errors.variant_options?.message} />
+                          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+                            Comma separated values
+                          </Typography>
+                        </Box>
+                      </Box>
 
-          <aside className="dash-card self-start overflow-hidden lg:sticky lg:top-[88px]">
-            <div className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-5 py-3.5 sm:px-6">
-              <p className="text-[11px] font-bold tracking-[0.14em] text-slate-500 uppercase">Media & Organization</p>
-            </div>
-            <div className="p-5 sm:p-6">
-              <ProductImagesPanel
-                existingImages={existingImages}
-                imagePreviews={imagePreviews}
-                onUploadClick={() => fileInputRef.current?.click()}
-                onRemoveExisting={removeExistingImage}
-                onRemoveNew={removeNewImage}
-              />
+                      {variantStock.length > 0 ? (
+                        <Paper elevation={0} sx={{ overflowX: "auto", border: 1, borderColor: "divider" }}>
+                          <Table size="small">
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>Variant</TableCell>
+                                <TableCell>Regular</TableCell>
+                                <TableCell>Sale</TableCell>
+                                <TableCell>Discount</TableCell>
+                                <TableCell>Status</TableCell>
+                                <TableCell>Qty</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {variantStock.map((entry) => (
+                                <TableRow key={entry.option}>
+                                  <TableCell sx={{ fontWeight: 700 }}>{entry.option}</TableCell>
+                                  <TableCell>
+                                    <TextField
+                                      type="number"
+                                      size="small"
+                                      inputProps={{ min: 1 }}
+                                      value={entry.regular_price ?? ""}
+                                      onChange={(event) =>
+                                        updateVariantEntry(entry.option, { regular_price: event.target.value })
+                                      }
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <TextField
+                                      type="number"
+                                      size="small"
+                                      inputProps={{ min: 1 }}
+                                      value={entry.sale_price ?? ""}
+                                      onChange={(event) =>
+                                        updateVariantEntry(entry.option, { sale_price: event.target.value })
+                                      }
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <VariantDiscount regularPrice={entry.regular_price} salePrice={entry.sale_price} />
+                                  </TableCell>
+                                  <TableCell>
+                                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                                      <Select
+                                        value={entry.stock_status}
+                                        onChange={(event) => {
+                                          const nextStatus = event.target.value;
+                                          updateVariantEntry(entry.option, {
+                                            stock_status: nextStatus,
+                                            quantity: nextStatus === "stock" ? entry.quantity || 0 : 0,
+                                          });
+                                        }}
+                                      >
+                                        {VARIANT_STOCK_OPTIONS.map((option) => (
+                                          <MenuItem key={option.value} value={option.value}>
+                                            {option.label}
+                                          </MenuItem>
+                                        ))}
+                                      </Select>
+                                    </FormControl>
+                                  </TableCell>
+                                  <TableCell>
+                                    {entry.stock_status === "stock" ? (
+                                      <TextField
+                                        type="number"
+                                        size="small"
+                                        inputProps={{ min: 0 }}
+                                        value={entry.quantity}
+                                        onChange={(event) =>
+                                          updateVariantEntry(entry.option, {
+                                            quantity: Math.max(0, Number(event.target.value) || 0),
+                                          })
+                                        }
+                                      />
+                                    ) : (
+                                      <Typography variant="caption" color="text.secondary">
+                                        —
+                                      </Typography>
+                                    )}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </Paper>
+                      ) : (
+                        <Paper
+                          elevation={0}
+                          sx={{
+                            px: 2,
+                            py: 4,
+                            textAlign: "center",
+                            border: 1,
+                            borderStyle: "dashed",
+                            borderColor: "divider",
+                          }}
+                        >
+                          <Typography variant="body2" color="text.secondary">
+                            Select an attribute and add options to configure per-variant pricing.
+                          </Typography>
+                        </Paper>
+                      )}
+                    </Stack>
+                  </FormSection>
+                )}
 
-              <div className="mt-6 space-y-4 border-t border-slate-100 pt-6">
-                <SectionTitle>Organization</SectionTitle>
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="category" className={labelClass}>
-                      Select Category <span className="text-red-500">*</span>
-                    </label>
-                    <select id="category" {...categoryField} className={inputClass}>
-                      <option value="">Select category</option>
-                      {categories.map((item) => (
-                        <option key={item._id} value={item.name}>{item.name}</option>
-                      ))}
-                    </select>
+                {submitError ? <Alert severity="error">{submitError}</Alert> : null}
+              </Stack>
+            </Paper>
+
+            <Paper
+              elevation={0}
+              sx={{
+                overflow: "hidden",
+                border: 1,
+                borderColor: "divider",
+                alignSelf: "start",
+                position: { lg: "sticky" },
+                top: { lg: 88 },
+              }}
+            >
+              <Box sx={{ px: { xs: 2.5, sm: 3 }, py: 1.75, borderBottom: 1, borderColor: "divider", bgcolor: "grey.50" }}>
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  color="text.secondary"
+                  sx={{ letterSpacing: "0.14em", textTransform: "uppercase" }}
+                >
+                  Media & Organization
+                </Typography>
+              </Box>
+              <Box sx={{ p: { xs: 2.5, sm: 3 } }}>
+                <ProductImagesPanel
+                  existingImages={existingImages}
+                  imagePreviews={imagePreviews}
+                  onUploadClick={() => fileInputRef.current?.click()}
+                  onRemoveExisting={removeExistingImage}
+                  onRemoveNew={removeNewImage}
+                />
+
+                <Stack spacing={2} sx={{ mt: 3, pt: 3, borderTop: 1, borderColor: "divider" }}>
+                  <SectionTitle>Organization</SectionTitle>
+                  <Box>
+                    <FormControl fullWidth size="small" required error={Boolean(errors.category)}>
+                      <InputLabel id="category-label">Select Category</InputLabel>
+                      <Select
+                        labelId="category-label"
+                        id="category"
+                        label="Select Category"
+                        value={categoryValue || ""}
+                        onChange={(event) => {
+                          categoryField.onChange(event);
+                          setValue("category", event.target.value, { shouldValidate: true });
+                        }}
+                        inputRef={categoryField.ref}
+                        name={categoryField.name}
+                        onBlur={categoryField.onBlur}
+                      >
+                        <MenuItem value="">
+                          <em>Select category</em>
+                        </MenuItem>
+                        {categories.map((item) => (
+                          <MenuItem key={item._id} value={item.name}>
+                            {item.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                     <FieldError message={errors.category?.message} />
-                  </div>
-                  <div>
-                    <label htmlFor="shipping-class" className={labelClass}>Shipping Class</label>
-                    <select
+                  </Box>
+
+                  <FormControl fullWidth size="small">
+                    <InputLabel id="shipping-class-label">Shipping Class</InputLabel>
+                    <Select
+                      labelId="shipping-class-label"
                       id="shipping-class"
-                      {...register("shipping_class")}
-                      className={inputClass}
+                      label="Shipping Class"
+                      value={shippingClassValue || ""}
+                      onChange={(event) => setValue("shipping_class", event.target.value)}
                     >
                       {shippingClasses.length === 0 ? (
-                        <option value="">No shipping class</option>
+                        <MenuItem value="">No shipping class</MenuItem>
                       ) : (
-                        <>
-                          <option value="">Select shipping class</option>
-                          {shippingClasses.map((shipping) => (
-                            <option key={shipping.id} value={shipping.id}>
+                        [
+                          <MenuItem key="__empty" value="">
+                            Select shipping class
+                          </MenuItem>,
+                          ...shippingClasses.map((shipping) => (
+                            <MenuItem key={shipping.id} value={shipping.id}>
                               {shipping.name}
-                            </option>
-                          ))}
-                        </>
+                            </MenuItem>
+                          )),
+                        ]
                       )}
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelClass}>
-                      <span className="inline-flex items-center gap-1.5">
-                        <Tag className="h-3.5 w-3.5 text-indigo-500" />
-                        Tags
-                      </span>
-                    </label>
-                    <TagsInput tags={tags} onChange={setTags} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label htmlFor="rating" className={labelClass}>
-                        <span className="inline-flex items-center gap-1.5">
-                          <Star className="h-3.5 w-3.5 text-amber-500" />
-                          Rating
-                        </span>
-                      </label>
-                      <input id="rating" type="number" min="0" max="5" step="0.1" {...register("average_rating")} className={inputClass} />
-                    </div>
-                    <div>
-                      <label htmlFor="reviews" className={labelClass}>Reviews</label>
-                      <input id="reviews" type="number" min="0" {...register("total_reviews")} className={inputClass} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
+                    </Select>
+                  </FormControl>
 
-        <div className="dash-card flex flex-col-reverse gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-6">
-          <Link
-            href="/dashboard/products"
-            className="inline-flex items-center justify-center rounded-lg border border-dash-border bg-white px-4 py-2.5 text-sm font-semibold text-dash-muted transition-colors hover:bg-slate-50"
+                  <Box>
+                    <Stack direction="row" spacing={0.75} alignItems="center" sx={{ mb: 1 }}>
+                      <LocalOfferOutlinedIcon sx={{ fontSize: 16, color: "primary.main" }} />
+                      <Typography variant="body2" fontWeight={600}>
+                        Tags
+                      </Typography>
+                    </Stack>
+                    <TagsInput tags={tags} onChange={setTags} />
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gap: 1.5,
+                      gridTemplateColumns: "1fr 1fr",
+                    }}
+                  >
+                    <TextField
+                      id="rating"
+                      fullWidth
+                      type="number"
+                      label="Rating"
+                      inputProps={{ min: 0, max: 5, step: 0.1 }}
+                      {...register("average_rating")}
+                      InputProps={{
+                        startAdornment: <StarOutlineRoundedIcon sx={{ fontSize: 16, color: "warning.main", mr: 0.5 }} />,
+                      }}
+                    />
+                    <TextField
+                      id="reviews"
+                      fullWidth
+                      type="number"
+                      label="Reviews"
+                      inputProps={{ min: 0 }}
+                      {...register("total_reviews")}
+                    />
+                  </Box>
+                </Stack>
+              </Box>
+            </Paper>
+          </Box>
+
+          <Paper
+            elevation={0}
+            sx={{
+              mt: 3,
+              px: { xs: 2.5, sm: 3 },
+              py: 2,
+              border: 1,
+              borderColor: "divider",
+              display: "flex",
+              flexDirection: { xs: "column-reverse", sm: "row" },
+              alignItems: { sm: "center" },
+              justifyContent: "flex-end",
+              gap: 1,
+            }}
           >
-            Cancel
-          </Link>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:opacity-60"
-          >
-            {isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {isEditing ? "Updating..." : "Saving..."}
-              </>
-            ) : (
-              <>
-                <Upload className="h-4 w-4" />
-                {isEditing ? "Update Product" : "Save Product"}
-              </>
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
+            <Button component={Link} href="/dashboard/products" color="inherit" variant="outlined">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isPending}
+              startIcon={
+                isPending ? <CircularProgress size={16} color="inherit" /> : <CloudUploadOutlinedIcon />
+              }
+            >
+              {isPending
+                ? isEditing
+                  ? "Updating..."
+                  : "Saving..."
+                : isEditing
+                  ? "Update Product"
+                  : "Save Product"}
+            </Button>
+          </Paper>
+        </Box>
+      </Stack>
+    </Box>
   );
 }

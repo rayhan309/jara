@@ -2,13 +2,28 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ImagePlus, Loader2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Switch from "@mui/material/Switch";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import { DEFAULT_SETTINGS } from "@/lib/siteSettings";
 import { createHeroBanner } from "@/lib/heroBanners";
 import { uploadHeroBanner } from "@/lib/api/settings";
 import SettingsPageShell from "@/components/dashboard/settings/SettingsPageShell";
-import { inputClass } from "@/components/dashboard/settings/settingsShared";
+import {
+  settingsDashedEmptySx,
+  settingsNestedSx,
+  settingsPaperSx,
+  textFieldSize,
+} from "@/components/dashboard/settings/settingsShared";
 import { useSettingsEditor } from "@/components/dashboard/settings/useSettingsEditor";
 
 export default function BannerSettings() {
@@ -27,7 +42,7 @@ export default function BannerSettings() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("শুধু image file দিন");
+      toast.error("Please select an image file");
       return;
     }
 
@@ -36,9 +51,9 @@ export default function BannerSettings() {
     try {
       const image = await uploadHeroBanner(file);
       setHeroBanners((current) => [...current, createHeroBanner(image)]);
-      toast.success("ব্যানার যোগ হয়েছে — Save চাপুন");
+      toast.success("Banner added — click Save to apply");
     } catch (uploadError) {
-      toast.error(uploadError.message || "ব্যানার আপলোড ব্যর্থ");
+      toast.error(uploadError.message || "Banner upload failed");
     } finally {
       setIsUploadingBanner(false);
       if (bannerInputRef.current) bannerInputRef.current.value = "";
@@ -67,7 +82,7 @@ export default function BannerSettings() {
   return (
     <SettingsPageShell
       title="Hero Banners"
-      description="হোম পেজের ব্যানার add/remove করুন। কোনো ব্যানার না থাকলে default image দেখাবে।"
+      description="Add or remove homepage banners. If none are set, the storefront shows the default image."
       onSubmit={handleSubmit}
       isPending={isPending}
       isLoading={isLoading}
@@ -75,105 +90,154 @@ export default function BannerSettings() {
       error={error}
       onRetry={refetch}
     >
-      <section className="dash-card p-5 sm:p-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-dash-text">Home Hero Banners</h2>
-            <p className="mt-1 text-sm text-dash-muted">Homepage slider images manage korun.</p>
-          </div>
-          <div>
+      <Paper elevation={0} sx={settingsPaperSx}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={1.5}
+          alignItems={{ sm: "flex-start" }}
+          justifyContent="space-between"
+        >
+          <Box>
+            <Typography variant="h6" fontWeight={700}>
+              Home Hero Banners
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Manage homepage slider images.
+            </Typography>
+          </Box>
+          <Box>
             <input
               ref={bannerInputRef}
               type="file"
               accept="image/*"
               onChange={handleBannerUpload}
-              className="hidden"
+              hidden
             />
-            <button
+            <Button
               type="button"
-              onClick={() => bannerInputRef.current?.click()}
+              variant="outlined"
               disabled={isUploadingBanner || isPending}
-              className="inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 disabled:opacity-60"
+              startIcon={
+                isUploadingBanner ? (
+                  <CircularProgress size={16} color="inherit" />
+                ) : (
+                  <AddPhotoAlternateOutlinedIcon />
+                )
+              }
+              onClick={() => bannerInputRef.current?.click()}
             >
-              {isUploadingBanner ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <ImagePlus className="h-4 w-4" />
-              )}
               Add Banner
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Box>
+        </Stack>
 
-        <div className="mt-5 space-y-4">
+        <Stack spacing={2} sx={{ mt: 2.5 }}>
           {heroBanners.length === 0 ? (
-            <div className="rounded-md border border-dashed border-dash-border px-4 py-10 text-center text-sm text-dash-muted">
-              এখনও কোনো ব্যানার নেই। Add Banner চাপুন অথবা storefront default ব্যানার দেখাবে।
-            </div>
+            <Box sx={settingsDashedEmptySx}>
+              <Typography variant="body2" color="text.secondary">
+                No banners yet. Click Add Banner, or the storefront will use the default banner.
+              </Typography>
+            </Box>
           ) : (
             heroBanners.map((banner, index) => (
-              <div
+              <Paper
                 key={banner.id}
-                className="grid gap-4 rounded-md border border-dash-border bg-slate-50/70 p-3 sm:grid-cols-[180px_1fr_auto] sm:items-start sm:p-4"
+                elevation={0}
+                sx={{
+                  ...settingsNestedSx,
+                  display: "grid",
+                  gap: 2,
+                  gridTemplateColumns: { xs: "1fr", sm: "180px 1fr auto" },
+                  alignItems: { sm: "flex-start" },
+                }}
               >
-                <div className="relative aspect-[1170/880] overflow-hidden rounded-lg border border-dash-border bg-white">
+                <Box
+                  sx={{
+                    position: "relative",
+                    aspectRatio: "1170 / 880",
+                    overflow: "hidden",
+                    borderRadius: 1,
+                    border: 1,
+                    borderColor: "divider",
+                    bgcolor: "background.paper",
+                  }}
+                >
                   <Image
                     src={banner.image.url}
                     alt={banner.alt || `Banner ${index + 1}`}
                     fill
                     unoptimized
-                    className="object-cover"
+                    style={{ objectFit: "cover" }}
                   />
-                </div>
+                </Box>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="sm:col-span-2">
-                    <label className="mb-1 block text-xs font-semibold text-dash-muted">Alt text</label>
-                    <input
-                      type="text"
-                      value={banner.alt}
-                      onChange={(event) => handleBannerChange(banner.id, "alt", event.target.value)}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="mb-1 block text-xs font-semibold text-dash-muted">Link URL</label>
-                    <input
-                      type="text"
-                      value={banner.href}
-                      onChange={(event) => handleBannerChange(banner.id, "href", event.target.value)}
-                      placeholder="/products"
-                      className={inputClass}
-                    />
-                  </div>
-                  <label className="inline-flex items-center gap-2 rounded-md border border-dash-border bg-white px-3 py-2.5 text-xs font-semibold text-dash-text sm:col-span-2 sm:w-fit">
-                    <input
-                      type="checkbox"
-                      checked={banner.enabled}
-                      onChange={(event) =>
-                        handleBannerChange(banner.id, "enabled", event.target.checked)
-                      }
-                      className="h-4 w-4 accent-indigo-600"
-                    />
-                    Show on homepage
-                  </label>
-                </div>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gap: 1.5,
+                    gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                  }}
+                >
+                  <TextField
+                    label="Alt text"
+                    size={textFieldSize}
+                    fullWidth
+                    value={banner.alt}
+                    onChange={(event) => handleBannerChange(banner.id, "alt", event.target.value)}
+                    sx={{ gridColumn: { sm: "1 / -1" } }}
+                  />
+                  <TextField
+                    label="Link URL"
+                    size={textFieldSize}
+                    fullWidth
+                    value={banner.href}
+                    onChange={(event) => handleBannerChange(banner.id, "href", event.target.value)}
+                    placeholder="/products"
+                    sx={{ gridColumn: { sm: "1 / -1" } }}
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        size="small"
+                        checked={banner.enabled}
+                        onChange={(event) =>
+                          handleBannerChange(banner.id, "enabled", event.target.checked)
+                        }
+                      />
+                    }
+                    label="Show on homepage"
+                    sx={{
+                      m: 0,
+                      px: 1.5,
+                      py: 0.5,
+                      width: "fit-content",
+                      border: 1,
+                      borderColor: "divider",
+                      borderRadius: 1,
+                      bgcolor: "background.paper",
+                      gridColumn: { sm: "1 / -1" },
+                    }}
+                  />
+                </Box>
 
-                <button
+                <Button
                   type="button"
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  startIcon={<DeleteOutlineRoundedIcon fontSize="small" />}
                   onClick={() =>
                     setHeroBanners((current) => current.filter((entry) => entry.id !== banner.id))
                   }
-                  className="inline-flex h-10 items-center justify-center gap-1 self-start rounded-md border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-600 hover:bg-red-100"
+                  sx={{ alignSelf: "flex-start" }}
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
                   Remove
-                </button>
-              </div>
+                </Button>
+              </Paper>
             ))
           )}
-        </div>
-      </section>
+        </Stack>
+      </Paper>
     </SettingsPageShell>
   );
 }

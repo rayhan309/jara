@@ -1,5 +1,8 @@
 "use client";
 
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 import {
   Area,
   AreaChart,
@@ -30,11 +33,25 @@ function ChartTooltip({ active, payload, label }) {
   const orderCount = payload.find((entry) => entry.dataKey === "orders")?.value ?? 0;
 
   return (
-    <div className="rounded-md border border-dash-border bg-white px-3 py-2 shadow-lg">
-      <p className="text-xs font-semibold text-dash-text">{label}</p>
-      <p className="text-sm font-bold text-indigo-600">৳{Number(revenue).toLocaleString()}</p>
-      <p className="text-xs text-dash-muted">{orderCount} orders</p>
-    </div>
+    <Paper
+      elevation={3}
+      sx={{
+        px: 1.5,
+        py: 1,
+        border: 1,
+        borderColor: "divider",
+      }}
+    >
+      <Typography variant="caption" fontWeight={700} display="block">
+        {label}
+      </Typography>
+      <Typography variant="body2" fontWeight={800} color="primary.main">
+        ৳{Number(revenue).toLocaleString()}
+      </Typography>
+      <Typography variant="caption" color="text.secondary">
+        {orderCount} orders
+      </Typography>
+    </Paper>
   );
 }
 
@@ -46,7 +63,14 @@ export default function RevenueChart({ data = [] }) {
   const maxRevenue = Math.max(...chartData.map((entry) => entry.revenue), 1);
 
   return (
-    <div className="h-40 w-full min-w-0 pt-2 sm:h-52 lg:h-56">
+    <Box
+      sx={{
+        height: { xs: 160, sm: 208, lg: 224 },
+        width: 1,
+        minWidth: 0,
+        pt: 1,
+      }}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} barSize={20} barCategoryGap="18%">
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -77,13 +101,13 @@ export default function RevenueChart({ data = [] }) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </Box>
   );
 }
 
 export function StatSparkline({ data, color = "#6366f1" }) {
   return (
-    <div className="mt-4 h-12 w-full">
+    <Box sx={{ mt: 2, height: 48, width: 1 }}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data}>
           <defs>
@@ -103,13 +127,13 @@ export function StatSparkline({ data, color = "#6366f1" }) {
           />
         </AreaChart>
       </ResponsiveContainer>
-    </div>
+    </Box>
   );
 }
 
 export function OrdersAreaChart() {
   return (
-    <div className="h-32 w-full">
+    <Box sx={{ height: 128, width: 1 }}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={revenueData}>
           <defs>
@@ -128,6 +152,6 @@ export function OrdersAreaChart() {
           />
         </AreaChart>
       </ResponsiveContainer>
-    </div>
+    </Box>
   );
 }

@@ -1,13 +1,17 @@
 "use client";
 
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
 import { MotionFadeIn } from "@/components/dashboard/MotionFade";
 import { StatSparkline } from "@/components/dashboard/RevenueChart";
 
 const accents = {
-  indigo: { icon: "bg-indigo-50 text-indigo-600", spark: "#6366f1" },
-  emerald: { icon: "bg-emerald-50 text-emerald-600", spark: "#10b981" },
-  amber: { icon: "bg-amber-50 text-amber-600", spark: "#f59e0b" },
-  rose: { icon: "bg-rose-50 text-rose-600", spark: "#f43f5e" },
+  indigo: { bg: "primary.50", color: "primary.main", spark: "#6366f1" },
+  emerald: { bg: "success.50", color: "success.main", spark: "#10b981" },
+  amber: { bg: "warning.50", color: "warning.main", spark: "#f59e0b" },
+  rose: { bg: "error.50", color: "error.main", spark: "#f43f5e" },
 };
 
 const sparkData = {
@@ -33,35 +37,62 @@ export default function StatCard({
   delay = 0,
   icon: Icon,
 }) {
-  const { icon: iconClass, spark } = accents[accent];
+  const tone = accents[accent] || accents.indigo;
 
   return (
     <MotionFadeIn delay={delay}>
-      <div className="dash-card dash-card-hover flex h-full flex-col p-4 sm:p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold tracking-[0.1em] text-dash-muted uppercase">
+      <Paper
+        elevation={0}
+        sx={{
+          height: 1,
+          p: { xs: 2, sm: 2.5 },
+          border: 1,
+          borderColor: "divider",
+          display: "flex",
+          flexDirection: "column",
+          transition: "box-shadow 0.2s ease, border-color 0.2s ease",
+          "&:hover": {
+            borderColor: "grey.300",
+            boxShadow: "0 12px 28px -18px rgba(15,23,42,0.25)",
+          },
+        }}
+      >
+        <Stack direction="row" spacing={1.5} sx={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ letterSpacing: "0.1em", textTransform: "uppercase" }}>
               {title}
-            </p>
-            <p className="mt-2 truncate text-xl font-bold tabular-nums tracking-tight text-dash-text sm:text-2xl">
+            </Typography>
+            <Typography variant="h5" fontWeight={800} noWrap sx={{ mt: 1, letterSpacing: "-0.02em" }}>
               {value}
-            </p>
+            </Typography>
             {subtitle ? (
-              <p className="mt-1.5 text-[11px] leading-snug text-dash-muted">{subtitle}</p>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, display: "block", lineHeight: 1.4 }}>
+                {subtitle}
+              </Typography>
             ) : null}
-          </div>
+          </Box>
           {Icon ? (
-            <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md ${iconClass}`}
+            <Box
+              sx={{
+                width: 36,
+                height: 36,
+                borderRadius: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: tone.bg,
+                color: tone.color,
+                flexShrink: 0,
+              }}
             >
-              <Icon className="h-4 w-4" strokeWidth={1.75} />
-            </span>
+              <Icon sx={{ fontSize: 18 }} />
+            </Box>
           ) : null}
-        </div>
-        <div className="mt-4 hidden h-9 w-full sm:block">
-          <StatSparkline data={sparkData[accent]} color={spark} />
-        </div>
-      </div>
+        </Stack>
+        <Box sx={{ mt: 2, height: 36, width: 1, display: { xs: "none", sm: "block" } }}>
+          <StatSparkline data={sparkData[accent] || sparkData.indigo} color={tone.spark} />
+        </Box>
+      </Paper>
     </MotionFadeIn>
   );
 }

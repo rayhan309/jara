@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import { motion } from "motion/react";
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import Typography from "@mui/material/Typography";
 import { fetchAdminProfile } from "@/lib/api/adminUsers";
 import { getAdminAuth, setAdminAuth, clearAdminAuth, isAdminAuthenticated } from "@/lib/auth";
 import { getDefaultDashboardPath } from "@/lib/adminRoles";
@@ -40,18 +41,27 @@ export default function AdminAuthGuard({ children, initialProfile = null }) {
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-dash-bg">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-5"
-        >
-          <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
-          <p className="text-xs font-semibold tracking-[0.2em] text-dash-muted uppercase">
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: "background.default",
+        }}
+      >
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+          <CircularProgress size={28} />
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            fontWeight={700}
+            sx={{ letterSpacing: "0.2em", textTransform: "uppercase" }}
+          >
             Verifying session
-          </p>
-        </motion.div>
-      </div>
+          </Typography>
+        </Box>
+      </Box>
     );
   }
 

@@ -1,4 +1,5 @@
 import AdminLoginForm from "@/components/auth/AdminLoginForm";
+import DashboardMuiThemeProvider from "@/components/providers/DashboardMuiThemeProvider";
 import { ADMIN_NAME, createPageMetadata } from "@/lib/siteMetadata";
 
 export const metadata = createPageMetadata({
@@ -11,8 +12,8 @@ export const metadata = createPageMetadata({
 
 export default function AdminLoginPage() {
   return (
-    <div className="font-dashboard">
+    <DashboardMuiThemeProvider>
       <AdminLoginForm />
-    </div>
+    </DashboardMuiThemeProvider>
   );
 }

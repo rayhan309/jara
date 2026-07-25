@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import Paper from "@mui/material/Paper";
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
 import { DEFAULT_SETTINGS } from "@/lib/siteSettings";
 import SettingsPageShell from "@/components/dashboard/settings/SettingsPageShell";
-import { inputClass } from "@/components/dashboard/settings/settingsShared";
+import { settingsPaperSx, textFieldSize } from "@/components/dashboard/settings/settingsShared";
 import { useSettingsEditor } from "@/components/dashboard/settings/useSettingsEditor";
 
 export default function ContactSettings() {
@@ -24,15 +27,15 @@ export default function ContactSettings() {
     event.preventDefault();
 
     if (!contactPhone.trim()) {
-      toast.error("যোগাযোগের ফোন নম্বর দিন");
+      toast.error("Enter a contact phone number");
       return;
     }
     if (!contactEmail.trim()) {
-      toast.error("যোগাযোগের ইমেইল দিন");
+      toast.error("Enter a contact email address");
       return;
     }
     if (!contactAddress.trim()) {
-      toast.error("যোগাযোগের ঠিকানা দিন");
+      toast.error("Enter a contact address");
       return;
     }
 
@@ -46,7 +49,7 @@ export default function ContactSettings() {
   return (
     <SettingsPageShell
       title="Contact"
-      description="Storefront footer, navbar, ar support page ar contact details update korun."
+      description="Update contact details shown in the storefront footer, navbar, and support pages."
       onSubmit={handleSubmit}
       isPending={isPending}
       isLoading={isLoading}
@@ -54,51 +57,45 @@ export default function ContactSettings() {
       error={error}
       onRetry={refetch}
     >
-      <section className="dash-card p-5 sm:p-6">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="contact-phone" className="mb-1 block text-xs font-semibold text-dash-muted">
-              Phone Number
-            </label>
-            <input
-              id="contact-phone"
-              type="text"
-              value={contactPhone}
-              onChange={(event) => setContactPhone(event.target.value)}
-              placeholder="+8801815131040"
-              className={inputClass}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="contact-email" className="mb-1 block text-xs font-semibold text-dash-muted">
-              Email Address
-            </label>
-            <input
-              id="contact-email"
-              type="email"
-              value={contactEmail}
-              onChange={(event) => setContactEmail(event.target.value)}
-              placeholder="support@raisasglamnest.com"
-              className={inputClass}
-            />
-          </div>
-
-          <div className="sm:col-span-2">
-            <label htmlFor="contact-address" className="mb-1 block text-xs font-semibold text-dash-muted">
-              Physical Address
-            </label>
-            <input
-              id="contact-address"
-              type="text"
-              value={contactAddress}
-              onChange={(event) => setContactAddress(event.target.value)}
-              placeholder="ঢাকা, বাংলাদেশ"
-              className={inputClass}
-            />
-          </div>
-        </div>
-      </section>
+      <Paper elevation={0} sx={settingsPaperSx}>
+        <Box
+          sx={{
+            display: "grid",
+            gap: 2,
+            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+          }}
+        >
+          <TextField
+            id="contact-phone"
+            label="Phone Number"
+            size={textFieldSize}
+            fullWidth
+            value={contactPhone}
+            onChange={(event) => setContactPhone(event.target.value)}
+            placeholder="+8801815131040"
+          />
+          <TextField
+            id="contact-email"
+            label="Email Address"
+            size={textFieldSize}
+            fullWidth
+            type="email"
+            value={contactEmail}
+            onChange={(event) => setContactEmail(event.target.value)}
+            placeholder="support@raisasglamnest.com"
+          />
+          <TextField
+            id="contact-address"
+            label="Physical Address"
+            size={textFieldSize}
+            fullWidth
+            value={contactAddress}
+            onChange={(event) => setContactAddress(event.target.value)}
+            placeholder="Dhaka, Bangladesh"
+            sx={{ gridColumn: { sm: "1 / -1" } }}
+          />
+        </Box>
+      </Paper>
     </SettingsPageShell>
   );
 }

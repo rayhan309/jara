@@ -1,15 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Eye, EyeOff, Loader2, Save } from "lucide-react";
 import toast from "react-hot-toast";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import { updateAdminAuthProfile } from "@/lib/auth";
 import { getRoleLabel } from "@/lib/adminRoles";
 import { useAdminProfile, useUpdateAdminProfile } from "@/hooks/useAdminUsers";
 import DashPageHeader from "@/components/dashboard/DashPageHeader";
-
-const inputClass =
-  "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
 
 export default function AccountSettings() {
   const { data: profile, isLoading, isError, error, refetch } = useAdminProfile();
@@ -61,134 +69,156 @@ export default function AccountSettings() {
 
   if (isLoading) {
     return (
-      <div className="dash-card flex min-h-[280px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-      </div>
+      <Paper
+        elevation={0}
+        sx={{
+          minHeight: 280,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: 1,
+          borderColor: "divider",
+        }}
+      >
+        <CircularProgress size={32} />
+      </Paper>
     );
   }
 
   if (isError) {
     return (
-      <div className="dash-card border-red-200 bg-red-50 p-6 text-center">
-        <p className="text-sm text-red-600">{error?.message || "Failed to load account."}</p>
-        <button type="button" onClick={() => refetch()} className="mt-3 text-sm font-semibold text-indigo-600">
+      <Paper
+        elevation={0}
+        sx={{ p: 3, border: 1, borderColor: "error.light", bgcolor: "error.50", textAlign: "center" }}
+      >
+        <Typography variant="body2" color="error">
+          {error?.message || "Failed to load account."}
+        </Typography>
+        <Button onClick={() => refetch()} sx={{ mt: 1.5 }}>
           Try again
-        </button>
-      </div>
+        </Button>
+      </Paper>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto max-w-xl space-y-6">
-      <DashPageHeader
-        eyebrow="Account"
-        title="My Account"
-        description="Update your name and password."
-        animate={false}
-      />
+    <Box component="form" onSubmit={handleSubmit} sx={{ mx: "auto", maxWidth: 560 }}>
+      <Stack spacing={3}>
+        <DashPageHeader
+          eyebrow="Account"
+          title="My Account"
+          description="Update your name and password."
+          animate={false}
+        />
 
-      <section className="dash-card space-y-4 p-5 sm:p-6">
-        <div>
-          <label className="mb-1 block text-xs font-semibold text-dash-muted">Username</label>
-          <input type="text" value={profile?.username || ""} disabled className={`${inputClass} bg-slate-50`} />
-        </div>
+        <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3 }, border: 1, borderColor: "divider" }}>
+          <Stack spacing={2.5}>
+            <TextField
+              fullWidth
+              label="Username"
+              value={profile?.username || ""}
+              disabled
+            />
+            <TextField
+              fullWidth
+              label="Role"
+              value={getRoleLabel(profile?.role)}
+              disabled
+            />
+            <TextField
+              fullWidth
+              id="account-name"
+              label="Display Name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
+          </Stack>
+        </Paper>
 
-        <div>
-          <label className="mb-1 block text-xs font-semibold text-dash-muted">Role</label>
-          <input
-            type="text"
-            value={getRoleLabel(profile?.role)}
-            disabled
-            className={`${inputClass} bg-slate-50`}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="account-name" className="mb-1 block text-xs font-semibold text-dash-muted">
-            Display Name
-          </label>
-          <input
-            id="account-name"
-            type="text"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            className={inputClass}
-          />
-        </div>
-      </section>
-
-      <section className="dash-card space-y-4 p-5 sm:p-6">
-        <h2 className="text-lg font-bold text-dash-text">Change Password</h2>
-
-        <div>
-          <label htmlFor="current-password" className="mb-1 block text-xs font-semibold text-dash-muted">
-            Current Password
-          </label>
-          <div className="relative">
-            <input
+        <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3 }, border: 1, borderColor: "divider" }}>
+          <Typography variant="h6" fontWeight={700} sx={{ mb: 2.5 }}>
+            Change Password
+          </Typography>
+          <Stack spacing={2.5}>
+            <TextField
+              fullWidth
               id="current-password"
+              label="Current Password"
               type={showCurrent ? "text" : "password"}
               value={currentPassword}
               onChange={(event) => setCurrentPassword(event.target.value)}
-              className={`${inputClass} pr-10`}
               autoComplete="current-password"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={showCurrent ? "Hide password" : "Show password"}
+                      onClick={() => setShowCurrent((prev) => !prev)}
+                      edge="end"
+                      size="small"
+                    >
+                      {showCurrent ? (
+                        <VisibilityOffOutlinedIcon fontSize="small" />
+                      ) : (
+                        <VisibilityOutlinedIcon fontSize="small" />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
-            <button
-              type="button"
-              onClick={() => setShowCurrent((prev) => !prev)}
-              className="absolute top-1/2 right-3 -translate-y-1/2 text-dash-muted"
-            >
-              {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label htmlFor="new-password" className="mb-1 block text-xs font-semibold text-dash-muted">
-            New Password
-          </label>
-          <div className="relative">
-            <input
+            <TextField
+              fullWidth
               id="new-password"
+              label="New Password"
               type={showNew ? "text" : "password"}
               value={newPassword}
               onChange={(event) => setNewPassword(event.target.value)}
-              className={`${inputClass} pr-10`}
+              autoComplete="new-password"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={showNew ? "Hide password" : "Show password"}
+                      onClick={() => setShowNew((prev) => !prev)}
+                      edge="end"
+                      size="small"
+                    >
+                      {showNew ? (
+                        <VisibilityOffOutlinedIcon fontSize="small" />
+                      ) : (
+                        <VisibilityOutlinedIcon fontSize="small" />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              fullWidth
+              id="confirm-password"
+              label="Confirm New Password"
+              type="password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
               autoComplete="new-password"
             />
-            <button
-              type="button"
-              onClick={() => setShowNew((prev) => !prev)}
-              className="absolute top-1/2 right-3 -translate-y-1/2 text-dash-muted"
-            >
-              {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-        </div>
+          </Stack>
+        </Paper>
 
-        <div>
-          <label htmlFor="confirm-password" className="mb-1 block text-xs font-semibold text-dash-muted">
-            Confirm New Password
-          </label>
-          <input
-            id="confirm-password"
-            type="password"
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-            className={inputClass}
-            autoComplete="new-password"
-          />
-        </div>
-      </section>
-
-      <button
-        type="submit"
-        disabled={isPending}
-        className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-60"
-      >
-        {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-        Save Changes
-      </button>
-    </form>
+        <Box>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={isPending}
+            startIcon={
+              isPending ? <CircularProgress size={16} color="inherit" /> : <SaveRoundedIcon />
+            }
+          >
+            Save Changes
+          </Button>
+        </Box>
+      </Stack>
+    </Box>
   );
 }

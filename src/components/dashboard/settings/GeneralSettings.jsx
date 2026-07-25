@@ -2,8 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ImagePlus, Loader2, Plus, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import CircularProgress from "@mui/material/CircularProgress";
+import FormControl from "@mui/material/FormControl";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Paper from "@mui/material/Paper";
+import Select from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
+import Switch from "@mui/material/Switch";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import {
   DEFAULT_SETTINGS,
   deriveThemeColors,
@@ -14,7 +30,12 @@ import {
 } from "@/lib/siteSettings";
 import { uploadBrandAsset } from "@/lib/api/settings";
 import SettingsPageShell from "@/components/dashboard/settings/SettingsPageShell";
-import { inputClass } from "@/components/dashboard/settings/settingsShared";
+import {
+  settingsDashedEmptySx,
+  settingsNestedSx,
+  settingsPaperSx,
+  textFieldSize,
+} from "@/components/dashboard/settings/settingsShared";
 import { useSettingsEditor } from "@/components/dashboard/settings/useSettingsEditor";
 
 const COLOR_PRESETS = [
@@ -36,6 +57,34 @@ function createSocialLink(platform = "facebook") {
     url: "",
     enabled: true,
   };
+}
+
+function AssetPreview({ src, emptyLabel }) {
+  return (
+    <Box
+      sx={{
+        position: "relative",
+        width: 64,
+        height: 64,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        border: 1,
+        borderColor: "divider",
+        borderRadius: 1,
+        bgcolor: "background.paper",
+      }}
+    >
+      {src ? (
+        <Image src={src} alt="Asset preview" fill sizes="64px" style={{ objectFit: "contain", padding: 4 }} />
+      ) : (
+        <Typography variant="caption" color="text.secondary">
+          {emptyLabel}
+        </Typography>
+      )}
+    </Box>
+  );
 }
 
 export default function GeneralSettings() {
@@ -74,7 +123,7 @@ export default function GeneralSettings() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("শুধু image file দিন");
+      toast.error("Please select an image file");
       return;
     }
 
@@ -87,10 +136,12 @@ export default function GeneralSettings() {
       const asset = await uploadBrandAsset(file, type);
       setAsset(asset);
       toast.success(
-        type === "logo" ? "লোগো আপলোড হয়েছে — Save চাপুন" : "Favicon আপলোড হয়েছে — Save চাপুন"
+        type === "logo"
+          ? "Logo uploaded — click Save to apply"
+          : "Favicon uploaded — click Save to apply"
       );
     } catch (uploadError) {
-      toast.error(uploadError.message || "আপলোড ব্যর্থ");
+      toast.error(uploadError.message || "Upload failed");
     } finally {
       setUploading(false);
       if (type === "logo" && logoInputRef.current) logoInputRef.current.value = "";
@@ -122,7 +173,7 @@ export default function GeneralSettings() {
 
     const invalidLink = socialLinks.find((link) => link.enabled && !link.url.trim());
     if (invalidLink) {
-      toast.error(`"${invalidLink.label}" link er URL দিন`);
+      toast.error(`Enter a URL for "${invalidLink.label}"`);
       return;
     }
 
@@ -144,7 +195,7 @@ export default function GeneralSettings() {
   return (
     <SettingsPageShell
       title="General"
-      description="Logo, favicon, brand color ar footer content manage korun."
+      description="Manage logo, favicon, brand color, and footer content."
       onSubmit={handleSubmit}
       isPending={isPending}
       isLoading={isLoading}
@@ -152,334 +203,417 @@ export default function GeneralSettings() {
       error={error}
       onRetry={refetch}
     >
-      <section className="dash-card mb-6 p-5 sm:p-6">
-        <h2 className="text-lg font-bold text-dash-text">Logo & Favicon</h2>
-        <p className="mt-1 text-sm text-dash-muted">
-          Navbar, footer ar browser tab e show hobe. Upload korar por Save চাপুন।
-        </p>
+      <Paper elevation={0} sx={settingsPaperSx}>
+        <Typography variant="h6" fontWeight={700}>
+          Logo & Favicon
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          Shown in the navbar, footer, and browser tab. Click Save after uploading.
+        </Typography>
 
-        <div className="mt-5 grid gap-6 md:grid-cols-2">
-          <div className="rounded-md border border-dash-border bg-slate-50/70 p-4">
-            <p className="text-xs font-semibold tracking-wide text-dash-muted uppercase">
+        <Box
+          sx={{
+            mt: 2.5,
+            display: "grid",
+            gap: 3,
+            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+          }}
+        >
+          <Paper elevation={0} sx={settingsNestedSx}>
+            <Typography
+              variant="caption"
+              fontWeight={700}
+              color="text.secondary"
+              sx={{ letterSpacing: "0.08em", textTransform: "uppercase" }}
+            >
               Shop Logo
-            </p>
-            <div className="mt-3 flex flex-wrap items-center gap-4">
-              <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-md border border-dash-border bg-white">
-                {getShopLogoUrl({ shopLogo }) ? (
-                  <Image
-                    src={getShopLogoUrl({ shopLogo })}
-                    alt="Logo preview"
-                    fill
-                    sizes="64px"
-                    className="object-contain p-1"
-                  />
-                ) : (
-                  <span className="text-[11px] text-dash-muted">No logo</span>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
+            </Typography>
+            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 1.5 }}>
+              <AssetPreview src={getShopLogoUrl({ shopLogo })} emptyLabel="No logo" />
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                 <input
                   ref={logoInputRef}
                   type="file"
                   accept="image/*"
                   onChange={(event) => handleAssetUpload(event, "logo")}
-                  className="hidden"
+                  hidden
                 />
-                <button
+                <Button
                   type="button"
-                  onClick={() => logoInputRef.current?.click()}
+                  variant="outlined"
+                  size="small"
                   disabled={isUploadingLogo || isPending}
-                  className="inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 disabled:opacity-60"
+                  startIcon={
+                    isUploadingLogo ? (
+                      <CircularProgress size={14} color="inherit" />
+                    ) : (
+                      <AddPhotoAlternateOutlinedIcon fontSize="small" />
+                    )
+                  }
+                  onClick={() => logoInputRef.current?.click()}
                 >
-                  {isUploadingLogo ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <ImagePlus className="h-3.5 w-3.5" />
-                  )}
                   {shopLogo ? "Change Logo" : "Upload Logo"}
-                </button>
+                </Button>
                 {shopLogo ? (
-                  <button
+                  <Button
                     type="button"
-                    onClick={() => setShopLogo(null)}
+                    variant="outlined"
+                    color="error"
+                    size="small"
                     disabled={isPending}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-60"
+                    startIcon={<DeleteOutlineRoundedIcon fontSize="small" />}
+                    onClick={() => setShopLogo(null)}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
                     Remove
-                  </button>
+                  </Button>
                 ) : null}
-              </div>
-            </div>
-            <p className="mt-2 text-[11px] text-dash-muted">
-              PNG, JPG, SVG — transparent background ভালো।
-            </p>
-          </div>
+              </Stack>
+            </Stack>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+              PNG, JPG, SVG — transparent background preferred.
+            </Typography>
+          </Paper>
 
-          <div className="rounded-md border border-dash-border bg-slate-50/70 p-4">
-            <p className="text-xs font-semibold tracking-wide text-dash-muted uppercase">Favicon</p>
-            <div className="mt-3 flex flex-wrap items-center gap-4">
-              <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-md border border-dash-border bg-white">
-                {getFaviconUrl({ favicon }) ? (
-                  <Image
-                    src={getFaviconUrl({ favicon })}
-                    alt="Favicon preview"
-                    fill
-                    sizes="64px"
-                    className="object-contain p-2"
-                  />
-                ) : (
-                  <span className="text-[11px] text-dash-muted">Default</span>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
+          <Paper elevation={0} sx={settingsNestedSx}>
+            <Typography
+              variant="caption"
+              fontWeight={700}
+              color="text.secondary"
+              sx={{ letterSpacing: "0.08em", textTransform: "uppercase" }}
+            >
+              Favicon
+            </Typography>
+            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 1.5 }}>
+              <AssetPreview src={getFaviconUrl({ favicon })} emptyLabel="Default" />
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                 <input
                   ref={faviconInputRef}
                   type="file"
                   accept="image/*"
                   onChange={(event) => handleAssetUpload(event, "favicon")}
-                  className="hidden"
+                  hidden
                 />
-                <button
+                <Button
                   type="button"
-                  onClick={() => faviconInputRef.current?.click()}
+                  variant="outlined"
+                  size="small"
                   disabled={isUploadingFavicon || isPending}
-                  className="inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 disabled:opacity-60"
+                  startIcon={
+                    isUploadingFavicon ? (
+                      <CircularProgress size={14} color="inherit" />
+                    ) : (
+                      <AddPhotoAlternateOutlinedIcon fontSize="small" />
+                    )
+                  }
+                  onClick={() => faviconInputRef.current?.click()}
                 >
-                  {isUploadingFavicon ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <ImagePlus className="h-3.5 w-3.5" />
-                  )}
                   {favicon ? "Change Favicon" : "Upload Favicon"}
-                </button>
+                </Button>
                 {favicon ? (
-                  <button
+                  <Button
                     type="button"
-                    onClick={() => setFavicon(null)}
+                    variant="outlined"
+                    color="error"
+                    size="small"
                     disabled={isPending}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-60"
+                    startIcon={<DeleteOutlineRoundedIcon fontSize="small" />}
+                    onClick={() => setFavicon(null)}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
                     Remove
-                  </button>
+                  </Button>
                 ) : null}
-              </div>
-            </div>
-            <p className="mt-2 text-[11px] text-dash-muted">
-              32×32 বা 64×64 PNG/ICO recommended — browser tab icon।
-            </p>
-          </div>
-        </div>
-      </section>
+              </Stack>
+            </Stack>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+              32×32 or 64×64 PNG/ICO recommended — browser tab icon.
+            </Typography>
+          </Paper>
+        </Box>
+      </Paper>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <section className="dash-card p-5 sm:p-6">
-          <h2 className="text-lg font-bold text-dash-text">Brand Color</h2>
-          <p className="mt-1 text-sm text-dash-muted">
-            Buttons, navbar, links ar accent color change hobe.
-          </p>
+      <Box
+        sx={{
+          display: "grid",
+          gap: 3,
+          gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" },
+        }}
+      >
+        <Paper elevation={0} sx={settingsPaperSx}>
+          <Typography variant="h6" fontWeight={700}>
+            Brand Color
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Updates buttons, navbar, links, and accent colors.
+          </Typography>
 
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <input
+          <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 2.5 }}>
+            <Box
+              component="input"
               type="color"
               value={primaryColor}
               onChange={(event) => setPrimaryColor(event.target.value)}
-              className="h-12 w-12 cursor-pointer rounded-md border border-dash-border bg-white p-1"
               aria-label="Primary color picker"
+              sx={{
+                width: 48,
+                height: 48,
+                p: 0.5,
+                border: 1,
+                borderColor: "divider",
+                borderRadius: 1,
+                bgcolor: "background.paper",
+                cursor: "pointer",
+              }}
             />
-            <input
-              type="text"
+            <TextField
+              size={textFieldSize}
               value={primaryColor}
               onChange={(event) => setPrimaryColor(event.target.value)}
               placeholder="#4f46e5"
-              className={`${inputClass} max-w-[160px] font-mono uppercase`}
+              sx={{ maxWidth: 160, "& input": { fontFamily: "monospace", textTransform: "uppercase" } }}
             />
-          </div>
+          </Stack>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {COLOR_PRESETS.map((preset) => (
-              <button
-                key={preset.value}
-                type="button"
-                onClick={() => setPrimaryColor(preset.value)}
-                className={`inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  primaryColor.toLowerCase() === preset.value
-                    ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                    : "border-dash-border bg-white text-dash-muted hover:border-indigo-200"
-                }`}
-              >
-                <span
-                  className="h-3.5 w-3.5 rounded-full border border-black/10"
-                  style={{ backgroundColor: preset.value }}
+          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 2 }}>
+            {COLOR_PRESETS.map((preset) => {
+              const selected = primaryColor.toLowerCase() === preset.value;
+              return (
+                <Chip
+                  key={preset.value}
+                  clickable
+                  onClick={() => setPrimaryColor(preset.value)}
+                  label={preset.label}
+                  variant={selected ? "filled" : "outlined"}
+                  color={selected ? "primary" : "default"}
+                  icon={
+                    <Box
+                      component="span"
+                      sx={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: "50%",
+                        bgcolor: preset.value,
+                        border: "1px solid rgba(0,0,0,0.1)",
+                        ml: 0.5,
+                      }}
+                    />
+                  }
                 />
-                {preset.label}
-              </button>
-            ))}
-          </div>
+              );
+            })}
+          </Stack>
 
-          <div className="mt-5 rounded-md border border-dash-border bg-slate-50 p-4">
-            <p className="text-xs font-semibold tracking-wide text-dash-muted uppercase">Preview</p>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span
-                className="rounded-md px-3 py-2 text-xs font-semibold text-white"
-                style={{ backgroundColor: previewTheme.primaryColor }}
+          <Paper elevation={0} sx={{ ...settingsNestedSx, mt: 2.5 }}>
+            <Typography
+              variant="caption"
+              fontWeight={700}
+              color="text.secondary"
+              sx={{ letterSpacing: "0.08em", textTransform: "uppercase" }}
+            >
+              Preview
+            </Typography>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1.5 }}>
+              <Box
+                sx={{
+                  px: 1.5,
+                  py: 1,
+                  borderRadius: 1,
+                  bgcolor: previewTheme.primaryColor,
+                  color: "#fff",
+                  typography: "caption",
+                  fontWeight: 700,
+                }}
               >
                 Primary Button
-              </span>
-              <span
-                className="rounded-md px-3 py-2 text-xs font-semibold text-white"
-                style={{ backgroundColor: previewTheme.primaryColorHover }}
+              </Box>
+              <Box
+                sx={{
+                  px: 1.5,
+                  py: 1,
+                  borderRadius: 1,
+                  bgcolor: previewTheme.primaryColorHover,
+                  color: "#fff",
+                  typography: "caption",
+                  fontWeight: 700,
+                }}
               >
                 Hover
-              </span>
-              <span
-                className="rounded-md border px-3 py-2 text-xs font-semibold"
-                style={{
-                  color: previewTheme.primaryColor,
+              </Box>
+              <Box
+                sx={{
+                  px: 1.5,
+                  py: 1,
+                  borderRadius: 1,
+                  border: 1,
                   borderColor: previewTheme.primaryColorBorder,
-                  backgroundColor: previewTheme.primaryColorSoft,
+                  bgcolor: previewTheme.primaryColorSoft,
+                  color: previewTheme.primaryColor,
+                  typography: "caption",
+                  fontWeight: 700,
                 }}
               >
                 Soft Badge
-              </span>
-            </div>
-          </div>
-        </section>
+              </Box>
+            </Stack>
+          </Paper>
+        </Paper>
 
-        <section className="dash-card p-5 sm:p-6">
-          <h2 className="text-lg font-bold text-dash-text">Shop Content</h2>
-          <p className="mt-1 text-sm text-dash-muted">
-            Footer er short description, tagline ar copyright text edit korun.
-          </p>
-          <div className="mt-4 space-y-4">
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-dash-muted">
-                Short Description
-              </label>
-              <textarea
-                rows={3}
-                value={shopShortDescription}
-                onChange={(event) => setShopShortDescription(event.target.value)}
-                className={`${inputClass} resize-none`}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-dash-muted">Tagline</label>
-              <input
-                value={shopTagline}
-                onChange={(event) => setShopTagline(event.target.value)}
-                className={inputClass}
-                placeholder="আধুনিক ই-কমার্সের জন্য তৈরি"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-dash-muted">
-                Copyright Text
-              </label>
-              <input
-                value={copyrightText}
-                onChange={(event) => setCopyrightText(event.target.value)}
-                className={inputClass}
-                placeholder="© {year} Raisa's Glam Nest. সর্বস্বত্ব সংরক্ষিত।"
-              />
-              <p className="mt-1 text-[11px] text-dash-muted">
-                {`{year}`} লিখলে বর্তমান বছর auto বসবে।
-              </p>
-            </div>
-          </div>
-        </section>
+        <Paper elevation={0} sx={settingsPaperSx}>
+          <Typography variant="h6" fontWeight={700}>
+            Shop Content
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Edit the footer short description, tagline, and copyright text.
+          </Typography>
+          <Stack spacing={2} sx={{ mt: 2 }}>
+            <TextField
+              label="Short Description"
+              size={textFieldSize}
+              multiline
+              rows={3}
+              fullWidth
+              value={shopShortDescription}
+              onChange={(event) => setShopShortDescription(event.target.value)}
+            />
+            <TextField
+              label="Tagline"
+              size={textFieldSize}
+              fullWidth
+              value={shopTagline}
+              onChange={(event) => setShopTagline(event.target.value)}
+              placeholder="Built for modern e-commerce"
+            />
+            <TextField
+              label="Copyright Text"
+              size={textFieldSize}
+              fullWidth
+              value={copyrightText}
+              onChange={(event) => setCopyrightText(event.target.value)}
+              placeholder="© {year} Raisa's Glam Nest. All rights reserved."
+              helperText={`Use {year} to insert the current year automatically.`}
+            />
+          </Stack>
+        </Paper>
 
-        <section className="dash-card p-5 sm:p-6 lg:col-span-2">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-bold text-dash-text">Social Links</h2>
-              <p className="mt-1 text-sm text-dash-muted">
-                Footer e show hobe. URL na thakle disable thakbe.
-              </p>
-            </div>
-            <button
+        <Paper elevation={0} sx={{ ...settingsPaperSx, gridColumn: { lg: "1 / -1" } }}>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={1.5}
+            alignItems={{ sm: "flex-start" }}
+            justifyContent="space-between"
+          >
+            <Box>
+              <Typography variant="h6" fontWeight={700}>
+                Social Links
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Shown in the footer. Links without a URL stay disabled.
+              </Typography>
+            </Box>
+            <Button
               type="button"
+              variant="outlined"
+              size="small"
+              startIcon={<AddRoundedIcon />}
               onClick={() => setSocialLinks((current) => [...current, createSocialLink()])}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100"
+              sx={{ flexShrink: 0 }}
             >
-              <Plus className="h-3.5 w-3.5" />
               Add Link
-            </button>
-          </div>
+            </Button>
+          </Stack>
 
-          <div className="mt-5 space-y-3">
+          <Stack spacing={1.5} sx={{ mt: 2.5 }}>
             {socialLinks.length === 0 ? (
-              <div className="rounded-md border border-dashed border-dash-border px-4 py-8 text-center text-sm text-dash-muted">
-                No social links yet. Add one above.
-              </div>
+              <Box sx={settingsDashedEmptySx}>
+                <Typography variant="body2" color="text.secondary">
+                  No social links yet. Add one above.
+                </Typography>
+              </Box>
             ) : (
               socialLinks.map((link) => (
-                <div
-                  key={link.id}
-                  className="rounded-md border border-dash-border bg-slate-50/70 p-3 sm:p-4"
-                >
-                  <div className="grid gap-3 md:grid-cols-[140px_1fr_auto] md:items-end">
-                    <div>
-                      <label className="mb-1 block text-xs font-semibold text-dash-muted">
-                        Platform
-                      </label>
-                      <select
+                <Paper key={link.id} elevation={0} sx={settingsNestedSx}>
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gap: 1.5,
+                      gridTemplateColumns: { xs: "1fr", md: "140px 1fr auto" },
+                      alignItems: { md: "end" },
+                    }}
+                  >
+                    <FormControl size={textFieldSize} fullWidth>
+                      <InputLabel id={`platform-${link.id}`}>Platform</InputLabel>
+                      <Select
+                        labelId={`platform-${link.id}`}
+                        label="Platform"
                         value={link.platform}
                         onChange={(event) =>
                           handleSocialChange(link.id, "platform", event.target.value)
                         }
-                        className={inputClass}
                       >
                         {SOCIAL_PLATFORMS.map((platform) => (
-                          <option key={platform.id} value={platform.id}>
+                          <MenuItem key={platform.id} value={platform.id}>
                             {platform.label}
-                          </option>
+                          </MenuItem>
                         ))}
-                      </select>
-                    </div>
+                      </Select>
+                    </FormControl>
 
-                    <div>
-                      <label className="mb-1 block text-xs font-semibold text-dash-muted">URL</label>
-                      <input
-                        type="url"
-                        value={link.url}
-                        onChange={(event) => handleSocialChange(link.id, "url", event.target.value)}
-                        placeholder="https://facebook.com/yourpage"
-                        className={inputClass}
-                      />
-                    </div>
+                    <TextField
+                      label="URL"
+                      size={textFieldSize}
+                      fullWidth
+                      type="url"
+                      value={link.url}
+                      onChange={(event) => handleSocialChange(link.id, "url", event.target.value)}
+                      placeholder="https://facebook.com/yourpage"
+                    />
 
-                    <div className="flex items-center gap-2 sm:flex-col sm:items-stretch">
-                      <label className="inline-flex items-center gap-2 rounded-md border border-dash-border bg-white px-3 py-2.5 text-xs font-semibold text-dash-text">
-                        <input
-                          type="checkbox"
-                          checked={link.enabled}
-                          onChange={(event) =>
-                            handleSocialChange(link.id, "enabled", event.target.checked)
-                          }
-                          className="h-4 w-4 accent-indigo-600"
-                        />
-                        Show
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setSocialLinks((current) => current.filter((entry) => entry.id !== link.id))
+                    <Stack
+                      direction={{ xs: "row", sm: "column" }}
+                      spacing={1}
+                      alignItems={{ xs: "center", sm: "stretch" }}
+                    >
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size="small"
+                            checked={link.enabled}
+                            onChange={(event) =>
+                              handleSocialChange(link.id, "enabled", event.target.checked)
+                            }
+                          />
                         }
-                        className="inline-flex items-center justify-center gap-1 rounded-md border border-red-200 bg-red-50 px-3 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100"
+                        label="Show"
+                        sx={{
+                          m: 0,
+                          px: 1,
+                          border: 1,
+                          borderColor: "divider",
+                          borderRadius: 1,
+                          bgcolor: "background.paper",
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        startIcon={<DeleteOutlineRoundedIcon fontSize="small" />}
+                        onClick={() =>
+                          setSocialLinks((current) =>
+                            current.filter((entry) => entry.id !== link.id)
+                          )
+                        }
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
                         Remove
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                      </Button>
+                    </Stack>
+                  </Box>
+                </Paper>
               ))
             )}
-          </div>
-        </section>
-      </div>
+          </Stack>
+        </Paper>
+      </Box>
     </SettingsPageShell>
   );
 }

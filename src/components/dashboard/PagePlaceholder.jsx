@@ -1,35 +1,76 @@
 "use client";
 
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import BuildOutlinedIcon from "@mui/icons-material/BuildOutlined";
 import { motion } from "motion/react";
-import { HiOutlineWrenchScrewdriver } from "react-icons/hi2";
 
 export default function PagePlaceholder({ title, description, icon: Icon }) {
+  const ResolvedIcon = Icon || BuildOutlinedIcon;
+
   return (
-    <motion.div
+    <Paper
+      component={motion.div}
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="dash-card flex min-h-[480px] flex-col items-center justify-center p-12 text-center"
+      elevation={0}
+      sx={{
+        minHeight: 480,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        p: 6,
+        textAlign: "center",
+        border: 1,
+        borderColor: "divider",
+      }}
     >
-      <motion.div
+      <Box
+        component={motion.div}
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        className="rounded-md relative mb-6 flex h-20 w-20 items-center justify-center border border-indigo-200 bg-indigo-50"
+        sx={{
+          position: "relative",
+          mb: 3,
+          width: 80,
+          height: 80,
+          borderRadius: 1,
+          border: 1,
+          borderColor: "primary.light",
+          bgcolor: "primary.50",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
       >
-        {Icon ? (
-          <Icon className="h-8 w-8 text-indigo-600" />
-        ) : (
-          <HiOutlineWrenchScrewdriver className="h-8 w-8 text-indigo-600" />
-        )}
-        <span className="absolute -top-1 -right-1 h-3 w-3 border-2 border-white bg-amber-400" />
-      </motion.div>
-      <h2 className="text-2xl font-bold text-dash-text">{title}</h2>
-      <p className="mt-2 max-w-md text-sm leading-relaxed text-dash-muted">{description}</p>
-      <div className="mt-8 flex gap-2">
-        <span className="h-1.5 w-8 bg-indigo-500" />
-        <span className="h-1.5 w-4 bg-indigo-300" />
-        <span className="h-1.5 w-2 bg-indigo-200" />
-      </div>
-    </motion.div>
+        <ResolvedIcon sx={{ fontSize: 32, color: "primary.main" }} />
+        <Box
+          sx={{
+            position: "absolute",
+            top: -4,
+            right: -4,
+            width: 12,
+            height: 12,
+            bgcolor: "warning.main",
+            border: 2,
+            borderColor: "common.white",
+          }}
+        />
+      </Box>
+      <Typography variant="h5" fontWeight={800}>
+        {title}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1, maxWidth: 420, lineHeight: 1.7 }}>
+        {description}
+      </Typography>
+      <Box sx={{ mt: 4, display: "flex", gap: 1 }}>
+        <Box sx={{ height: 6, width: 32, bgcolor: "primary.main" }} />
+        <Box sx={{ height: 6, width: 16, bgcolor: "primary.light" }} />
+        <Box sx={{ height: 6, width: 8, bgcolor: "primary.50" }} />
+      </Box>
+    </Paper>
   );
 }

@@ -3,24 +3,44 @@
 import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import toast from "react-hot-toast";
-import {
-  Copy,
-  ExternalLink,
-  Eye,
-  FileText,
-  Loader2,
-  Pencil,
-  Phone,
-  ShoppingBag,
-  Tag,
-  Trash2,
-  Truck,
-  X,
-} from "lucide-react";
-import { FaWhatsapp } from "react-icons/fa";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import Chip from "@mui/material/Chip";
+import CircularProgress from "@mui/material/CircularProgress";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import FormControl from "@mui/material/FormControl";
+import IconButton from "@mui/material/IconButton";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Paper from "@mui/material/Paper";
+import Select from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
+import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
+import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import OrderEditModal from "@/components/dashboard/OrderEditModal";
+import StatusBadge from "@/components/dashboard/StatusBadge";
 import {
   useAdminOrders,
   useDeleteAdminOrder,
@@ -35,7 +55,6 @@ import {
   MobileCardList,
   MobileDashCard,
   MobileDashRow,
-  mobileDashModalClass,
 } from "@/components/shared/ResponsiveTable";
 import {
   formatDisplayOrderNumber,
@@ -43,8 +62,6 @@ import {
   formatOrderTotal,
   getOrderDateRange,
   getOrderItemSummary,
-  getOrderStatusClass,
-  getOrderStatusLabel,
   getSteadfastTrackingUrl,
   getWhatsAppPhoneUrl,
   isOrderInDateRange,
@@ -53,9 +70,6 @@ import {
   ORDER_STATUSES,
 } from "@/lib/orderHelpers";
 import { normalizePhone } from "@/lib/orderValidation";
-
-const inputClass =
-  "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
 
 const PRINT_STYLES = `
   :root { color-scheme: light; }
@@ -212,9 +226,21 @@ function buildStickerHtml(order) {
 
 function SectionTitle({ children }) {
   return (
-    <h3 className="border-b border-dash-border pb-2 text-xs font-bold tracking-[0.14em] text-dash-muted uppercase">
+    <Typography
+      variant="caption"
+      fontWeight={800}
+      color="text.secondary"
+      sx={{
+        display: "block",
+        borderBottom: 1,
+        borderColor: "divider",
+        pb: 1,
+        letterSpacing: "0.14em",
+        textTransform: "uppercase",
+      }}
+    >
       {children}
-    </h3>
+    </Typography>
   );
 }
 
@@ -222,172 +248,136 @@ function CopyableValue({ label, value }) {
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(value);
-      toast.success(`${label} কপি হয়েছে`);
+      toast.success(`${label} copied`);
     } catch {
-      toast.error("কপি করা যায়নি");
+      toast.error("Could not copy");
     }
   }
 
   return (
-    <button
+    <Button
       type="button"
+      size="small"
+      variant="outlined"
+      color="success"
       onClick={handleCopy}
-      title={`${label} কপি করুন`}
-      className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-left text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
+      title={`Copy ${label}`}
+      endIcon={<ContentCopyRoundedIcon sx={{ fontSize: "14px !important" }} />}
+      sx={{ justifyContent: "flex-start", textTransform: "none", fontWeight: 700, fontSize: 12 }}
     >
-      <span>
-        {label}: {value}
-      </span>
-      <Copy className="h-3.5 w-3.5 shrink-0" />
-    </button>
+      {label}: {value}
+    </Button>
   );
 }
 
 function SteadfastTrackingActions({ trackingCode }) {
   const code = String(trackingCode || "").trim();
   const trackingUrl = getSteadfastTrackingUrl(code);
-  const iconBtn =
-    "inline-flex h-7 w-7 items-center justify-center rounded-md border transition-colors";
 
   if (!code || !trackingUrl) return null;
 
   async function copyTrackingCode() {
     try {
       await navigator.clipboard.writeText(code);
-      toast.success("Tracking code কপি হয়েছে");
+      toast.success("Tracking code copied");
     } catch {
-      toast.error("কপি করা যায়নি");
+      toast.error("Could not copy");
     }
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <a
+    <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" alignItems="center">
+      <Button
+        component="a"
         href={trackingUrl}
         target="_blank"
         rel="noopener noreferrer"
-        title="Steadfast tracking খুলুন"
-        className="inline-flex items-center gap-1.5 rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 transition-colors hover:bg-indigo-100"
+        size="small"
+        variant="outlined"
+        startIcon={<OpenInNewRoundedIcon sx={{ fontSize: "14px !important" }} />}
+        sx={{ textTransform: "none", fontWeight: 700, fontSize: 12 }}
       >
-        <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-        Tracking খুলুন
-      </a>
-      <button
-        type="button"
+        Open tracking
+      </Button>
+      <IconButton
+        size="small"
         onClick={copyTrackingCode}
-        title="Tracking code কপি"
-        aria-label="Tracking code কপি করুন"
-        className={`${iconBtn} border-slate-200 bg-white text-dash-muted hover:border-indigo-200 hover:text-indigo-700`}
+        title="Copy tracking code"
+        aria-label="Copy tracking code"
+        sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}
       >
-        <Copy className="h-3.5 w-3.5" />
-      </button>
-      <span className="text-xs font-medium text-dash-muted">{code}</span>
-    </div>
+        <ContentCopyRoundedIcon sx={{ fontSize: 16 }} />
+      </IconButton>
+      <Typography variant="caption" color="text.secondary" fontWeight={600}>
+        {code}
+      </Typography>
+    </Stack>
   );
 }
 
 function CustomerPhoneActions({ phone }) {
   if (!phone) {
-    return <span className="text-xs text-dash-muted">—</span>;
+    return (
+      <Typography variant="caption" color="text.secondary">
+        —
+      </Typography>
+    );
   }
-
-  const iconBtn =
-    "inline-flex h-7 w-7 items-center justify-center rounded-md border transition-colors";
 
   async function copyPhone() {
     try {
       await navigator.clipboard.writeText(phone);
-      toast.success("নম্বর কপি হয়েছে");
+      toast.success("Number copied");
     } catch {
-      toast.error("কপি করা যায়নি");
+      toast.error("Could not copy");
     }
   }
 
   const whatsappUrl = getWhatsAppPhoneUrl(phone);
+  const iconSx = { border: 1, borderColor: "divider", borderRadius: 1 };
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span className="text-xs font-medium text-dash-muted">{phone}</span>
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
+    <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" alignItems="center">
+      <Typography variant="caption" color="text.secondary" fontWeight={600}>
+        {phone}
+      </Typography>
+      <Stack direction="row" spacing={0.5} alignItems="center">
+        <IconButton
+          size="small"
           onClick={copyPhone}
-          title="কপি"
-          aria-label="ফোন নম্বর কপি করুন"
-          className={`${iconBtn} border-slate-200 bg-white text-dash-muted hover:border-indigo-200 hover:text-indigo-700`}
+          title="Copy"
+          aria-label="Copy phone number"
+          sx={iconSx}
         >
-          <Copy className="h-3.5 w-3.5" />
-        </button>
-        <a
+          <ContentCopyRoundedIcon sx={{ fontSize: 16 }} />
+        </IconButton>
+        <IconButton
+          component="a"
           href={`tel:${phone}`}
-          title="কল"
-          aria-label="কল করুন"
-          className={`${iconBtn} border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100`}
+          size="small"
+          title="Call"
+          aria-label="Call"
+          color="success"
+          sx={{ ...iconSx, borderColor: "success.light", bgcolor: "rgba(46, 125, 50, 0.06)" }}
         >
-          <Phone className="h-3.5 w-3.5" />
-        </a>
+          <PhoneOutlinedIcon sx={{ fontSize: 16 }} />
+        </IconButton>
         {whatsappUrl ? (
-          <a
+          <IconButton
+            component="a"
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
+            size="small"
             title="WhatsApp"
             aria-label="WhatsApp"
-            className={`${iconBtn} border-green-200 bg-green-50 text-green-700 hover:bg-green-100`}
+            sx={{ ...iconSx, borderColor: "success.light", bgcolor: "rgba(46, 125, 50, 0.06)", color: "success.dark" }}
           >
-            <FaWhatsapp className="h-3.5 w-3.5" />
-          </a>
+            <WhatsAppIcon sx={{ fontSize: 16 }} />
+          </IconButton>
         ) : null}
-      </div>
-    </div>
-  );
-}
-
-function OrderStatusBadge({ status }) {
-  return (
-    <span
-      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[11px] font-semibold ${getOrderStatusClass(status)}`}
-    >
-      {getOrderStatusLabel(status)}
-    </span>
-  );
-}
-
-function ModalShell({ open, title, onClose, children, wide = false }) {
-  return (
-    <AnimatePresence>
-      {open ? (
-        <>
-          <motion.button
-            type="button"
-            aria-label="Close modal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]"
-          />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 16 }}
-            className={`${mobileDashModalClass} ${wide ? "sm:max-w-3xl" : "sm:max-w-xl"}`}
-          >
-            <div className="flex shrink-0 items-center justify-between border-b border-dash-border px-5 py-4">
-              <h2 className="text-lg font-bold text-dash-text">{title}</h2>
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-md flex h-8 w-8 items-center justify-center text-dash-muted transition-colors hover:bg-slate-100"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
-          </motion.div>
-        </>
-      ) : null}
-    </AnimatePresence>
+      </Stack>
+    </Stack>
   );
 }
 
@@ -395,138 +385,206 @@ function OrderViewModal({ open, onClose, order }) {
   if (!order) return null;
 
   return (
-    <ModalShell
-      open={open}
-      title={`Order ${formatDisplayOrderNumber(order.order_number)}`}
-      onClose={onClose}
-      wide
-    >
-      <div className="space-y-6 p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold text-dash-muted">Order ID</p>
-            <p className="mt-1 text-lg font-bold text-indigo-600">
-              {formatDisplayOrderNumber(order.order_number)}
-            </p>
-            <p className="mt-1 text-xs text-dash-muted">{formatOrderDate(order.createdAt)}</p>
-          </div>
-          <OrderStatusBadge status={order.status} />
-        </div>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md" scroll="paper" PaperProps={{ sx: { maxHeight: "92dvh" } }}>
+      <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, pr: 1 }}>
+        <Typography variant="h6" fontWeight={700}>
+          Order {formatDisplayOrderNumber(order.order_number)}
+        </Typography>
+        <IconButton aria-label="Close modal" onClick={onClose} size="small">
+          <CloseRoundedIcon fontSize="small" />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent dividers>
+        <Stack spacing={3} sx={{ py: 1 }}>
+          <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap" justifyContent="space-between" alignItems="flex-start">
+            <Box>
+              <Typography variant="caption" fontWeight={700} color="text.secondary">
+                Order ID
+              </Typography>
+              <Typography variant="h6" fontWeight={800} color="primary.main" sx={{ mt: 0.5 }}>
+                {formatDisplayOrderNumber(order.order_number)}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+                {formatOrderDate(order.createdAt)}
+              </Typography>
+            </Box>
+            <StatusBadge status={order.status} />
+          </Stack>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-md border border-dash-border p-4">
-            <SectionTitle>Customer</SectionTitle>
-            <dl className="mt-3 space-y-2 text-sm">
-              <div>
-                <dt className="text-xs text-dash-muted">Name</dt>
-                <dd className="font-semibold text-dash-text">{order.customer?.name}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-dash-muted">Phone</dt>
-                <dd className="mt-1">
-                  <CustomerPhoneActions phone={order.customer?.phone} />
-                </dd>
-              </div>
-              <div>
-                <dt className="text-xs text-dash-muted">Address</dt>
-                <dd className="text-dash-text">{order.customer?.address}</dd>
-              </div>
-              {order.customer?.delivery_area ? (
-                <div>
-                  <dt className="text-xs text-dash-muted">Delivery Area</dt>
-                  <dd className="text-dash-text">{order.customer.delivery_area}</dd>
-                </div>
-              ) : null}
-            </dl>
-          </div>
-          <div className="rounded-md border border-dash-border p-4">
-            <SectionTitle>Delivery & Payment</SectionTitle>
-            <dl className="mt-3 space-y-2 text-sm">
-              <div>
-                <dt className="text-xs text-dash-muted">Delivery</dt>
-                <dd className="font-semibold text-dash-text">
-                  {order.delivery?.label} — ৳{order.delivery?.charge?.toLocaleString()}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-xs text-dash-muted">Payment</dt>
-                <dd className="font-semibold text-dash-text">{order.payment?.label || "Cash On Delivery"}</dd>
-              </div>
-              {order.steadfast?.tracking_code || order.steadfast?.consignment_id ? (
-                <div>
-                  <dt className="text-xs text-dash-muted">Steadfast</dt>
-                  <dd className="space-y-2 font-semibold text-dash-text">
-                    {order.steadfast.tracking_code ? (
-                      <SteadfastTrackingActions trackingCode={String(order.steadfast.tracking_code)} />
+          <Box
+            sx={{
+              display: "grid",
+              gap: 2,
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+            }}
+          >
+            <Paper variant="outlined" sx={{ p: 2 }}>
+              <SectionTitle>Customer</SectionTitle>
+              <Stack spacing={1.5} sx={{ mt: 1.5 }}>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Name
+                  </Typography>
+                  <Typography variant="body2" fontWeight={700}>
+                    {order.customer?.name}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Phone
+                  </Typography>
+                  <Box sx={{ mt: 0.5 }}>
+                    <CustomerPhoneActions phone={order.customer?.phone} />
+                  </Box>
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Address
+                  </Typography>
+                  <Typography variant="body2">{order.customer?.address}</Typography>
+                </Box>
+                {order.customer?.delivery_area ? (
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Delivery Area
+                    </Typography>
+                    <Typography variant="body2">{order.customer.delivery_area}</Typography>
+                  </Box>
+                ) : null}
+              </Stack>
+            </Paper>
+
+            <Paper variant="outlined" sx={{ p: 2 }}>
+              <SectionTitle>Delivery & Payment</SectionTitle>
+              <Stack spacing={1.5} sx={{ mt: 1.5 }}>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Delivery
+                  </Typography>
+                  <Typography variant="body2" fontWeight={700}>
+                    {order.delivery?.label} — ৳{order.delivery?.charge?.toLocaleString()}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Payment
+                  </Typography>
+                  <Typography variant="body2" fontWeight={700}>
+                    {order.payment?.label || "Cash On Delivery"}
+                  </Typography>
+                </Box>
+                {order.steadfast?.tracking_code || order.steadfast?.consignment_id ? (
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Steadfast
+                    </Typography>
+                    <Stack spacing={1} sx={{ mt: 0.5 }}>
+                      {order.steadfast.tracking_code ? (
+                        <SteadfastTrackingActions trackingCode={String(order.steadfast.tracking_code)} />
+                      ) : null}
+                      {order.steadfast.consignment_id ? (
+                        <CopyableValue
+                          label="Consignment ID"
+                          value={String(order.steadfast.consignment_id)}
+                        />
+                      ) : null}
+                    </Stack>
+                  </Box>
+                ) : null}
+              </Stack>
+            </Paper>
+          </Box>
+
+          <Box>
+            <SectionTitle>Items</SectionTitle>
+            <Stack spacing={1.5} sx={{ mt: 1.5 }}>
+              {(order.items || []).map((item, index) => (
+                <Paper
+                  key={`${item.product_id}-${item.selected_variant}-${index}`}
+                  variant="outlined"
+                  sx={{ p: 1.5, display: "flex", gap: 1.5 }}
+                >
+                  <Box
+                    sx={{
+                      position: "relative",
+                      width: 64,
+                      height: 64,
+                      flexShrink: 0,
+                      borderRadius: 1,
+                      bgcolor: "grey.100",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {item.image ? (
+                      <Image src={item.image} alt={item.title} fill unoptimized className="object-contain p-1" />
+                    ) : (
+                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: 1, color: "text.disabled" }}>
+                        <ShoppingBagOutlinedIcon sx={{ opacity: 0.4 }} />
+                      </Box>
+                    )}
+                  </Box>
+                  <Box sx={{ minWidth: 0, flex: 1 }}>
+                    <Typography fontWeight={700}>{item.title}</Typography>
+                    {item.selected_variant ? (
+                      <Typography variant="caption" color="text.secondary">
+                        Variant: {item.selected_variant}
+                      </Typography>
                     ) : null}
-                    {order.steadfast.consignment_id ? (
-                      <CopyableValue
-                        label="Consignment ID"
-                        value={String(order.steadfast.consignment_id)}
-                      />
-                    ) : null}
-                  </dd>
-                </div>
-              ) : null}
-            </dl>
-          </div>
-        </div>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                      ৳{item.price?.toLocaleString()} × {item.quantity}
+                      {item.discount > 0 ? ` − ৳${item.discount.toLocaleString()} disc.` : ""} ={" "}
+                      <Box component="span" fontWeight={700} color="text.primary">
+                        ৳{item.line_total?.toLocaleString()}
+                      </Box>
+                    </Typography>
+                  </Box>
+                </Paper>
+              ))}
+            </Stack>
+          </Box>
 
-        <div>
-          <SectionTitle>Items</SectionTitle>
-          <div className="mt-3 space-y-3">
-            {(order.items || []).map((item, index) => (
-              <div
-                key={`${item.product_id}-${item.selected_variant}-${index}`}
-                className="flex gap-3 rounded-md border border-dash-border p-3"
-              >
-                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-slate-100">
-                  {item.image ? (
-                    <Image src={item.image} alt={item.title} fill unoptimized className="object-contain p-1" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-dash-muted">
-                      <ShoppingBag className="h-5 w-5 opacity-40" />
-                    </div>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-dash-text">{item.title}</p>
-                  {item.selected_variant ? (
-                    <p className="text-xs text-dash-muted">Variant: {item.selected_variant}</p>
-                  ) : null}
-                  <p className="mt-1 text-sm text-dash-muted">
-                    ৳{item.price?.toLocaleString()} × {item.quantity}
-                    {item.discount > 0 ? ` − ৳${item.discount.toLocaleString()} disc.` : ""} ={" "}
-                    <span className="font-semibold text-dash-text">৳{item.line_total?.toLocaleString()}</span>
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-md border border-dash-border bg-slate-50 p-4 text-sm">
-          <div className="flex justify-between text-dash-muted">
-            <span>Subtotal</span>
-            <span className="font-semibold text-dash-text">৳{order.pricing?.subtotal?.toLocaleString()}</span>
-          </div>
-          {order.pricing?.discount > 0 ? (
-            <div className="mt-2 flex justify-between text-emerald-600">
-              <span>Discount</span>
-              <span className="font-semibold">-৳{order.pricing.discount.toLocaleString()}</span>
-            </div>
-          ) : null}
-          <div className="mt-2 flex justify-between text-dash-muted">
-            <span>Delivery</span>
-            <span className="font-semibold text-dash-text">৳{order.pricing?.delivery_charge?.toLocaleString()}</span>
-          </div>
-          <div className="mt-3 flex justify-between border-t border-dash-border pt-3">
-            <span className="font-bold text-dash-text">Total</span>
-            <span className="text-lg font-bold text-indigo-600">{formatOrderTotal(order)}</span>
-          </div>
-        </div>
-      </div>
-    </ModalShell>
+          <Paper variant="outlined" sx={{ bgcolor: "grey.50", p: 2 }}>
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body2" color="text.secondary">
+                Subtotal
+              </Typography>
+              <Typography variant="body2" fontWeight={700}>
+                ৳{order.pricing?.subtotal?.toLocaleString()}
+              </Typography>
+            </Stack>
+            {order.pricing?.discount > 0 ? (
+              <Stack direction="row" justifyContent="space-between" sx={{ mt: 1 }}>
+                <Typography variant="body2" color="success.main">
+                  Discount
+                </Typography>
+                <Typography variant="body2" fontWeight={700} color="success.main">
+                  -৳{order.pricing.discount.toLocaleString()}
+                </Typography>
+              </Stack>
+            ) : null}
+            <Stack direction="row" justifyContent="space-between" sx={{ mt: 1 }}>
+              <Typography variant="body2" color="text.secondary">
+                Delivery
+              </Typography>
+              <Typography variant="body2" fontWeight={700}>
+                ৳{order.pricing?.delivery_charge?.toLocaleString()}
+              </Typography>
+            </Stack>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mt: 1.5, pt: 1.5, borderTop: 1, borderColor: "divider" }}
+            >
+              <Typography fontWeight={800}>Total</Typography>
+              <Typography variant="h6" fontWeight={800} color="primary.main">
+                {formatOrderTotal(order)}
+              </Typography>
+            </Stack>
+          </Paper>
+        </Stack>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -549,28 +607,26 @@ function OrderRowActions({
   isDeleting,
   isSendingCourier,
 }) {
-  const iconBtn =
-    "inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors";
   const consignmentId = getSteadfastConsignmentId(order);
   const trackingCode = getSteadfastTrackingCode(order);
-  const trackingUrl = getSteadfastTrackingUrl(trackingCode);
   const alreadySent = Boolean(consignmentId || trackingCode);
+  const iconSx = { border: 1, borderRadius: 1 };
 
   async function copyConsignmentId() {
     if (!consignmentId) return;
 
     try {
       await navigator.clipboard.writeText(consignmentId);
-      toast.success("Consignment ID কপি হয়েছে");
+      toast.success("Consignment ID copied");
     } catch {
-      toast.error("কপি করা যায়নি");
+      toast.error("Could not copy");
     }
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <button
-        type="button"
+    <Stack direction="row" spacing={0.75} useFlexGap flexWrap="wrap" alignItems="center">
+      <IconButton
+        size="small"
         title="Print Invoice"
         aria-label="Print Invoice"
         onClick={() =>
@@ -580,12 +636,13 @@ function OrderRowActions({
             html: buildInvoiceHtml(order),
           })
         }
-        className={`${iconBtn} border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100`}
+        color="primary"
+        sx={{ ...iconSx, borderColor: "primary.light", bgcolor: "rgba(63, 81, 181, 0.06)" }}
       >
-        <FileText className="h-4 w-4" />
-      </button>
-      <button
-        type="button"
+        <DescriptionOutlinedIcon fontSize="small" />
+      </IconButton>
+      <IconButton
+        size="small"
         title="Print Sticker"
         aria-label="Print Sticker"
         onClick={() =>
@@ -595,74 +652,92 @@ function OrderRowActions({
             html: buildStickerHtml(order),
           })
         }
-        className={`${iconBtn} border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100`}
+        color="success"
+        sx={{ ...iconSx, borderColor: "success.light", bgcolor: "rgba(46, 125, 50, 0.06)" }}
       >
-        <Tag className="h-4 w-4" />
-      </button>
+        <SellOutlinedIcon fontSize="small" />
+      </IconButton>
       {alreadySent ? (
-        <>
-          {consignmentId ? (
-            <button
-              type="button"
-              onClick={copyConsignmentId}
-              title="Consignment ID কপি করুন"
-              aria-label="Consignment ID কপি করুন"
-              className="inline-flex h-8 max-w-[140px] items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 text-[11px] font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 sm:max-w-[160px]"
-            >
-              <Copy className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{consignmentId}</span>
-            </button>
-          ) : null}
-        </>
+        consignmentId ? (
+          <Button
+            size="small"
+            variant="outlined"
+            color="success"
+            onClick={copyConsignmentId}
+            title="Copy consignment ID"
+            aria-label="Copy consignment ID"
+            startIcon={<ContentCopyRoundedIcon sx={{ fontSize: "14px !important" }} />}
+            sx={{
+              maxWidth: { xs: 140, sm: 160 },
+              textTransform: "none",
+              fontWeight: 700,
+              fontSize: 11,
+              "& .MuiButton-startIcon": { mr: 0.5 },
+            }}
+          >
+            <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {consignmentId}
+            </Box>
+          </Button>
+        ) : null
       ) : (
-        <button
-          type="button"
+        <Button
+          size="small"
+          variant="outlined"
+          color="secondary"
           onClick={() => onCourier(order)}
           disabled={isSendingCourier}
-          title="Steadfast-এ পাঠান"
-          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50 px-2.5 text-[11px] font-semibold text-violet-700 transition-colors hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-60"
+          title="Send to Steadfast"
+          aria-label="Send to courier"
+          startIcon={
+            isSendingCourier ? (
+              <CircularProgress size={14} color="inherit" />
+            ) : (
+              <LocalShippingOutlinedIcon sx={{ fontSize: "16px !important" }} />
+            )
+          }
+          sx={{ textTransform: "none", fontWeight: 700, fontSize: 11, minWidth: 0 }}
         >
-          {isSendingCourier ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <Truck className="h-3.5 w-3.5" />
-          )}
-          <span className="hidden xl:inline">কুরিয়ারে পাঠান</span>
-        </button>
+          <Box component="span" sx={{ display: { xs: "none", xl: "inline" } }}>
+            Send to courier
+          </Box>
+        </Button>
       )}
-      <button
-        type="button"
+      <IconButton
+        size="small"
         aria-label="View order"
         title="View"
         onClick={() => onView(order)}
-        className={`${iconBtn} border-slate-200 bg-white text-dash-text hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700`}
+        sx={iconSx}
       >
-        <Eye className="h-4 w-4" />
-      </button>
-      <button
-        type="button"
+        <VisibilityOutlinedIcon fontSize="small" />
+      </IconButton>
+      <IconButton
+        size="small"
         aria-label="Edit order"
         title="Edit"
         onClick={() => onEdit(order)}
-        className={`${iconBtn} border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100`}
+        color="primary"
+        sx={{ ...iconSx, borderColor: "primary.light", bgcolor: "rgba(63, 81, 181, 0.06)" }}
       >
-        <Pencil className="h-4 w-4" />
-      </button>
-      <button
-        type="button"
+        <EditOutlinedIcon fontSize="small" />
+      </IconButton>
+      <IconButton
+        size="small"
         aria-label="Delete order"
         title="Delete"
         onClick={() => onDelete(order)}
         disabled={isDeleting}
-        className={`${iconBtn} border-red-200 bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-60`}
+        color="error"
+        sx={{ ...iconSx, borderColor: "error.light", bgcolor: "rgba(211, 47, 47, 0.06)" }}
       >
         {isDeleting ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <CircularProgress size={16} color="inherit" />
         ) : (
-          <Trash2 className="h-4 w-4" />
+          <DeleteOutlineRoundedIcon fontSize="small" />
         )}
-      </button>
-    </div>
+      </IconButton>
+    </Stack>
   );
 }
 
@@ -670,44 +745,48 @@ function RepeatCustomerBadge({ phone, count }) {
   if (!phone || count < 2) return null;
 
   return (
-    <Link
+    <Chip
+      component={Link}
       href={`/dashboard/reports/repeat-customers?phone=${encodeURIComponent(phone)}`}
-      className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600 hover:bg-red-100"
+      clickable
+      size="small"
+      color="error"
+      variant="outlined"
+      label="Repeat customer"
       title="Repeat customer report"
-    >
-      Repeat customer
-    </Link>
+      sx={{ height: 22, fontSize: 10, fontWeight: 700 }}
+    />
   );
 }
 
 function CourierIdCell({ order }) {
   const courierId = getCourierId(order);
   if (!courierId) {
-    return (
-      <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold text-slate-400">
-        No CN
-      </span>
-    );
+    return <Chip size="small" label="No CN" variant="outlined" sx={{ fontSize: 10, fontWeight: 700, color: "text.disabled" }} />;
   }
 
   return (
-    <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
-      {courierId}
-    </span>
+    <Chip
+      size="small"
+      color="success"
+      variant="outlined"
+      label={courierId}
+      sx={{ fontSize: 11, fontWeight: 700 }}
+    />
   );
 }
 
 function ReportViewAction({ order, onView }) {
   return (
-    <button
-      type="button"
+    <IconButton
+      size="small"
       onClick={() => onView(order)}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-dash-text transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
       title="View"
       aria-label="View order"
+      sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}
     >
-      <Eye className="h-4 w-4" />
-    </button>
+      <VisibilityOutlinedIcon fontSize="small" />
+    </IconButton>
   );
 }
 
@@ -810,7 +889,7 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
 
   async function handleSendToCourier(order) {
     if (order.steadfast?.tracking_code || order.steadfast?.consignment_id) {
-      toast.error("এই অর্ডার আগেই Steadfast-এ পাঠানো হয়েছে");
+      toast.error("This order was already sent to Steadfast");
       return;
     }
 
@@ -820,11 +899,11 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
       const tracking = updated?.steadfast?.tracking_code;
       toast.success(
         tracking
-          ? `Steadfast-এ পাঠানো হয়েছে — Tracking: ${tracking}`
-          : "Steadfast-এ সফলভাবে পাঠানো হয়েছে"
+          ? `Sent to Steadfast — Tracking: ${tracking}`
+          : "Successfully sent to Steadfast"
       );
     } catch (err) {
-      toast.error(err.message || "Steadfast-এ পাঠানো যায়নি");
+      toast.error(err.message || "Failed to send to Steadfast");
     } finally {
       setCourierOrderId(null);
     }
@@ -839,14 +918,14 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
       const data = await sendBulkToSteadfast(selectedOrders.map((order) => order._id));
 
       if (data.failedCount > 0) {
-        toast.error(`${data.successCount}টি সফল, ${data.failedCount}টি ব্যর্থ`);
+        toast.error(`${data.successCount} succeeded, ${data.failedCount} failed`);
       } else {
-        toast.success(`${data.successCount}টি অর্ডার Steadfast-এ পাঠানো হয়েছে`);
+        toast.success(`${data.successCount} orders sent to Steadfast`);
       }
 
       clearSelection();
     } catch (err) {
-      toast.error(err.message || "বাল্ক Steadfast ব্যর্থ হয়েছে");
+      toast.error(err.message || "Bulk Steadfast send failed");
     } finally {
       setBulkCourierLoading(false);
     }
@@ -865,251 +944,299 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
   }
 
   return (
-    <div className="space-y-6">
+    <Stack spacing={3}>
       {!reportMode ? (
         <DashPageHeader
           eyebrow="Fulfillment"
           title="Orders"
           description="View, update status, and manage customer orders."
           action={
-            <div className="flex flex-col items-stretch gap-2 sm:items-end">
-              <label htmlFor="order-date-filter" className="sr-only">
-                Filter by date
-              </label>
-              <select
-                id="order-date-filter"
-                value={dateFilter}
-                onChange={(event) => setDateFilter(event.target.value)}
-                className={`${inputClass} w-full min-w-[180px] sm:w-52`}
-              >
-                {ORDER_DATE_FILTERS.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <p className="text-sm font-semibold text-dash-muted">
+            <Stack spacing={1} sx={{ alignItems: { sm: "flex-end" } }}>
+              <FormControl size="small" sx={{ minWidth: { sm: 208 }, width: { xs: 1, sm: "auto" } }}>
+                <InputLabel id="order-date-filter-label">Filter by date</InputLabel>
+                <Select
+                  labelId="order-date-filter-label"
+                  id="order-date-filter"
+                  label="Filter by date"
+                  value={dateFilter}
+                  onChange={(event) => setDateFilter(event.target.value)}
+                >
+                  {ORDER_DATE_FILTERS.map((option) => (
+                    <MenuItem key={option.id} value={option.id}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Typography variant="body2" fontWeight={700} color="text.secondary">
                 {filteredOrders.length === orders.length
                   ? `${orders.length} total orders`
                   : `${filteredOrders.length} of ${orders.length} orders`}
-              </p>
-            </div>
+              </Typography>
+            </Stack>
           }
         />
       ) : null}
 
       {!reportMode && dateFilter === "custom" ? (
-        <div className="flex flex-col gap-3 rounded-md border border-dash-border bg-white p-3 sm:flex-row sm:items-end sm:p-4">
-          <div className="flex-1">
-            <label htmlFor="order-date-from" className="mb-1.5 block text-xs font-semibold text-dash-muted">
-              From
-            </label>
-            <input
+        <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 } }}>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems={{ sm: "flex-end" }}>
+            <TextField
               id="order-date-from"
+              label="From"
               type="date"
+              size="small"
+              fullWidth
               value={customDateFrom}
               onChange={(event) => setCustomDateFrom(event.target.value)}
-              className={inputClass}
+              InputLabelProps={{ shrink: true }}
             />
-          </div>
-          <div className="flex-1">
-            <label htmlFor="order-date-to" className="mb-1.5 block text-xs font-semibold text-dash-muted">
-              To
-            </label>
-            <input
+            <TextField
               id="order-date-to"
+              label="To"
               type="date"
+              size="small"
+              fullWidth
               value={customDateTo}
-              min={customDateFrom || undefined}
               onChange={(event) => setCustomDateTo(event.target.value)}
-              className={inputClass}
+              inputProps={{ min: customDateFrom || undefined }}
+              InputLabelProps={{ shrink: true }}
             />
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              setCustomDateFrom("");
-              setCustomDateTo("");
-            }}
-            className="rounded-md border border-dash-border px-4 py-2.5 text-sm font-semibold text-dash-muted transition-colors hover:border-indigo-200 hover:text-indigo-700"
-          >
-            Clear
-          </button>
-        </div>
+            <Button
+              type="button"
+              variant="outlined"
+              color="inherit"
+              onClick={() => {
+                setCustomDateFrom("");
+                setCustomDateTo("");
+              }}
+              sx={{ flexShrink: 0 }}
+            >
+              Clear
+            </Button>
+          </Stack>
+        </Paper>
       ) : null}
 
       {!reportMode ? (
-        <div className="space-y-3">
-        <input
-          type="search"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search by order ID, name, or phone..."
-          className={`${inputClass} w-full`}
-        />
+        <Stack spacing={1.5}>
+          <TextField
+            type="search"
+            size="small"
+            fullWidth
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search by order ID, name, or phone..."
+          />
 
-          <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <button
-            type="button"
-            onClick={() => setStatusFilter("all")}
-            className={`shrink-0 rounded-md border px-3.5 py-2 text-sm font-semibold transition-colors sm:px-4 ${
-              statusFilter === "all"
-                ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-                : "border-dash-border bg-white text-dash-muted hover:border-indigo-200 hover:text-indigo-700"
-            }`}
+          <Stack
+            direction="row"
+            spacing={1}
+            useFlexGap
+            sx={{
+              overflowX: "auto",
+              pb: 0.5,
+              scrollbarWidth: "none",
+              "&::-webkit-scrollbar": { display: "none" },
+            }}
           >
-            All
-          </button>
-          {ORDER_STATUSES.map((entry) => {
-            const active = statusFilter === entry.value;
+            <Button
+              type="button"
+              size="small"
+              variant={statusFilter === "all" ? "contained" : "outlined"}
+              color={statusFilter === "all" ? "primary" : "inherit"}
+              onClick={() => setStatusFilter("all")}
+              sx={{ flexShrink: 0, textTransform: "none", fontWeight: 700 }}
+            >
+              All
+            </Button>
+            {ORDER_STATUSES.map((entry) => {
+              const active = statusFilter === entry.value;
 
-            return (
-              <button
-                key={entry.value}
-                type="button"
-                onClick={() => setStatusFilter(entry.value)}
-                className={`shrink-0 rounded-md border px-3.5 py-2 text-sm font-semibold transition-colors sm:px-4 ${
-                  active
-                    ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-                    : "border-dash-border bg-white text-dash-muted hover:border-indigo-200 hover:text-indigo-700"
-                }`}
-              >
-                {entry.label}
-              </button>
-            );
-          })}
-        </div>
-        </div>
+              return (
+                <Button
+                  key={entry.value}
+                  type="button"
+                  size="small"
+                  variant={active ? "contained" : "outlined"}
+                  color={active ? "primary" : "inherit"}
+                  onClick={() => setStatusFilter(entry.value)}
+                  sx={{ flexShrink: 0, textTransform: "none", fontWeight: 700 }}
+                >
+                  {entry.label}
+                </Button>
+              );
+            })}
+          </Stack>
+        </Stack>
       ) : null}
 
       {selectedCount > 0 ? (
-        <div className="flex flex-col gap-3 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm font-semibold text-violet-900">
-            {selectedCount}টি অর্ডার নির্বাচিত
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={handleBulkCourier}
-              disabled={bulkCourierLoading}
-              className="inline-flex items-center gap-2 rounded-md bg-violet-600 px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-700 disabled:opacity-60"
-            >
-              {bulkCourierLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Truck className="h-4 w-4" />
-              )}
-              Steadfast-এ পাঠান
-            </button>
-            <button
-              type="button"
-              onClick={clearSelection}
-              className="rounded-md border border-violet-200 bg-white px-3.5 py-2 text-sm font-semibold text-violet-700 transition-colors hover:bg-violet-100"
-            >
-              বাতিল
-            </button>
-          </div>
-        </div>
+        <Paper
+          variant="outlined"
+          sx={{
+            borderColor: "secondary.light",
+            bgcolor: "rgba(156, 39, 176, 0.06)",
+            px: 2,
+            py: 1.5,
+          }}
+        >
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={1.5}
+            alignItems={{ sm: "center" }}
+            justifyContent="space-between"
+          >
+            <Typography variant="body2" fontWeight={700} color="secondary.dark">
+              {selectedCount} orders selected
+            </Typography>
+            <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+              <Button
+                type="button"
+                variant="contained"
+                color="secondary"
+                onClick={handleBulkCourier}
+                disabled={bulkCourierLoading}
+                startIcon={
+                  bulkCourierLoading ? (
+                    <CircularProgress size={16} color="inherit" />
+                  ) : (
+                    <LocalShippingOutlinedIcon />
+                  )
+                }
+                sx={{ textTransform: "none", fontWeight: 700 }}
+              >
+                Send to Steadfast
+              </Button>
+              <Button
+                type="button"
+                variant="outlined"
+                color="secondary"
+                onClick={clearSelection}
+                sx={{ textTransform: "none", fontWeight: 700 }}
+              >
+                Cancel
+              </Button>
+            </Stack>
+          </Stack>
+        </Paper>
       ) : null}
 
       {isLoading ? (
-        <div className="dash-card flex min-h-[280px] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-        </div>
+        <Paper
+          variant="outlined"
+          sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 280 }}
+        >
+          <CircularProgress />
+        </Paper>
       ) : isError ? (
-        <div className="dash-card border-red-200 bg-red-50 p-6 text-center">
-          <p className="text-sm text-red-600">{error?.message || "Failed to load orders."}</p>
-          <button type="button" onClick={() => refetch()} className="mt-3 text-sm font-semibold text-indigo-600">
+        <Paper variant="outlined" sx={{ borderColor: "error.light", bgcolor: "rgba(211, 47, 47, 0.04)", p: 3, textAlign: "center" }}>
+          <Typography variant="body2" color="error.main">
+            {error?.message || "Failed to load orders."}
+          </Typography>
+          <Button type="button" onClick={() => refetch()} sx={{ mt: 1.5, fontWeight: 700 }}>
             Try again
-          </button>
-        </div>
+          </Button>
+        </Paper>
       ) : filteredOrders.length === 0 ? (
-        <div className="dash-card flex min-h-[280px] flex-col items-center justify-center p-10 text-center">
-          <ShoppingBag className="mb-4 h-10 w-10 text-indigo-600" />
-          <h2 className="text-lg font-bold text-dash-text">
+        <Paper
+          variant="outlined"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 280,
+            p: 5,
+            textAlign: "center",
+          }}
+        >
+          <ShoppingBagOutlinedIcon color="primary" sx={{ fontSize: 40, mb: 2 }} />
+          <Typography variant="h6" fontWeight={800}>
             {orders.length === 0 ? "No orders yet" : "No matching orders"}
-          </h2>
-          <p className="mt-2 text-sm text-dash-muted">
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             {orders.length === 0
               ? "Customer orders will appear here after checkout."
               : "Try a different search or filter."}
-          </p>
-        </div>
+          </Typography>
+        </Paper>
       ) : reportMode ? (
-        <div className="dash-card overflow-hidden">
-          <MobileCardList className="divide-y divide-dash-border p-0">
+        <Paper variant="outlined" sx={{ overflow: "hidden" }}>
+          <MobileCardList>
             {paginatedItems.map((order, index) => (
-              <motion.div
+              <Box
                 key={order._id}
+                component={motion.div}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.02 }}
+                sx={{ borderBottom: 1, borderColor: "divider", p: 2 }}
               >
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-base font-bold text-indigo-600">
-                        #{formatDisplayOrderNumber(order.order_number)}
-                      </p>
-                      <p className="mt-1 text-sm font-semibold text-dash-text">
-                        {order.customer?.name || "—"}
-                      </p>
-                      <p className="mt-0.5 text-xs text-dash-muted">
-                        {order.customer?.phone || "—"}
-                      </p>
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <CourierIdCell order={order} />
-                        <span className="text-[11px] text-dash-muted">
-                          {formatOrderDate(order.createdAt)}
-                        </span>
-                      </div>
-                    </div>
-                    <ReportViewAction order={order} onView={setViewOrder} />
-                  </div>
-                </div>
-              </motion.div>
+                <Stack direction="row" spacing={1.5} justifyContent="space-between" alignItems="flex-start">
+                  <Box sx={{ minWidth: 0, flex: 1 }}>
+                    <Typography fontWeight={800} color="primary.main">
+                      #{formatDisplayOrderNumber(order.order_number)}
+                    </Typography>
+                    <Typography variant="body2" fontWeight={700} sx={{ mt: 0.5 }}>
+                      {order.customer?.name || "—"}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {order.customer?.phone || "—"}
+                    </Typography>
+                    <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" alignItems="center" sx={{ mt: 1 }}>
+                      <CourierIdCell order={order} />
+                      <Typography variant="caption" color="text.secondary">
+                        {formatOrderDate(order.createdAt)}
+                      </Typography>
+                    </Stack>
+                  </Box>
+                  <ReportViewAction order={order} onView={setViewOrder} />
+                </Stack>
+              </Box>
             ))}
           </MobileCardList>
 
           <DesktopTable>
-            <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-dash-border bg-slate-50/90 text-[11px] font-semibold tracking-wide text-dash-muted uppercase">
-                  <th className="px-3 py-2.5">Order</th>
-                  <th className="px-3 py-2.5">Customer</th>
-                  <th className="px-3 py-2.5">Courier ID</th>
-                  <th className="px-3 py-2.5">Date</th>
-                  <th className="px-3 py-2.5 text-right">View</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor: "grey.50" }}>
+                  <TableCell>Order</TableCell>
+                  <TableCell>Customer</TableCell>
+                  <TableCell>Courier ID</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell align="right">View</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {paginatedItems.map((order, index) => (
-                  <tr
-                    key={order._id}
-                    className={`border-b border-dash-border last:border-b-0 ${
-                      index % 2 === 0 ? "bg-white" : "bg-slate-50/40"
-                    }`}
-                  >
-                    <td className="px-3 py-2.5 font-semibold text-indigo-600">
-                      #{formatDisplayOrderNumber(order.order_number)}
-                    </td>
-                    <td className="px-3 py-2.5 text-dash-text">
-                      <p className="font-semibold">{order.customer?.name || "—"}</p>
-                      <p className="text-xs text-dash-muted">{order.customer?.phone || "—"}</p>
-                    </td>
-                    <td className="px-3 py-2.5">
+                  <TableRow key={order._id} sx={{ bgcolor: index % 2 === 0 ? "background.paper" : "grey.50" }}>
+                    <TableCell>
+                      <Typography fontWeight={700} color="primary.main">
+                        #{formatDisplayOrderNumber(order.order_number)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography fontWeight={700}>{order.customer?.name || "—"}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {order.customer?.phone || "—"}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
                       <CourierIdCell order={order} />
-                    </td>
-                    <td className="px-3 py-2.5 text-xs text-dash-muted whitespace-nowrap">
-                      {formatOrderDate(order.createdAt)}
-                    </td>
-                    <td className="px-3 py-2.5 text-right">
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: "nowrap" }}>
+                        {formatOrderDate(order.createdAt)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
                       <ReportViewAction order={order} onView={setViewOrder} />
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </DesktopTable>
           <TablePagination
             page={page}
@@ -1118,148 +1245,174 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
             pageSize={pageSize}
             onPageChange={setPage}
           />
-        </div>
+        </Paper>
       ) : (
-        <div className="dash-card overflow-hidden">
-          <MobileCardList className="p-3">
-            {paginatedItems.map((order, index) => (
-              <motion.div
-                key={order._id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.02 }}
-              >
-                <MobileDashCard>
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(order._id)}
-                      onChange={() => toggleSelect(order._id)}
-                      aria-label={`Select order ${formatDisplayOrderNumber(order.order_number)}`}
-                      className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 accent-indigo-600"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="text-base font-bold text-indigo-600">
-                            #{formatDisplayOrderNumber(order.order_number)}
-                          </p>
-                          <p className="mt-1 text-xs text-dash-muted">
-                            {formatOrderDate(order.createdAt)}
-                          </p>
-                        </div>
-                        <OrderStatusBadge status={order.status} />
-                      </div>
-                      <div className="mt-3 space-y-2">
-                        <div className="flex items-start justify-between gap-3 text-sm">
-                          <span className="shrink-0 text-dash-muted">Customer</span>
-                          <span className="min-w-0 text-right font-medium break-words text-dash-text">
-                            <span className="block">{order.customer?.name}</span>
-                            <span className="mt-1 inline-flex justify-end">
-                              <RepeatCustomerBadge
-                                phone={order.customer?.phone}
-                                count={getRepeatCount(order.customer?.phone)}
-                              />
-                            </span>
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-semibold tracking-wide text-dash-muted uppercase">
-                            Phone
-                          </p>
-                          <div className="mt-1">
-                            <CustomerPhoneActions phone={order.customer?.phone} />
-                          </div>
-                        </div>
-                        <MobileDashRow label="Total" value={formatOrderTotal(order)} />
-                        <MobileDashRow label="Items" value={getOrderItemSummary(order)} />
-                      </div>
-                      <div className="mt-3 flex justify-end">
-                        <OrderRowActions
-                          order={order}
-                          onView={setViewOrder}
-                          onEdit={setEditOrder}
-                          onDelete={handleDelete}
-                          onCourier={handleSendToCourier}
-                          isDeleting={isDeleting && deletingId === order._id}
-                          isSendingCourier={courierOrderId === order._id}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </MobileDashCard>
-              </motion.div>
-            ))}
+        <Paper variant="outlined" sx={{ overflow: "hidden" }}>
+          <MobileCardList>
+            <Stack spacing={1.5} sx={{ p: 1.5 }}>
+              {paginatedItems.map((order, index) => (
+                <Box
+                  key={order._id}
+                  component={motion.div}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.02 }}
+                >
+                  <MobileDashCard>
+                    <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                      <Checkbox
+                        size="small"
+                        checked={selectedIds.has(order._id)}
+                        onChange={() => toggleSelect(order._id)}
+                        inputProps={{
+                          "aria-label": `Select order ${formatDisplayOrderNumber(order.order_number)}`,
+                        }}
+                        sx={{ mt: 0.25, p: 0.5 }}
+                      />
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Stack direction="row" spacing={1} justifyContent="space-between" alignItems="flex-start">
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography fontWeight={800} color="primary.main">
+                              #{formatDisplayOrderNumber(order.order_number)}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+                              {formatOrderDate(order.createdAt)}
+                            </Typography>
+                          </Box>
+                          <StatusBadge status={order.status} />
+                        </Stack>
+                        <Stack spacing={1} sx={{ mt: 1.5 }}>
+                          <Stack direction="row" spacing={1.5} justifyContent="space-between" alignItems="flex-start">
+                            <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0 }}>
+                              Customer
+                            </Typography>
+                            <Box sx={{ textAlign: "right", minWidth: 0 }}>
+                              <Typography variant="body2" fontWeight={600}>
+                                {order.customer?.name}
+                              </Typography>
+                              <Box sx={{ mt: 0.5, display: "inline-flex", justifyContent: "flex-end" }}>
+                                <RepeatCustomerBadge
+                                  phone={order.customer?.phone}
+                                  count={getRepeatCount(order.customer?.phone)}
+                                />
+                              </Box>
+                            </Box>
+                          </Stack>
+                          <Box>
+                            <Typography
+                              variant="caption"
+                              fontWeight={700}
+                              color="text.secondary"
+                              sx={{ letterSpacing: "0.06em", textTransform: "uppercase" }}
+                            >
+                              Phone
+                            </Typography>
+                            <Box sx={{ mt: 0.5 }}>
+                              <CustomerPhoneActions phone={order.customer?.phone} />
+                            </Box>
+                          </Box>
+                          <MobileDashRow label="Total" value={formatOrderTotal(order)} />
+                          <MobileDashRow label="Items" value={getOrderItemSummary(order)} />
+                        </Stack>
+                        <Box sx={{ mt: 1.5, display: "flex", justifyContent: "flex-end" }}>
+                          <OrderRowActions
+                            order={order}
+                            onView={setViewOrder}
+                            onEdit={setEditOrder}
+                            onDelete={handleDelete}
+                            onCourier={handleSendToCourier}
+                            isDeleting={isDeleting && deletingId === order._id}
+                            isSendingCourier={courierOrderId === order._id}
+                          />
+                        </Box>
+                      </Box>
+                    </Stack>
+                  </MobileDashCard>
+                </Box>
+              ))}
+            </Stack>
           </MobileCardList>
 
           <DesktopTable>
-            <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-dash-border bg-slate-50 text-[11px] font-semibold tracking-wide text-dash-muted uppercase">
-                  <th className="w-10 px-3 py-3">
-                    <input
-                      type="checkbox"
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor: "grey.50" }}>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      size="small"
                       checked={allPageSelected}
                       onChange={toggleSelectAllOnPage}
-                      aria-label="Select all orders on this page"
-                      className="h-4 w-4 rounded border-slate-300 accent-indigo-600"
+                      inputProps={{ "aria-label": "Select all orders on this page" }}
                     />
-                  </th>
-                  <th className="px-4 py-3">Order</th>
-                  <th className="px-4 py-3">Customer</th>
-                  <th className="px-4 py-3">Items</th>
-                  <th className="px-4 py-3">Total</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+                  </TableCell>
+                  <TableCell>Order</TableCell>
+                  <TableCell>Customer</TableCell>
+                  <TableCell>Items</TableCell>
+                  <TableCell>Total</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {paginatedItems.map((order, index) => (
-                  <motion.tr
+                  <TableRow
                     key={order._id}
+                    component={motion.tr}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.02 }}
-                    className={`border-b border-dash-border last:border-b-0 hover:bg-slate-50/80 ${
-                      selectedIds.has(order._id) ? "bg-indigo-50/40" : ""
-                    }`}
+                    hover
+                    selected={selectedIds.has(order._id)}
                   >
-                    <td className="px-3 py-3">
-                      <input
-                        type="checkbox"
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        size="small"
                         checked={selectedIds.has(order._id)}
                         onChange={() => toggleSelect(order._id)}
-                        aria-label={`Select order ${formatDisplayOrderNumber(order.order_number)}`}
-                        className="h-4 w-4 rounded border-slate-300 accent-indigo-600"
+                        inputProps={{
+                          "aria-label": `Select order ${formatDisplayOrderNumber(order.order_number)}`,
+                        }}
                       />
-                    </td>
-                    <td className="px-4 py-3 font-bold text-indigo-600">
-                      #{formatDisplayOrderNumber(order.order_number)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold text-dash-text">{order.customer?.name}</p>
+                    </TableCell>
+                    <TableCell>
+                      <Typography fontWeight={800} color="primary.main">
+                        #{formatDisplayOrderNumber(order.order_number)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Stack direction="row" spacing={1} alignItems="center" useFlexGap flexWrap="wrap">
+                        <Typography fontWeight={700}>{order.customer?.name}</Typography>
                         <RepeatCustomerBadge
                           phone={order.customer?.phone}
                           count={getRepeatCount(order.customer?.phone)}
                         />
-                      </div>
-                      <div className="mt-1">
+                      </Stack>
+                      <Box sx={{ mt: 0.5 }}>
                         <CustomerPhoneActions phone={order.customer?.phone} />
-                      </div>
-                    </td>
-                    <td className="max-w-[180px] truncate px-4 py-3 text-dash-muted">
-                      {getOrderItemSummary(order)}
-                    </td>
-                    <td className="px-4 py-3 font-semibold text-dash-text">{formatOrderTotal(order)}</td>
-                    <td className="px-4 py-3">
-                      <OrderStatusBadge status={order.status} />
-                    </td>
-                    <td className="px-4 py-3 text-xs text-dash-muted whitespace-nowrap">
-                      {formatOrderDate(order.createdAt)}
-                    </td>
-                    <td className="px-4 py-3">
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                      >
+                        {getOrderItemSummary(order)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography fontWeight={700}>{formatOrderTotal(order)}</Typography>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={order.status} />
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: "nowrap" }}>
+                        {formatOrderDate(order.createdAt)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
                       <OrderRowActions
                         order={order}
                         onView={setViewOrder}
@@ -1269,11 +1422,11 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
                         isDeleting={isDeleting && deletingId === order._id}
                         isSendingCourier={courierOrderId === order._id}
                       />
-                    </td>
-                  </motion.tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </DesktopTable>
           <TablePagination
             page={page}
@@ -1282,11 +1435,11 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
             pageSize={pageSize}
             onPageChange={setPage}
           />
-        </div>
+        </Paper>
       )}
 
       <OrderViewModal open={Boolean(viewOrder)} order={viewOrder} onClose={() => setViewOrder(null)} />
       <OrderEditModal open={Boolean(editOrder)} order={editOrder} onClose={() => setEditOrder(null)} />
-    </div>
+    </Stack>
   );
 }
