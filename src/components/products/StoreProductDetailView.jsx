@@ -190,7 +190,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
   async function handleShare() {
     const url = typeof window !== "undefined" ? window.location.href : "";
-    const shareText = `${title} — ৳${salePrice.toLocaleString()} | Nexa Commerce`;
+    const shareText = `${title} — ৳${salePrice.toLocaleString()} | Raisa's Glam Nest`;
 
     if (typeof navigator !== "undefined" && navigator.share) {
       try {

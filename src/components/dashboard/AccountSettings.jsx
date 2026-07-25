@@ -6,9 +6,10 @@ import toast from "react-hot-toast";
 import { updateAdminAuthProfile } from "@/lib/auth";
 import { getRoleLabel } from "@/lib/adminRoles";
 import { useAdminProfile, useUpdateAdminProfile } from "@/hooks/useAdminUsers";
+import DashPageHeader from "@/components/dashboard/DashPageHeader";
 
 const inputClass =
-  "w-full border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
+  "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
 
 export default function AccountSettings() {
   const { data: profile, isLoading, isError, error, refetch } = useAdminProfile();
@@ -79,11 +80,12 @@ export default function AccountSettings() {
 
   return (
     <form onSubmit={handleSubmit} className="mx-auto max-w-xl space-y-6">
-      <div>
-        <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">Account</p>
-        <h1 className="text-2xl font-bold text-dash-text">My Account</h1>
-        <p className="mt-1 text-sm text-dash-muted">Update your name and password.</p>
-      </div>
+      <DashPageHeader
+        eyebrow="Account"
+        title="My Account"
+        description="Update your name and password."
+        animate={false}
+      />
 
       <section className="dash-card space-y-4 p-5 sm:p-6">
         <div>
@@ -182,7 +184,7 @@ export default function AccountSettings() {
       <button
         type="submit"
         disabled={isPending}
-        className="inline-flex items-center gap-2 bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+        className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-60"
       >
         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
         Save Changes

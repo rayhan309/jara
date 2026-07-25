@@ -29,6 +29,7 @@ import {
 } from "@/hooks/useAdminOrders";
 import { usePagination } from "@/hooks/usePagination";
 import TablePagination from "@/components/dashboard/TablePagination";
+import DashPageHeader from "@/components/dashboard/DashPageHeader";
 import {
   DesktopTable,
   MobileCardList,
@@ -133,7 +134,7 @@ function buildInvoiceHtml(order) {
       <div style="display:flex; justify-content:space-between; align-items:flex-start;">
         <div>
           <p class="subtitle">Invoice</p>
-          <h1 class="title">Nexa E-Commerce</h1>
+          <h1 class="title">Raisa's Glam Nest</h1>
           <p class="muted" style="margin-top:4px;">Order #${orderNumber}</p>
         </div>
         <div style="text-align:right;">
@@ -866,43 +867,35 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
   return (
     <div className="space-y-6">
       {!reportMode ? (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div>
-            <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">
-              Fulfillment
-            </p>
-            <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Orders</h1>
-            <p className="mt-1 text-sm text-dash-muted">
-              View, update status, and manage customer orders.
-            </p>
-          </div>
-          <div className="flex flex-col items-stretch gap-2 sm:items-end">
-            <label htmlFor="order-date-filter" className="sr-only">
-              Filter by date
-            </label>
-            <select
-              id="order-date-filter"
-              value={dateFilter}
-              onChange={(event) => setDateFilter(event.target.value)}
-              className={`${inputClass} w-full min-w-[180px] sm:w-52`}
-            >
-              {ORDER_DATE_FILTERS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <p className="text-sm font-semibold text-dash-muted">
-              {filteredOrders.length === orders.length
-                ? `${orders.length} total orders`
-                : `${filteredOrders.length} of ${orders.length} orders`}
-            </p>
-          </div>
-        </motion.div>
+        <DashPageHeader
+          eyebrow="Fulfillment"
+          title="Orders"
+          description="View, update status, and manage customer orders."
+          action={
+            <div className="flex flex-col items-stretch gap-2 sm:items-end">
+              <label htmlFor="order-date-filter" className="sr-only">
+                Filter by date
+              </label>
+              <select
+                id="order-date-filter"
+                value={dateFilter}
+                onChange={(event) => setDateFilter(event.target.value)}
+                className={`${inputClass} w-full min-w-[180px] sm:w-52`}
+              >
+                {ORDER_DATE_FILTERS.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-sm font-semibold text-dash-muted">
+                {filteredOrders.length === orders.length
+                  ? `${orders.length} total orders`
+                  : `${filteredOrders.length} of ${orders.length} orders`}
+              </p>
+            </div>
+          }
+        />
       ) : null}
 
       {!reportMode && dateFilter === "custom" ? (

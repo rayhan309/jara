@@ -28,7 +28,7 @@ export async function POST(request) {
     const uploadResponse = await imagekit.upload({
       file: buffer,
       fileName: image.name || `hero-banner-${Date.now()}.jpg`,
-      folder: "/nexa/hero-banners",
+      folder: "/raisas_glam_nest/hero-banners",
       useUniqueFileName: true,
     });
 

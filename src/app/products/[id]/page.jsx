@@ -20,7 +20,7 @@ export async function generateMetadata({ params }) {
   const title = product.title_bn || product.title_en;
   const description =
     product.description?.slice(0, 160) ||
-    `${title} — Nexa Commerce-এ কিনুন। দ্রুত ডেলিভারি ও ক্যাশ অন ডেলিভারি সুবিধা।`;
+    `${title} — Raisa's Glam Nest-এ কিনুন। দ্রুত ডেলিভারি ও ক্যাশ অন ডেলিভারি সুবিধা।`;
 
   return createPageMetadata({
     title,

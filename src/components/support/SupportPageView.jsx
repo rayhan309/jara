@@ -27,7 +27,7 @@ function PolicySection({ id, title, children }) {
 export default function SupportPageView() {
   const settings = useStoreSettings();
   const CONTACT_PHONE = settings.contactPhone || "+8801815131040";
-  const CONTACT_EMAIL = settings.contactEmail || "support@nexa.com";
+  const CONTACT_EMAIL = settings.contactEmail || "support@raisasglamnest.com";
   const CONTACT_ADDRESS = settings.contactAddress || "ঢাকা, বাংলাদেশ";
   return (
     <div className="store-container py-8 sm:py-10 lg:py-12">
@@ -159,7 +159,7 @@ export default function SupportPageView() {
 
           <PolicySection id="privacy" title="গোপনীয়তা নীতি">
             <p>
-              Nexa Commerce আপনার ব্যক্তিগত তথ্য গোপনীয়ভাবে রাখতে প্রতিশ্রুতিবদ্ধ। অর্ডার
+              Raisa's Glam Nest আপনার ব্যক্তিগত তথ্য গোপনীয়ভাবে রাখতে প্রতিশ্রুতিবদ্ধ। অর্ডার
               প্রক্রিয়াকরণের জন্য আমরা শুধু প্রয়োজনীয় তথ্য সংগ্রহ করি।
             </p>
             <ul className="list-disc space-y-2 pl-5">

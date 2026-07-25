@@ -5,7 +5,7 @@ import { createPageMetadata } from "@/lib/siteMetadata";
 export const metadata = createPageMetadata({
   title: "সহায়তা ও নীতিমালা",
   description:
-    "Nexa Commerce যোগাযোগ, শিপিং নীতি, রিটার্ন ও গোপনীয়তা সংক্রান্ত তথ্য — আমরা সাহায্যের জন্য আছি।",
+    "Raisa's Glam Nest যোগাযোগ, শিপিং নীতি, রিটার্ন ও গোপনীয়তা সংক্রান্ত তথ্য — আমরা সাহায্যের জন্য আছি।",
   path: "/support",
   keywords: ["support", "contact", "shipping policy", "return policy", "সহায়তা", "যোগাযোগ"],
 });

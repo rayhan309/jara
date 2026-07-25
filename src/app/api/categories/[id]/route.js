@@ -77,7 +77,7 @@ export async function PUT(request, { params }) {
       const uploadResponse = await imagekit.upload({
         file: buffer,
         fileName: image.name || `${baseSlug}.jpg`,
-        folder: "/nexa/categories",
+        folder: "/raisas_glam_nest/categories",
         useUniqueFileName: true,
       });
 

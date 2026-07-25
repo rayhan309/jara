@@ -9,7 +9,7 @@ import { getRoleLabel, hasPermission, PERMISSIONS } from "@/lib/adminRoles";
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardBackground from "@/components/dashboard/DashboardBackground";
 
-const HEADER_HEIGHT = "h-[70px]";
+const HEADER_HEIGHT = "h-16";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -24,9 +24,7 @@ function formatDate(long = true) {
     month: "short",
     day: "numeric",
     year: "numeric",
-  })
-    .format(new Date())
-    .toUpperCase();
+  }).format(new Date());
 }
 
 function getInitials(name = "") {
@@ -45,9 +43,9 @@ function UserMenu({ username, roleLabel, role, onClose }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -4 }}
       transition={{ duration: 0.15 }}
-      className="absolute top-[calc(100%+6px)] right-0 z-50 w-full min-w-[200px] overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-[0_16px_40px_-12px_rgba(15,23,42,0.18)]"
+      className="absolute top-[calc(100%+8px)] right-0 z-50 w-full min-w-[208px] overflow-hidden rounded-md border border-dash-border bg-white shadow-[0_16px_40px_-12px_rgba(15,23,42,0.18)]"
     >
-      <div className="border-b border-slate-100 bg-gradient-to-br from-slate-50 to-white px-4 py-3">
+      <div className="border-b border-dash-border bg-slate-50/80 px-4 py-3">
         <p className="truncate text-sm font-semibold leading-tight text-dash-text">{username}</p>
         <p className="mt-1 truncate text-[11px] font-medium leading-tight text-indigo-600">
           {roleLabel}
@@ -58,7 +56,7 @@ function UserMenu({ username, roleLabel, role, onClose }) {
         <Link
           href="/dashboard/account"
           onClick={onClose}
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium leading-none text-slate-700 transition-colors hover:bg-indigo-50 hover:text-indigo-700"
+          className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium leading-none text-slate-700 transition-colors hover:bg-indigo-50 hover:text-indigo-700"
         >
           <UserCircle className="h-4 w-4 shrink-0 text-slate-400" strokeWidth={1.75} />
           Profile
@@ -68,7 +66,7 @@ function UserMenu({ username, roleLabel, role, onClose }) {
           <Link
             href="/dashboard/settings/general"
             onClick={onClose}
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium leading-none text-slate-700 transition-colors hover:bg-indigo-50 hover:text-indigo-700"
+            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium leading-none text-slate-700 transition-colors hover:bg-indigo-50 hover:text-indigo-700"
           >
             <Settings className="h-4 w-4 shrink-0 text-slate-400" strokeWidth={1.75} />
             Settings
@@ -121,16 +119,16 @@ export default function DashboardShell({ children }) {
         <DashboardBackground />
 
         <header
-          className={`relative z-20 shrink-0 border-b border-slate-200/80 bg-white/95 shadow-[0_1px_0_rgba(15,23,42,0.04)] backdrop-blur-xl ${HEADER_HEIGHT}`}
+          className={`relative z-20 shrink-0 border-b border-dash-border/80 bg-white/90 backdrop-blur-xl ${HEADER_HEIGHT}`}
         >
-          <div className="flex h-full items-center justify-between gap-4 px-3 sm:px-5 lg:px-6">
+          <div className="flex h-full items-center justify-between gap-3 px-3 sm:px-5 lg:px-6">
             <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
               <motion.button
                 type="button"
                 aria-label="Open menu"
                 whileTap={{ scale: 0.95 }}
                 onClick={openSidebar}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:border-indigo-200 hover:text-indigo-600 lg:hidden"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-dash-border bg-white text-dash-muted transition-colors hover:border-indigo-200 hover:text-indigo-600 lg:hidden"
               >
                 <Menu className="h-4 w-4" strokeWidth={1.75} />
               </motion.button>
@@ -139,18 +137,18 @@ export default function DashboardShell({ children }) {
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="flex min-w-0 flex-col justify-center gap-1"
+                className="flex min-w-0 flex-col justify-center"
               >
-                <span className="inline-flex w-fit items-center rounded-full border border-slate-200/80 bg-slate-50 px-2.5 py-0.5 text-[10px] font-semibold tracking-[0.08em] text-slate-500 sm:text-[11px]">
-                  <span className="sm:hidden">{formatDate(false)}</span>
-                  <span className="hidden sm:inline">{formatDate(true)}</span>
-                </span>
-                <h1 className="truncate text-sm font-bold leading-tight tracking-tight text-slate-900 sm:text-[15px] lg:text-base">
+                <h1 className="truncate text-[15px] font-bold leading-tight tracking-tight text-dash-text sm:text-base">
                   <span className="md:hidden">Hi, {username}</span>
                   <span className="hidden md:inline">
                     {getGreeting()}, {username}
                   </span>
                 </h1>
+                <p className="mt-0.5 truncate text-[11px] text-dash-muted">
+                  <span className="sm:hidden">{formatDate(false)}</span>
+                  <span className="hidden sm:inline">{formatDate(true)}</span>
+                </p>
               </motion.div>
             </div>
 
@@ -167,19 +165,19 @@ export default function DashboardShell({ children }) {
                 aria-expanded={menuOpen}
                 aria-haspopup="menu"
                 onClick={() => setMenuOpen((prev) => !prev)}
-                className={`flex h-10 items-center gap-2.5 rounded-xl border bg-white px-2 shadow-sm transition-all sm:h-11 sm:min-w-[180px] sm:px-2.5 ${
+                className={`flex h-10 items-center gap-2.5 rounded-md border bg-white px-2 transition-all sm:h-10 sm:min-w-[168px] sm:px-2.5 ${
                   menuOpen
                     ? "border-indigo-200 ring-2 ring-indigo-100"
-                    : "border-slate-200/90 hover:border-indigo-200 hover:shadow-md"
+                    : "border-dash-border hover:border-indigo-200"
                 }`}
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 text-xs font-bold text-white shadow-sm">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-indigo-600 text-[11px] font-bold text-white">
                   {initials}
                 </span>
 
                 <span className="hidden min-w-0 flex-1 flex-col justify-center text-left leading-none sm:flex">
-                  <span className="truncate text-sm font-semibold text-slate-800">{username}</span>
-                  <span className="mt-1 truncate text-[11px] font-medium text-slate-500">
+                  <span className="truncate text-[13px] font-semibold text-dash-text">{username}</span>
+                  <span className="mt-1 truncate text-[11px] font-medium text-dash-muted">
                     {roleLabel}
                   </span>
                 </span>
@@ -206,7 +204,7 @@ export default function DashboardShell({ children }) {
           </div>
         </header>
 
-        <main className="relative z-10 min-h-0 flex-1 overflow-x-hidden overflow-y-auto p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-5 lg:p-8">
+        <main className="relative z-10 min-h-0 flex-1 overflow-x-hidden overflow-y-auto p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-5 lg:p-7">
           {children}
         </main>
       </div>

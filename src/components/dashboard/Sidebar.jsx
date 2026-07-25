@@ -30,6 +30,7 @@ import { getNavItemsForRole, getRoleLabel } from "@/lib/adminRoles";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import ShopLogo from "@/components/layout/ShopLogo";
 import { getShopLogoUrl } from "@/lib/siteSettings";
+import { SITE_NAME_SHORT } from "@/lib/siteMetadata";
 
 const ICONS = {
   overview: LayoutDashboard,
@@ -56,16 +57,16 @@ function NavLink({ href, active, icon: Icon, label, onClose }) {
     <Link
       href={href}
       onClick={onClose}
-      className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors ${
+      className={`group relative flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${
         active
-          ? "bg-white/[0.08] text-white"
+          ? "bg-white/[0.09] text-white"
           : "text-slate-400 hover:bg-white/[0.04] hover:text-slate-200"
       }`}
     >
       {active ? (
         <motion.span
           layoutId="sidebar-active"
-          className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-indigo-400"
+          className="absolute inset-y-1.5 left-0 w-[2px] rounded-full bg-indigo-400"
         />
       ) : null}
       <Icon
@@ -169,7 +170,7 @@ export default function Sidebar({ isOpen, onClose }) {
       >
         <div className="absolute inset-y-0 right-0 w-px bg-dash-sidebar-border" />
 
-        <div className="relative border-b border-dash-sidebar-border border-gray-700 px-4 py-3.5">
+        <div className="relative border-b border-dash-sidebar-border px-4 py-4">
           <div className="flex items-center justify-between gap-2">
             <motion.div
               initial={{ opacity: 0, x: -12 }}
@@ -180,16 +181,15 @@ export default function Sidebar({ isOpen, onClose }) {
                 <ShopLogo
                   logoUrl={logoUrl}
                   size="xs"
-                  fallbackClassName="bg-gradient-to-br from-indigo-500 to-violet-600"
+                  fallbackClassName="bg-indigo-600"
                 />
-                {!logoUrl ? (
-                  <span className="absolute -right-0.5 -bottom-0.5 h-1.5 w-1.5 rounded-full border border-dash-sidebar bg-emerald-400" />
-                ) : null}
               </div>
               <div className="min-w-0">
-                <p className="truncate text-[13px] font-semibold tracking-tight">Nexa</p>
-                <p className="text-[10px] font-medium tracking-[0.1em] text-slate-500 uppercase">
-                  Admin Console
+                <p className="truncate text-[13px] font-semibold tracking-tight text-white">
+                  {SITE_NAME_SHORT}
+                </p>
+                <p className="mt-0.5 text-[10px] font-medium tracking-[0.12em] text-slate-500 uppercase">
+                  Admin
                 </p>
               </div>
             </motion.div>
@@ -226,16 +226,16 @@ export default function Sidebar({ isOpen, onClose }) {
                     <button
                       type="button"
                       onClick={() => toggleGroup(item.label)}
-                      className={`group relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors ${
+                      className={`group relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${
                         groupActive
-                          ? "bg-white/[0.08] text-white"
+                          ? "bg-white/[0.09] text-white"
                           : "text-slate-400 hover:bg-white/[0.04] hover:text-slate-200"
                       }`}
                     >
                       {groupActive ? (
                         <motion.span
                           layoutId="sidebar-active"
-                          className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-indigo-400"
+                          className="absolute inset-y-1.5 left-0 w-[2px] rounded-full bg-indigo-400"
                         />
                       ) : null}
                       <Icon
@@ -319,9 +319,9 @@ export default function Sidebar({ isOpen, onClose }) {
           </nav>
         </div>
 
-        <div className="mt-auto border-t border-dash-sidebar-border border-gray-700 p-2.5">
-          <div className="mb-2 flex items-center gap-2.5 rounded-lg bg-white/[0.04] px-2.5 py-2">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-700/80 text-[11px] font-semibold uppercase text-slate-200">
+        <div className="mt-auto border-t border-dash-sidebar-border p-3">
+          <div className="mb-2 flex items-center gap-2.5 rounded-md bg-white/[0.04] px-2.5 py-2">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-indigo-600 text-[11px] font-semibold uppercase text-white">
               {(auth?.username || "A").charAt(0)}
             </div>
             <div className="min-w-0 flex-1">
@@ -336,7 +336,7 @@ export default function Sidebar({ isOpen, onClose }) {
           <button
             type="button"
             onClick={handleLogout}
-            className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-700/80 py-1.5 text-[11px] font-medium text-slate-400 transition-colors hover:border-red-500/40 hover:bg-red-500/[0.08] hover:text-red-300"
+            className="flex w-full items-center justify-center gap-1.5 rounded-md border border-slate-700/80 py-2 text-[11px] font-medium text-slate-400 transition-colors hover:border-red-500/40 hover:bg-red-500/[0.08] hover:text-red-300"
           >
             <LogOut className="h-3.5 w-3.5" strokeWidth={1.75} />
             Sign Out

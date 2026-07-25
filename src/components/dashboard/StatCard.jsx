@@ -37,28 +37,28 @@ export default function StatCard({
 
   return (
     <MotionFadeIn delay={delay}>
-      <div className="dash-card flex h-full flex-col p-4 sm:p-5">
+      <div className="dash-card dash-card-hover flex h-full flex-col p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold tracking-[0.1em] text-slate-500 uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.1em] text-dash-muted uppercase">
               {title}
             </p>
             <p className="mt-2 truncate text-xl font-bold tabular-nums tracking-tight text-dash-text sm:text-2xl">
               {value}
             </p>
             {subtitle ? (
-              <p className="mt-1 text-[11px] text-slate-500">{subtitle}</p>
+              <p className="mt-1.5 text-[11px] leading-snug text-dash-muted">{subtitle}</p>
             ) : null}
           </div>
           {Icon ? (
             <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${iconClass}`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md ${iconClass}`}
             >
               <Icon className="h-4 w-4" strokeWidth={1.75} />
             </span>
           ) : null}
         </div>
-        <div className="mt-3 hidden h-9 w-full sm:block">
+        <div className="mt-4 hidden h-9 w-full sm:block">
           <StatSparkline data={sparkData[accent]} color={spark} />
         </div>
       </div>

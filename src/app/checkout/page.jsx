@@ -4,7 +4,7 @@ import { createPageMetadata } from "@/lib/siteMetadata";
 
 export const metadata = createPageMetadata({
   title: "চেকআউট",
-  description: "Nexa Commerce-এ আপনার অর্ডার সম্পন্ন করুন — দ্রুত, নিরাপদ ও সহজ চেকআউট প্রক্রিয়া।",
+  description: "Raisa's Glam Nest-এ আপনার অর্ডার সম্পন্ন করুন — দ্রুত, নিরাপদ ও সহজ চেকআউট প্রক্রিয়া।",
   path: "/checkout",
   noIndex: true,
 });

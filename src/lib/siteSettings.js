@@ -16,7 +16,7 @@ export const SOCIAL_PLATFORMS = [
 export const DEFAULT_SETTINGS = {
   shopShortDescription: "আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। মানসম্মত পণ্য, দ্রুত ডেলিভারি এবং সহজ অর্ডার ট্র্যাকিং।",
   shopTagline: "আধুনিক ই-কমার্সের জন্য তৈরি",
-  copyrightText: "© {year} Nexa. সর্বস্বত্ব সংরক্ষিত।",
+  copyrightText: "© {year} Raisa's Glam Nest. সর্বস্বত্ব সংরক্ষিত।",
   shopLogo: null,
   favicon: null,
   primaryColor: "#4f46e5",
@@ -27,7 +27,7 @@ export const DEFAULT_SETTINGS = {
   steadfastSecretKey: "",
   steadfastEnabled: false,
   contactPhone: "+8801815131040",
-  contactEmail: "support@nexa.com",
+  contactEmail: "support@raisasglamnest.com",
   contactAddress: "ঢাকা, বাংলাদেশ",
   heroBanners: [],
   deliveryAreas: [

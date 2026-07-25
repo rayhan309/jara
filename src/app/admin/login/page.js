@@ -4,7 +4,7 @@ import { ADMIN_NAME, createPageMetadata } from "@/lib/siteMetadata";
 export const metadata = createPageMetadata({
   title: `Admin Login | ${ADMIN_NAME}`,
   absoluteTitle: true,
-  description: "Nexa E-Commerce administrator login — secure access to the admin dashboard.",
+  description: "Raisa's Glam Nest administrator login — secure access to the admin dashboard.",
   path: "/admin/login",
   noIndex: true,
 });

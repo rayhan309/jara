@@ -1,12 +1,13 @@
-export const SITE_NAME = "Nexa Commerce";
-export const SITE_NAME_SHORT = "Nexa";
-export const ADMIN_NAME = "Nexa Admin";
+export const SITE_NAME = "Raisa's Glam Nest";
+export const SITE_NAME_SHORT = "Raisa's Glam Nest";
+export const ADMIN_NAME = "Raisa's Glam Nest Admin";
 
 export const DEFAULT_DESCRIPTION =
-  "Nexa Commerce — বাংলাদেশের অন্যতম বিশ্বস্ত অনলাইন শপ। গুণগত পণ্য, দ্রুত ডেলিভারি, ক্যাশ অন ডেলিভারি ও সহজ অর্ডার ট্র্যাকিং।";
+  "Raisa's Glam Nest — বাংলাদেশের অন্যতম বিশ্বস্ত অনলাইন শপ। গুণগত পণ্য, দ্রুত ডেলিভারি, ক্যাশ অন ডেলিভারি ও সহজ অর্ডার ট্র্যাকিং।";
 
 export const DEFAULT_KEYWORDS = [
-  "Nexa Commerce",
+  "Raisa's Glam Nest",
+  "raisas glam nest",
   "online shopping Bangladesh",
   "e-commerce",
   "অনলাইন শপিং",
@@ -97,7 +98,7 @@ export function createAdminPageMetadata(title, description) {
   return {
     title,
     description:
-      description || `${title} — Nexa E-Commerce admin dashboard management panel.`,
+      description || `${title} — Raisa's Glam Nest admin dashboard management panel.`,
     robots: {
       index: false,
       follow: false,
@@ -169,7 +170,7 @@ export const adminRootMetadata = {
     default: `Dashboard | ${ADMIN_NAME}`,
     template: `%s | ${ADMIN_NAME}`,
   },
-  description: "Nexa E-Commerce admin dashboard — manage orders, products, customers and store settings.",
+  description: "Raisa's Glam Nest admin dashboard — manage orders, products, customers and store settings.",
   applicationName: ADMIN_NAME,
   robots: {
     index: false,

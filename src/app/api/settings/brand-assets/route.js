@@ -35,7 +35,7 @@ export async function POST(request) {
     const uploadResponse = await imagekit.upload({
       file: buffer,
       fileName: image.name || `${assetType}-${Date.now()}.png`,
-      folder: `/nexa/brand/${assetType}`,
+      folder: `/raisas_glam_nest/brand/${assetType}`,
       useUniqueFileName: true,
     });
 

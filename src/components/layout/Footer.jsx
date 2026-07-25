@@ -7,6 +7,7 @@ import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import ShopLogo from "@/components/layout/ShopLogo";
 import { getActiveSocialLinks, getSocialIcon } from "@/lib/socialLinks";
 import { getShopLogoUrl } from "@/lib/siteSettings";
+import { SITE_NAME_SHORT } from "@/lib/siteMetadata";
 
 const quickLinks = [
   { href: "/", label: "হোম" },
@@ -26,13 +27,13 @@ export default function Footer() {
   const settings = useStoreSettings();
   const socialLinks = getActiveSocialLinks(settings);
   const contactPhone = settings?.contactPhone || "+8801815131040";
-  const contactEmail = settings?.contactEmail || "support@nexa.com";
+  const contactEmail = settings?.contactEmail || "support@raisasglamnest.com";
   const contactAddress = settings?.contactAddress || "ঢাকা, বাংলাদেশ";
   const shortDescription =
     settings?.shopShortDescription ||
     "আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। মানসম্মত পণ্য, দ্রুত ডেলিভারি এবং সহজ অর্ডার ট্র্যাকিং।";
   const tagline = settings?.shopTagline || "আধুনিক ই-কমার্সের জন্য তৈরি";
-  const copyrightText = settings?.copyrightText || "© {year} Nexa. সর্বস্বত্ব সংরক্ষিত।";
+  const copyrightText = settings?.copyrightText || `© {year} ${SITE_NAME_SHORT}. সর্বস্বত্ব সংরক্ষিত।`;
   const renderedCopyright = copyrightText.replace("{year}", new Date().getFullYear());
   const logoUrl = getShopLogoUrl(settings);
 
@@ -49,7 +50,7 @@ export default function Footer() {
           >
             <Link href="/" className="inline-flex items-center gap-3">
               <ShopLogo logoUrl={logoUrl} size="md" fallbackClassName="bg-indigo-600" />
-              <span className="text-lg font-bold text-zinc-900">Nexa</span>
+              <span className="text-lg font-bold text-zinc-900">{SITE_NAME_SHORT}</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-zinc-500">
               {shortDescription}

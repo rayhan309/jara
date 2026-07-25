@@ -17,6 +17,7 @@ import { HiOutlineUsers } from "react-icons/hi2";
 import { useAdminCustomers } from "@/hooks/useDashboard";
 import { usePagination } from "@/hooks/usePagination";
 import TablePagination from "@/components/dashboard/TablePagination";
+import DashPageHeader from "@/components/dashboard/DashPageHeader";
 import {
   DesktopTable,
   MobileCardList,
@@ -235,24 +236,16 @@ export default function CustomersManager() {
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
-      >
-        <div>
-          <p className="text-[10px] font-semibold tracking-[0.14em] text-indigo-600 uppercase">
-            CRM
-          </p>
-          <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Customer Directory</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Customer profiles and purchase history from live orders.
-          </p>
-        </div>
-        <span className="self-start rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 sm:self-auto">
-          {customers.length} customers
-        </span>
-      </motion.div>
+      <DashPageHeader
+        eyebrow="CRM"
+        title="Customer Directory"
+        description="Customer profiles and purchase history from live orders."
+        action={
+          <span className="rounded-md border border-dash-border bg-white px-3 py-1.5 text-xs font-medium text-dash-muted">
+            {customers.length} customers
+          </span>
+        }
+      />
 
       {!isLoading && !isError && customers.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

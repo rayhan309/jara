@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "motion/react";
 import { Loader2, Pencil, Plus, SlidersHorizontal, Trash2, X } from "lucide-react";
 import { FieldError } from "@/components/dashboard/DashboardFormUi";
+import DashPageHeader from "@/components/dashboard/DashPageHeader";
 import { slugify } from "@/lib/slugify";
 import {
   useCreateProductAttribute,
@@ -206,30 +207,24 @@ export default function AttributesManager() {
 
   return (
     <div className="space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-      >
-        <div>
-          <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">Catalog</p>
-          <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Product Attributes</h1>
-          <p className="mt-1 text-sm text-dash-muted">
-            Create variation types like Size, Weight, Color — used in variable products.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            setEditingAttribute(null);
-            setModalOpen(true);
-          }}
-          className="inline-flex items-center justify-center gap-2 self-start bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 sm:self-auto"
-        >
-          <Plus className="h-4 w-4" />
-          Add Attribute
-        </button>
-      </motion.div>
+      <DashPageHeader
+        eyebrow="Catalog"
+        title="Product Attributes"
+        description="Create variation types like Size, Weight, Color — used in variable products."
+        action={
+          <button
+            type="button"
+            onClick={() => {
+              setEditingAttribute(null);
+              setModalOpen(true);
+            }}
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
+          >
+            <Plus className="h-4 w-4" />
+            Add Attribute
+          </button>
+        }
+      />
 
       {isLoading ? (
         <div className="dash-card flex min-h-[240px] items-center justify-center">

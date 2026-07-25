@@ -4,7 +4,7 @@ export const FALLBACK_HERO_BANNERS = [
   {
     id: "fallback-1",
     image: { url: "/images/banner-1.jpg" },
-    alt: "Nexa Commerce ব্যানার",
+    alt: "Raisa's Glam Nest ব্যানার",
     href: "/products",
     enabled: true,
   },

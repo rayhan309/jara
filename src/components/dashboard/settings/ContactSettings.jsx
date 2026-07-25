@@ -79,7 +79,7 @@ export default function ContactSettings() {
               type="email"
               value={contactEmail}
               onChange={(event) => setContactEmail(event.target.value)}
-              placeholder="support@nexa.com"
+              placeholder="support@raisasglamnest.com"
               className={inputClass}
             />
           </div>

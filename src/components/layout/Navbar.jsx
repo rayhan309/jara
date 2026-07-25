@@ -23,6 +23,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import ShopLogo from "@/components/layout/ShopLogo";
 import { getShopLogoUrl } from "@/lib/siteSettings";
+import { SITE_NAME_SHORT } from "@/lib/siteMetadata";
 
 const navLinks = [
   { href: "/", label: "হোম" },
@@ -152,7 +153,7 @@ function NavbarContent() {
                 <ShopLogo logoUrl={logoUrl} size="md" />
                 <div>
                   <p className="text-sm font-bold tracking-tight text-zinc-900 transition-colors group-hover:text-indigo-600 min-[360px]:text-base sm:text-xl">
-                    Nexa
+                    {SITE_NAME_SHORT}
                   </p>
                   <p className="hidden text-[11px] text-zinc-400 sm:block">প্রিমিয়াম অনলাইন শপিং</p>
                 </div>

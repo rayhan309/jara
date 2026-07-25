@@ -381,7 +381,7 @@ export default function GeneralSettings() {
                 value={copyrightText}
                 onChange={(event) => setCopyrightText(event.target.value)}
                 className={inputClass}
-                placeholder="© {year} Nexa. সর্বস্বত্ব সংরক্ষিত।"
+                placeholder="© {year} Raisa's Glam Nest. সর্বস্বত্ব সংরক্ষিত।"
               />
               <p className="mt-1 text-[11px] text-dash-muted">
                 {`{year}`} লিখলে বর্তমান বছর auto বসবে।

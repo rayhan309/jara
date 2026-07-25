@@ -11,9 +11,10 @@ import {
   useUpdateAdminUser,
 } from "@/hooks/useAdminUsers";
 import { getAdminAuth } from "@/lib/auth";
+import DashPageHeader from "@/components/dashboard/DashPageHeader";
 
 const inputClass =
-  "w-full border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
+  "w-full rounded-md border border-dash-border bg-white px-3 py-2.5 text-sm text-dash-text outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100";
 
 const emptyForm = {
   username: "",
@@ -134,23 +135,21 @@ export default function UsersManager() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">Admin</p>
-          <h1 className="text-2xl font-bold text-dash-text">User Management</h1>
-          <p className="mt-1 text-sm text-dash-muted">
-            Super Admin, Shop Manager, ar Moderator add/manage korun.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setShowForm((prev) => !prev)}
-          className="inline-flex items-center gap-2 self-start bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
-        >
-          <Plus className="h-4 w-4" />
-          Add User
-        </button>
-      </div>
+      <DashPageHeader
+        eyebrow="Admin"
+        title="User Management"
+        description="Add and manage Super Admin, Shop Manager, and Moderator accounts."
+        action={
+          <button
+            type="button"
+            onClick={() => setShowForm((prev) => !prev)}
+            className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
+          >
+            <Plus className="h-4 w-4" />
+            Add User
+          </button>
+        }
+      />
 
       {showForm ? (
         <form onSubmit={handleCreate} className="dash-card grid gap-4 p-5 sm:grid-cols-2 sm:p-6">

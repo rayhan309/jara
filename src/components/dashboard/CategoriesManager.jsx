@@ -18,6 +18,7 @@ import {
 import toast from "react-hot-toast";
 import { FieldError } from "@/components/dashboard/DashboardFormUi";
 import TablePagination from "@/components/dashboard/TablePagination";
+import DashPageHeader from "@/components/dashboard/DashPageHeader";
 import {
   DesktopTable,
   MobileCardList,
@@ -525,36 +526,30 @@ export default function CategoriesManager({ embedded = false }) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={openCreateForm}
-            className="inline-flex w-full items-center justify-center gap-2 bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 sm:w-auto"
           >
             <Plus className="h-4 w-4" />
             Add Category
           </motion.button>
         </div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">Catalog</p>
-            <h1 className="text-xl font-bold text-dash-text sm:text-2xl">Product Categories</h1>
-            <p className="mt-1 text-sm text-dash-muted">
-              Add categories with images. Files upload to ImageKit and save in MongoDB.
-            </p>
-          </div>
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={openCreateForm}
-            className="inline-flex items-center justify-center gap-2 self-start bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 sm:self-auto"
-          >
-            <Plus className="h-4 w-4" />
-            Add Category
-          </motion.button>
-        </motion.div>
+        <DashPageHeader
+          eyebrow="Catalog"
+          title="Product Categories"
+          description="Add categories with images. Files upload to ImageKit and save in MongoDB."
+          action={
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={openCreateForm}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
+            >
+              <Plus className="h-4 w-4" />
+              Add Category
+            </motion.button>
+          }
+        />
       )}
 
       {categories.length > 0 ? (

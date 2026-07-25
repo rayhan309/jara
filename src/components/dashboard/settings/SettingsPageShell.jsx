@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "motion/react";
 import { Loader2, Save } from "lucide-react";
+import DashPageHeader from "@/components/dashboard/DashPageHeader";
 
 export default function SettingsPageShell({
   title,
@@ -35,28 +35,21 @@ export default function SettingsPageShell({
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-      >
-        <div>
-          <p className="text-[11px] font-semibold tracking-[0.16em] text-indigo-600 uppercase">
-            Settings
-          </p>
-          <h1 className="text-2xl font-bold text-dash-text">{title}</h1>
-          {description ? <p className="mt-1 text-sm text-dash-muted">{description}</p> : null}
-        </div>
-        <motion.button
-          type="submit"
-          disabled={isPending}
-          whileTap={{ scale: 0.98 }}
-          className="inline-flex items-center justify-center gap-2 self-start bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
-        >
-          {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save
-        </motion.button>
-      </motion.div>
+      <DashPageHeader
+        eyebrow="Settings"
+        title={title}
+        description={description}
+        action={
+          <button
+            type="submit"
+            disabled={isPending}
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Save
+          </button>
+        }
+      />
 
       {children}
     </form>

@@ -44,7 +44,7 @@ async function uploadProductImages(imageFiles, slug) {
     const uploadResponse = await imagekit.upload({
       file: buffer,
       fileName: image.name || `${slug}-${uploads.length + 1}.jpg`,
-      folder: "/nexa/products",
+      folder: "/raisas_glam_nest/products",
       useUniqueFileName: true,
     });
 
