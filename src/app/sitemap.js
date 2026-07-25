@@ -3,6 +3,7 @@ import { absoluteUrl } from "@/lib/siteMetadata";
 export default function sitemap() {
   const now = new Date();
 
+  
   return [
     {
       url: absoluteUrl("/"),
