@@ -241,7 +241,7 @@ export default function OrderEditModal({ open, onClose, order }) {
       fullWidth
       maxWidth="lg"
       scroll="paper"
-      PaperProps={{ sx: { maxHeight: "92dvh" } }}
+      slotProps={{ paper: { sx: { maxHeight: "92dvh" } } }}
     >
       <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, pr: 1 }}>
         <Typography variant="h6" fontWeight={700} noWrap>
@@ -341,7 +341,7 @@ export default function OrderEditModal({ open, onClose, order }) {
                           label="Qty"
                           type="number"
                           size="small"
-                          inputProps={{ min: 1, max: 999 }}
+                          slotProps={{ htmlInput: { min: 1, max: 999 } }}
                           value={item.quantity}
                           onChange={(event) => updateItem(index, { quantity: event.target.value })}
                         />
@@ -349,7 +349,7 @@ export default function OrderEditModal({ open, onClose, order }) {
                           label="Price"
                           type="number"
                           size="small"
-                          inputProps={{ min: 0, step: "0.01" }}
+                          slotProps={{ htmlInput: { min: 0, step: "0.01" } }}
                           value={item.price}
                           onChange={(event) => updateItem(index, { price: event.target.value })}
                         />
@@ -357,7 +357,7 @@ export default function OrderEditModal({ open, onClose, order }) {
                           label="Discount"
                           type="number"
                           size="small"
-                          inputProps={{ min: 0, step: "0.01" }}
+                          slotProps={{ htmlInput: { min: 0, step: "0.01" } }}
                           value={item.discount}
                           onChange={(event) => updateItem(index, { discount: event.target.value })}
                         />
@@ -411,7 +411,7 @@ export default function OrderEditModal({ open, onClose, order }) {
                           <TextField
                             type="number"
                             size="small"
-                            inputProps={{ min: 1, max: 999 }}
+                            slotProps={{ htmlInput: { min: 1, max: 999 } }}
                             value={item.quantity}
                             onChange={(event) => updateItem(index, { quantity: event.target.value })}
                           />
@@ -420,7 +420,7 @@ export default function OrderEditModal({ open, onClose, order }) {
                           <TextField
                             type="number"
                             size="small"
-                            inputProps={{ min: 0, step: "0.01" }}
+                            slotProps={{ htmlInput: { min: 0, step: "0.01" } }}
                             value={item.price}
                             onChange={(event) => updateItem(index, { price: event.target.value })}
                           />
@@ -429,7 +429,7 @@ export default function OrderEditModal({ open, onClose, order }) {
                           <TextField
                             type="number"
                             size="small"
-                            inputProps={{ min: 0, step: "0.01" }}
+                            slotProps={{ htmlInput: { min: 0, step: "0.01" } }}
                             value={item.discount}
                             onChange={(event) => updateItem(index, { discount: event.target.value })}
                           />
@@ -580,7 +580,7 @@ export default function OrderEditModal({ open, onClose, order }) {
                   size="small"
                   fullWidth
                   sx={{ mt: 2 }}
-                  inputProps={{ min: 0, step: "0.01" }}
+                  slotProps={{ htmlInput: { min: 0, step: "0.01" } }}
                   value={shippingFee}
                   onChange={(event) => setShippingFee(event.target.value)}
                 />
@@ -590,7 +590,7 @@ export default function OrderEditModal({ open, onClose, order }) {
                   size="small"
                   fullWidth
                   sx={{ mt: 1.5 }}
-                  inputProps={{ min: 0, step: "0.01" }}
+                  slotProps={{ htmlInput: { min: 0, step: "0.01" } }}
                   value={orderDiscount}
                   onChange={(event) => setOrderDiscount(event.target.value)}
                 />

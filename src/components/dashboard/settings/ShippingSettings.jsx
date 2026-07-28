@@ -341,7 +341,12 @@ export default function ShippingSettings() {
                       size={textFieldSize}
                       fullWidth
                       type="number"
-                      inputProps={{ min: 0 }}
+                      slotProps={{
+                        htmlInput: { min: 0 },
+                        input: {
+                          startAdornment: <InputAdornment position="start">৳</InputAdornment>,
+                        },
+                      }}
                       value={entry.charges?.[area.id] ?? 0}
                       disabled={entry.freeDelivery}
                       onChange={(event) =>
@@ -359,9 +364,6 @@ export default function ShippingSettings() {
                           )
                         )
                       }
-                      InputProps={{
-                        startAdornment: <InputAdornment position="start">৳</InputAdornment>,
-                      }}
                     />
                   ))}
                 </Box>

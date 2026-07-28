@@ -15,7 +15,7 @@ import Typography from "@mui/material/Typography";
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import { DEFAULT_SETTINGS } from "@/lib/siteSettings";
-import { createHeroBanner } from "@/lib/heroBanners";
+import { createHeroBanner, HERO_BANNER_IMAGE_SPEC } from "@/lib/heroBanners";
 import { uploadHeroBanner } from "@/lib/api/settings";
 import SettingsPageShell from "@/components/dashboard/settings/SettingsPageShell";
 import {
@@ -102,7 +102,12 @@ export default function BannerSettings() {
               Home Hero Banners
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Manage homepage slider images.
+              Manage homepage slider images. Recommended size:{" "}
+              <strong>
+                {HERO_BANNER_IMAGE_SPEC.width}×{HERO_BANNER_IMAGE_SPEC.height}px
+              </strong>{" "}
+              ({HERO_BANNER_IMAGE_SPEC.aspectRatio}), landscape, important content centered. Keep under{" "}
+              {HERO_BANNER_IMAGE_SPEC.maxFileSize} for fast loading.
             </Typography>
           </Box>
           <Box>

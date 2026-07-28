@@ -168,7 +168,7 @@ function AttributeFormModal({ open, onClose, attribute }) {
               fullWidth
               type="number"
               label="Sort Order"
-              inputProps={{ min: 0 }}
+              slotProps={{ htmlInput: { min: 0 } }}
               {...register("sort_order")}
             />
 

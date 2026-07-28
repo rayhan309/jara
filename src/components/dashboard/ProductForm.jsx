@@ -192,7 +192,7 @@ function TagsInput({ tags, onChange }) {
           }}
           placeholder={tags.length ? "Add another tag..." : "Type and press Enter"}
           variant="standard"
-          InputProps={{ disableUnderline: true }}
+          slotProps={{ input: { disableUnderline: true } }}
           sx={{ minWidth: 120, flex: 1 }}
         />
       </Paper>
@@ -848,7 +848,7 @@ export default function ProductForm({ product = null }) {
                             type="number"
                             label="Regular Price (৳)"
                             required
-                            inputProps={{ min: 1 }}
+                            slotProps={{ htmlInput: { min: 1 } }}
                             {...regularPriceField}
                             error={Boolean(errors.regular_price)}
                           />
@@ -861,7 +861,7 @@ export default function ProductForm({ product = null }) {
                             type="number"
                             label="Sale Price (৳)"
                             required
-                            inputProps={{ min: 1 }}
+                            slotProps={{ htmlInput: { min: 1 } }}
                             {...salePriceField}
                             error={Boolean(errors.sale_price)}
                           />
@@ -883,7 +883,7 @@ export default function ProductForm({ product = null }) {
                           fullWidth
                           type="number"
                           label="Stock Quantity"
-                          inputProps={{ min: 0 }}
+                          slotProps={{ htmlInput: { min: 0 } }}
                           disabled={stockStatus !== "stock"}
                           {...register("quantity")}
                         />
@@ -999,7 +999,7 @@ export default function ProductForm({ product = null }) {
                                     <TextField
                                       type="number"
                                       size="small"
-                                      inputProps={{ min: 1 }}
+                                      slotProps={{ htmlInput: { min: 1 } }}
                                       value={entry.regular_price ?? ""}
                                       onChange={(event) =>
                                         updateVariantEntry(entry.option, { regular_price: event.target.value })
@@ -1010,7 +1010,7 @@ export default function ProductForm({ product = null }) {
                                     <TextField
                                       type="number"
                                       size="small"
-                                      inputProps={{ min: 1 }}
+                                      slotProps={{ htmlInput: { min: 1 } }}
                                       value={entry.sale_price ?? ""}
                                       onChange={(event) =>
                                         updateVariantEntry(entry.option, { sale_price: event.target.value })
@@ -1045,7 +1045,7 @@ export default function ProductForm({ product = null }) {
                                       <TextField
                                         type="number"
                                         size="small"
-                                        inputProps={{ min: 0 }}
+                                        slotProps={{ htmlInput: { min: 0 } }}
                                         value={entry.quantity}
                                         onChange={(event) =>
                                           updateVariantEntry(entry.option, {
@@ -1198,18 +1198,22 @@ export default function ProductForm({ product = null }) {
                       fullWidth
                       type="number"
                       label="Rating"
-                      inputProps={{ min: 0, max: 5, step: 0.1 }}
-                      {...register("average_rating")}
-                      InputProps={{
-                        startAdornment: <StarOutlineRoundedIcon sx={{ fontSize: 16, color: "warning.main", mr: 0.5 }} />,
+                      slotProps={{
+                        htmlInput: { min: 0, max: 5, step: 0.1 },
+                        input: {
+                          startAdornment: (
+                            <StarOutlineRoundedIcon sx={{ fontSize: 16, color: "warning.main", mr: 0.5 }} />
+                          ),
+                        },
                       }}
+                      {...register("average_rating")}
                     />
                     <TextField
                       id="reviews"
                       fullWidth
                       type="number"
                       label="Reviews"
-                      inputProps={{ min: 0 }}
+                      slotProps={{ htmlInput: { min: 0 } }}
                       {...register("total_reviews")}
                     />
                   </Box>

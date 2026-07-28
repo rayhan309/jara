@@ -94,7 +94,7 @@ function HeaderSearch() {
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Search products..."
         sx={{ flex: 1, px: 1.25, py: 1.1, fontSize: 14 }}
-        inputProps={{ "aria-label": "Search products" }}
+        slotProps={{ input: { "aria-label": "Search products" } }}
       />
       <Button
         type="submit"
@@ -210,33 +210,36 @@ function NavbarContent() {
   return (
     <>
       <Box
+        sx={{
+          background: (theme) =>
+            `linear-gradient(105deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 55%, ${theme.palette.primary.dark} 100%)`,
+          color: "primary.contrastText",
+          py: 0.65,
+          px: 1.5,
+          textAlign: "center",
+        }}
+      >
+        <Typography
+          variant="caption"
+          fontWeight={500}
+          sx={{ letterSpacing: "0.02em", opacity: 0.95 }}
+        >
+          Trusted online shopping — fast delivery & easy order tracking
+        </Typography>
+      </Box>
+
+      <Box
         component="header"
         sx={{
+          position: "sticky",
+          top: 0,
+          zIndex: (theme) => theme.zIndex.appBar,
           bgcolor: "background.paper",
           borderBottom: "1px solid",
           borderColor: "rgba(15,23,42,0.06)",
           boxShadow: "0 8px 24px -18px rgba(15,23,42,0.35)",
         }}
       >
-        <Box
-          sx={{
-            background: (theme) =>
-              `linear-gradient(105deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 55%, ${theme.palette.primary.dark} 100%)`,
-            color: "primary.contrastText",
-            py: 0.65,
-            px: 1.5,
-            textAlign: "center",
-          }}
-        >
-          <Typography
-            variant="caption"
-            fontWeight={500}
-            sx={{ letterSpacing: "0.02em", opacity: 0.95 }}
-          >
-            Trusted online shopping — fast delivery & easy order tracking
-          </Typography>
-        </Box>
-
         <StoreContainer>
           <Toolbar disableGutters sx={{ py: 1.25, gap: { xs: 1, sm: 2 }, minHeight: { xs: 72, sm: 84 } }}>
             <Stack
@@ -363,21 +366,17 @@ function NavbarContent() {
             </Stack>
           </Toolbar>
         </StoreContainer>
-      </Box>
 
-      <Box
-        component="nav"
-        aria-label="Shop categories"
-        sx={{
-          position: "sticky",
-          top: 0,
-          zIndex: (theme) => theme.zIndex.appBar,
-          background: (theme) =>
-            `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-          color: "primary.contrastText",
-          boxShadow: "0 6px 20px -10px rgba(15,23,42,0.45)",
-        }}
-      >
+        <Box
+          component="nav"
+          aria-label="Shop categories"
+          sx={{
+            background: (theme) =>
+              `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+            color: "primary.contrastText",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
+          }}
+        >
           <StoreContainer>
             <Stack direction="row" spacing={1} sx={{ py: 0.85, alignItems: "center" }}>
               <Stack
@@ -498,6 +497,7 @@ function NavbarContent() {
               </Stack>
             </Stack>
           </StoreContainer>
+        </Box>
       </Box>
 
       <Drawer

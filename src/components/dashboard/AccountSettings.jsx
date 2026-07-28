@@ -148,23 +148,25 @@ export default function AccountSettings() {
               value={currentPassword}
               onChange={(event) => setCurrentPassword(event.target.value)}
               autoComplete="current-password"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label={showCurrent ? "Hide password" : "Show password"}
-                      onClick={() => setShowCurrent((prev) => !prev)}
-                      edge="end"
-                      size="small"
-                    >
-                      {showCurrent ? (
-                        <VisibilityOffOutlinedIcon fontSize="small" />
-                      ) : (
-                        <VisibilityOutlinedIcon fontSize="small" />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={showCurrent ? "Hide password" : "Show password"}
+                        onClick={() => setShowCurrent((prev) => !prev)}
+                        edge="end"
+                        size="small"
+                      >
+                        {showCurrent ? (
+                          <VisibilityOffOutlinedIcon fontSize="small" />
+                        ) : (
+                          <VisibilityOutlinedIcon fontSize="small" />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
             <TextField
@@ -175,23 +177,25 @@ export default function AccountSettings() {
               value={newPassword}
               onChange={(event) => setNewPassword(event.target.value)}
               autoComplete="new-password"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label={showNew ? "Hide password" : "Show password"}
-                      onClick={() => setShowNew((prev) => !prev)}
-                      edge="end"
-                      size="small"
-                    >
-                      {showNew ? (
-                        <VisibilityOffOutlinedIcon fontSize="small" />
-                      ) : (
-                        <VisibilityOutlinedIcon fontSize="small" />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={showNew ? "Hide password" : "Show password"}
+                        onClick={() => setShowNew((prev) => !prev)}
+                        edge="end"
+                        size="small"
+                      >
+                        {showNew ? (
+                          <VisibilityOffOutlinedIcon fontSize="small" />
+                        ) : (
+                          <VisibilityOutlinedIcon fontSize="small" />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
             <TextField

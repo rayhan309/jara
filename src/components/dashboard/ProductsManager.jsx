@@ -196,17 +196,19 @@ export default function ProductsManager({ embedded = false }) {
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
           placeholder="Search by name, brand, or slug..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchRoundedIcon fontSize="small" color="action" />
-              </InputAdornment>
-            ),
-            endAdornment: isSearching ? (
-              <InputAdornment position="end">
-                <CircularProgress size={18} />
-              </InputAdornment>
-            ) : null,
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchRoundedIcon fontSize="small" color="action" />
+                </InputAdornment>
+              ),
+              endAdornment: isSearching ? (
+                <InputAdornment position="end">
+                  <CircularProgress size={18} />
+                </InputAdornment>
+              ) : null,
+            },
           }}
         />
 

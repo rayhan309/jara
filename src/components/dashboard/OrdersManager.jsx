@@ -385,7 +385,7 @@ function OrderViewModal({ open, onClose, order }) {
   if (!order) return null;
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md" scroll="paper" PaperProps={{ sx: { maxHeight: "92dvh" } }}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md" scroll="paper" slotProps={{ paper: { sx: { maxHeight: "92dvh" } } }}>
       <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, pr: 1 }}>
         <Typography variant="h6" fontWeight={700}>
           Order {formatDisplayOrderNumber(order.order_number)}
@@ -989,7 +989,7 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
               fullWidth
               value={customDateFrom}
               onChange={(event) => setCustomDateFrom(event.target.value)}
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
             />
             <TextField
               id="order-date-to"
@@ -999,8 +999,10 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
               fullWidth
               value={customDateTo}
               onChange={(event) => setCustomDateTo(event.target.value)}
-              inputProps={{ min: customDateFrom || undefined }}
-              InputLabelProps={{ shrink: true }}
+              slotProps={{
+                htmlInput: { min: customDateFrom || undefined },
+                inputLabel: { shrink: true },
+              }}
             />
             <Button
               type="button"
@@ -1264,8 +1266,10 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
                         size="small"
                         checked={selectedIds.has(order._id)}
                         onChange={() => toggleSelect(order._id)}
-                        inputProps={{
-                          "aria-label": `Select order ${formatDisplayOrderNumber(order.order_number)}`,
+                        slotProps={{
+                          input: {
+                            "aria-label": `Select order ${formatDisplayOrderNumber(order.order_number)}`,
+                          },
                         }}
                         sx={{ mt: 0.25, p: 0.5 }}
                       />
@@ -1342,7 +1346,7 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
                       size="small"
                       checked={allPageSelected}
                       onChange={toggleSelectAllOnPage}
-                      inputProps={{ "aria-label": "Select all orders on this page" }}
+                      slotProps={{ input: { "aria-label": "Select all orders on this page" } }}
                     />
                   </TableCell>
                   <TableCell>Order</TableCell>
@@ -1370,8 +1374,10 @@ export default function OrdersManager({ initialSearch = "", reportMode = false }
                         size="small"
                         checked={selectedIds.has(order._id)}
                         onChange={() => toggleSelect(order._id)}
-                        inputProps={{
-                          "aria-label": `Select order ${formatDisplayOrderNumber(order.order_number)}`,
+                        slotProps={{
+                          input: {
+                            "aria-label": `Select order ${formatDisplayOrderNumber(order.order_number)}`,
+                          },
                         }}
                       />
                     </TableCell>

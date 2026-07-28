@@ -1,5 +1,13 @@
 import { getOptimizedImageUrl } from "@/lib/imageUrl";
 
+/** Upload / design target for homepage hero slides (object-fit: cover). */
+export const HERO_BANNER_IMAGE_SPEC = {
+  width: 1920,
+  height: 800,
+  aspectRatio: "12:5",
+  maxFileSize: "400 KB (JPEG/WebP recommended)",
+};
+
 export const FALLBACK_HERO_BANNERS = [
   {
     id: "fallback-1",
@@ -44,8 +52,8 @@ export function getHeroBannerPreloadUrls(banners, limit = 2) {
     .slice(0, limit)
     .map((banner) =>
       getOptimizedImageUrl(banner.image.url, {
-        width: 1170,
-        height: 880,
+        width: HERO_BANNER_IMAGE_SPEC.width,
+        height: HERO_BANNER_IMAGE_SPEC.height,
         quality: 90,
       })
     )

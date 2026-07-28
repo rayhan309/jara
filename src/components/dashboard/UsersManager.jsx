@@ -223,7 +223,7 @@ export default function UsersManager() {
             required
             type="password"
             label="Password"
-            inputProps={{ minLength: 6 }}
+            slotProps={{ htmlInput: { minLength: 6 } }}
             value={form.password}
             onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
           />
@@ -307,7 +307,7 @@ export default function UsersManager() {
                 type="password"
                 label="New Password (optional)"
                 placeholder="Leave blank to keep current password"
-                inputProps={{ minLength: 6 }}
+                slotProps={{ htmlInput: { minLength: 6 } }}
                 value={editForm.password}
                 onChange={(event) => setEditForm((prev) => ({ ...prev, password: event.target.value }))}
               />
