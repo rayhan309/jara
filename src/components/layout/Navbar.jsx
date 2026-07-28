@@ -3,12 +3,11 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import AppBar from "@mui/material/AppBar";
+import StoreContainer from "@/components/container/StoreContainer";
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
-import StoreContainer from "@/components/container/StoreContainer";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import InputBase from "@mui/material/InputBase";
@@ -210,10 +209,8 @@ function NavbarContent() {
 
   return (
     <>
-      <AppBar
-        position="sticky"
-        color="inherit"
-        elevation={0}
+      <Box
+        component="header"
         sx={{
           bgcolor: "background.paper",
           borderBottom: "1px solid",
@@ -366,14 +363,21 @@ function NavbarContent() {
             </Stack>
           </Toolbar>
         </StoreContainer>
+      </Box>
 
-        <Box
-          sx={{
-            background: (theme) =>
-              `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-            color: "primary.contrastText",
-          }}
-        >
+      <Box
+        component="nav"
+        aria-label="Shop categories"
+        sx={{
+          position: "sticky",
+          top: 0,
+          zIndex: (theme) => theme.zIndex.appBar,
+          background: (theme) =>
+            `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+          color: "primary.contrastText",
+          boxShadow: "0 6px 20px -10px rgba(15,23,42,0.45)",
+        }}
+      >
           <StoreContainer>
             <Stack direction="row" spacing={1} sx={{ py: 0.85, alignItems: "center" }}>
               <Stack
@@ -494,8 +498,7 @@ function NavbarContent() {
               </Stack>
             </Stack>
           </StoreContainer>
-        </Box>
-      </AppBar>
+      </Box>
 
       <Drawer
         anchor="right"

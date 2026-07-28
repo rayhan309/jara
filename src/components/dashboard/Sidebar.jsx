@@ -179,7 +179,10 @@ export default function Sidebar({ isOpen, onClose }) {
                     <ListItemIcon sx={{ minWidth: 34, color: groupActive ? "primary.light" : "rgba(100,116,139,1)" }}>
                       <Icon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: 13, fontWeight: 600 }} />
+                    <ListItemText
+                      primary={item.label}
+                      slotProps={{ primary: { sx: { fontSize: 13, fontWeight: 600 } } }}
+                    />
                     {groupOpen ? <ExpandLessRoundedIcon fontSize="small" /> : <ExpandMoreRoundedIcon fontSize="small" />}
                   </ListItemButton>
                   <Collapse in={groupOpen} timeout="auto" unmountOnExit>
@@ -205,7 +208,12 @@ export default function Sidebar({ isOpen, onClose }) {
                             <ListItemIcon sx={{ minWidth: 28, color: "inherit" }}>
                               <ChildIcon sx={{ fontSize: 16 }} />
                             </ListItemIcon>
-                            <ListItemText primary={child.label} primaryTypographyProps={{ fontSize: 12, fontWeight: childActive ? 600 : 500 }} />
+                            <ListItemText
+                              primary={child.label}
+                              slotProps={{
+                                primary: { sx: { fontSize: 12, fontWeight: childActive ? 600 : 500 } },
+                              }}
+                            />
                           </ListItemButton>
                         );
                       })}
@@ -237,7 +245,10 @@ export default function Sidebar({ isOpen, onClose }) {
                 <ListItemIcon sx={{ minWidth: 34, color: active ? "primary.light" : "rgba(100,116,139,1)" }}>
                   <Icon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: 13, fontWeight: 600 }} />
+                <ListItemText
+                  primary={item.label}
+                  slotProps={{ primary: { sx: { fontSize: 13, fontWeight: 600 } } }}
+                />
               </ListItemButton>
             );
           })}
