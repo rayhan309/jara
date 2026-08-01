@@ -14,6 +14,7 @@ import SmsOutlinedIcon from "@mui/icons-material/SmsOutlined";
 
 import StoreContainer from "@/components/container/StoreContainer";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
+import { hindSiliguri } from "@/lib/fonts";
 
 const navItems = [
   { id: "contact", label: "Contact support" },
@@ -22,11 +23,15 @@ const navItems = [
   { id: "privacy", label: "Privacy policy" },
 ];
 
-function PolicySection({ id, title, children }) {
+const banglaFontFamily = "var(--font-hind-siliguri), 'Hind Siliguri', sans-serif";
+
+function PolicySection({ id, title, bangla = false, children }) {
   return (
     <Box
       component="section"
       id={id}
+      lang={bangla ? "bn" : undefined}
+      className={bangla ? hindSiliguri.className : undefined}
       sx={{
         scrollMarginTop: 96,
         borderRadius: 2,
@@ -35,6 +40,12 @@ function PolicySection({ id, title, children }) {
         bgcolor: "background.paper",
         p: { xs: 2.5, sm: 3 },
         boxShadow: 1,
+        ...(bangla
+          ? {
+              fontFamily: banglaFontFamily,
+              "& .MuiTypography-root": { fontFamily: banglaFontFamily },
+            }
+          : null),
       }}
     >
       <Typography variant="h6" fontWeight={700}>
@@ -187,6 +198,21 @@ export default function SupportPageView() {
             </Typography>
           </PolicySection>
 
+          <PolicySection id="shipping-bn" title="শিপিং পলিসি" bangla>
+            <Typography component="p">
+              আমরা <strong>ক্যাশ অন ডেলিভারি (COD)</strong> সহ সারাদেশে পণ্য পাঠাই। অর্ডার কনফার্ম হওয়ার পর আমাদের টিম ডেলিভারি নিশ্চিত করতে কল করবে।
+            </Typography>
+            <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+              <Typography component="li">ঢাকার ভিতরে সাধারণত ১–৩ কার্যদিবসের মধ্যে ডেলিভারি দেওয়ার চেষ্টা করি।</Typography>
+              <Typography component="li">ঢাকার বাইরে সাধারণত ৩–৭ কার্যদিবস সময় লাগে।</Typography>
+              <Typography component="li">আপনার এলাকা অনুযায়ী ডেলিভারি চার্জ অর্ডার/চেকআউট পেজে দেখানো হয়।</Typography>
+              <Typography component="li">বিশেষ পরিস্থিতিতে (ঈদ, ঝড়, যাতায়াত সমস্যা) ডেলিভারিতে কিছুটা বেশি সময় লাগতে পারে।</Typography>
+            </Box>
+            <Typography component="p">
+              পার্সেল গ্রহণের সময় পণ্য যাচাই করে তারপর টাকা দিন। কুরিয়ার থেকে পার্সেল নেওয়ার সময় কোনো সমস্যা থাকলে সঙ্গে সঙ্গে আমাদের জানান।
+            </Typography>
+          </PolicySection>
+
           <PolicySection id="returns" title="Return policy">
             <Typography component="p">
               Your satisfaction comes first. If a product is defective or wrong, we offer return/replacement support.
@@ -212,6 +238,31 @@ export default function SupportPageView() {
             </Typography>
           </PolicySection>
 
+          <PolicySection id="returns-bn" title="রিটার্ন পলিসি" bangla>
+            <Typography component="p">
+              আপনার সন্তুষ্টি আমাদের অগ্রাধিকার। পণ্যে ত্রুটি থাকলে বা ভুল পণ্য পেলে আমরা রিটার্ন/রিপ্লেসমেন্ট সাপোর্ট দিই।
+            </Typography>
+            <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+              <Typography component="li">
+                পণ্য পাওয়ার <strong>৭ দিনের</strong> মধ্যে সমস্যা জানান।
+              </Typography>
+              <Typography component="li">পণ্য অব্যবহৃত এবং আসল অবস্থায় থাকতে হবে (প্রযোজ্য ক্ষেত্রে)।</Typography>
+              <Typography component="li">ভুল বা ক্ষতিগ্রস্ত পণ্য রিপ্লেসমেন্ট বা রিফান্ডের জন্য যোগ্য হতে পারে।</Typography>
+              <Typography component="li">কাস্টম/পারসোনাল আইটেম বা হাইজিন-সংবেদনশীল পণ্যের ক্ষেত্রে রিটার্ন সীমিত হতে পারে।</Typography>
+            </Box>
+            <Typography component="p">
+              রিটার্ন বা রিপ্লেসমেন্টের জন্য অর্ডার নম্বরসহ কল করুন{" "}
+              <Typography component="a" href={`tel:${CONTACT_PHONE}`} fontWeight={600} color="primary.main">
+                {CONTACT_PHONE}
+              </Typography>{" "}
+              অথবা ইমেইল করুন{" "}
+              <Typography component="a" href={`mailto:${CONTACT_EMAIL}`} fontWeight={600} color="primary.main">
+                {CONTACT_EMAIL}
+              </Typography>
+              ।
+            </Typography>
+          </PolicySection>
+
           <PolicySection id="privacy" title="Privacy policy">
             <Typography component="p">
               Raisa&apos;s Glam Nest is committed to keeping your personal information private. We only collect what we need to process orders.
@@ -227,8 +278,28 @@ export default function SupportPageView() {
               For any questions about your data, contact us at{" "}
               <Typography component="a" href={`mailto:${CONTACT_EMAIL}`} fontWeight={600} color="primary.main">
                 {CONTACT_EMAIL}
-              </Typography>{" "}
+              </Typography>
               .
+            </Typography>
+          </PolicySection>
+
+          <PolicySection id="privacy-bn" title="প্রাইভেসি পলিসি" bangla>
+            <Typography component="p">
+              Raisa&apos;s Glam Nest আপনার ব্যক্তিগত তথ্য গোপন রাখতে প্রতিশ্রুতিবদ্ধ। অর্ডার প্রসেস করতে যা প্রয়োজন শুধু তাই সংগ্রহ করি।
+            </Typography>
+            <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+              <Typography component="li">আমরা সংগ্রহ করি: নাম, ফোন নম্বর, ডেলিভারি ঠিকানা এবং অর্ডারের বিবরণ।</Typography>
+              <Typography component="li">এই তথ্য শুধু অর্ডার প্রসেসিং, ডেলিভারি এবং কাস্টমার সার্ভিসের জন্য ব্যবহৃত হয়।</Typography>
+              <Typography component="li">আপনার অনুমতি ছাড়া আমরা তৃতীয় পক্ষের কাছে আপনার তথ্য বিক্রি বা শেয়ার করি না।</Typography>
+              <Typography component="li">পেমেন্টের বিবরণ আমাদের সার্ভারে সংরক্ষিত হয় না — লেনদেন COD-এর মাধ্যমে হয়।</Typography>
+              <Typography component="li">নিরাপত্তা উন্নত করতে প্রয়োজনমতো এই পলিসি আপডেট করা হতে পারে।</Typography>
+            </Box>
+            <Typography component="p">
+              আপনার ডেটা সংক্রান্ত যেকোনো প্রশ্নের জন্য যোগাযোগ করুন{" "}
+              <Typography component="a" href={`mailto:${CONTACT_EMAIL}`} fontWeight={600} color="primary.main">
+                {CONTACT_EMAIL}
+              </Typography>
+              ।
             </Typography>
           </PolicySection>
         </Stack>
