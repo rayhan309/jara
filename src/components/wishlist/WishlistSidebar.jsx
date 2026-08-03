@@ -20,8 +20,8 @@ import { getProductCardImageUrl } from "@/lib/imageUrl";
 import { removeFromWishlist as removeWishlistItem } from "@/lib/wishlist";
 
 const drawerPaperSx = {
-  width: { xs: "100%", sm: 380 },
-  maxWidth: "100%",
+  width: { xs: "min(380px, 86vw)", sm: 380 },
+  maxWidth: "86vw",
   height: "100%",
   maxHeight: "100dvh",
   display: "flex",
