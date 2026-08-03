@@ -11,6 +11,7 @@ import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import SmsOutlinedIcon from "@mui/icons-material/SmsOutlined";
+import { motion } from "motion/react";
 
 import StoreContainer from "@/components/container/StoreContainer";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
@@ -24,14 +25,36 @@ const navItems = [
 ];
 
 const banglaFontFamily = "var(--font-hind-siliguri), 'Hind Siliguri', sans-serif";
+const easeOut = [0.22, 1, 0.36, 1];
 
-function PolicySection({ id, title, bangla = false, children }) {
+const contactRowSx = {
+  borderRadius: 1,
+  border: 1,
+  borderColor: "grey.100",
+  bgcolor: "grey.50",
+  px: 1.75,
+  py: 1.5,
+  transition: "border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease",
+  "&:hover": {
+    borderColor: "primary.light",
+    bgcolor: "background.paper",
+    transform: "translateY(-1px)",
+    boxShadow: "0 4px 14px rgba(15, 23, 42, 0.06)",
+  },
+};
+
+function PolicySection({ id, title, bangla = false, index = 0, children }) {
   return (
     <Box
-      component="section"
+      component={motion.section}
       id={id}
       lang={bangla ? "bn" : undefined}
       className={bangla ? hindSiliguri.className : undefined}
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.25), ease: easeOut }}
+      whileHover={{ y: -2 }}
       sx={{
         scrollMarginTop: 96,
         borderRadius: 2,
@@ -40,6 +63,11 @@ function PolicySection({ id, title, bangla = false, children }) {
         bgcolor: "background.paper",
         p: { xs: 2.5, sm: 3 },
         boxShadow: 1,
+        transition: "box-shadow 0.25s ease, border-color 0.25s ease",
+        "&:hover": {
+          boxShadow: "0 10px 28px rgba(15, 23, 42, 0.08)",
+          borderColor: "primary.light",
+        },
         ...(bangla
           ? {
               fontFamily: banglaFontFamily,
@@ -76,7 +104,13 @@ export default function SupportPageView() {
   return (
     <StoreContainer className="py-8 sm:py-10 lg:py-12">
       <Box sx={{ mx: "auto", maxWidth: 720 }}>
-        <Stack sx={{ alignItems: "center", textAlign: "center" }}>
+        <Stack
+          component={motion.div}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: easeOut }}
+          sx={{ alignItems: "center", textAlign: "center" }}
+        >
           <Typography variant="caption" fontWeight={700} color="primary" sx={{ letterSpacing: "0.18em", textTransform: "uppercase" }}>
             Help
           </Typography>
@@ -89,36 +123,58 @@ export default function SupportPageView() {
         </Stack>
 
         <Stack
-          component="nav"
+          component={motion.nav}
           aria-label="Help sections"
           direction="row"
           flexWrap="wrap"
           justifyContent="center"
           useFlexGap
           spacing={1}
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.06, delayChildren: 0.15 } },
+          }}
           sx={{ mt: 4 }}
         >
           {navItems.map((item) => (
-            <Chip
+            <Box
               key={item.id}
-              component="a"
-              href={`#${item.id}`}
-              clickable
-              label={item.label}
-              variant="outlined"
-              sx={{ fontWeight: 600 }}
-            />
+              component={motion.div}
+              variants={{
+                hidden: { opacity: 0, y: 8 },
+                show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: easeOut } },
+              }}
+            >
+              <Chip
+                component="a"
+                href={`#${item.id}`}
+                clickable
+                label={item.label}
+                variant="outlined"
+                sx={{
+                  fontWeight: 600,
+                  transition: "transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease",
+                  "&:hover": {
+                    transform: "translateY(-1px)",
+                    borderColor: "primary.main",
+                    bgcolor: "primary.50",
+                  },
+                }}
+              />
+            </Box>
           ))}
         </Stack>
 
         <Stack spacing={{ xs: 2.5, sm: 3 }} sx={{ mt: { xs: 4, sm: 5 } }}>
-          <PolicySection id="contact" title="Contact support">
+          <PolicySection id="contact" title="Contact support" index={0}>
             <Typography component="p">
-              Contact us for any questions, order issues, or help. We'll get back to you as soon as possible.
+              Contact us for any questions, order issues, or help. We&apos;ll get back to you as soon as possible.
             </Typography>
 
             <Stack spacing={1.5} sx={{ pt: 0.5 }}>
-              <Stack direction="row" spacing={1.5} sx={{ borderRadius: 1, border: 1, borderColor: "grey.100", bgcolor: "grey.50", px: 1.75, py: 1.5 }}>
+              <Stack direction="row" spacing={1.5} sx={contactRowSx}>
                 <PhoneOutlinedIcon sx={{ mt: 0.25, color: "primary.main", fontSize: 20 }} />
                 <Box>
                   <Typography variant="caption" fontWeight={600} color="text.secondary">
@@ -129,13 +185,13 @@ export default function SupportPageView() {
                     href={`tel:${CONTACT_PHONE}`}
                     fontWeight={600}
                     color="text.primary"
-                    sx={{ display: "block", textDecoration: "none", "&:hover": { color: "primary.main" } }}
+                    sx={{ display: "block", textDecoration: "none", transition: "color 0.2s ease", "&:hover": { color: "primary.main" } }}
                   >
                     {CONTACT_PHONE}
                   </Typography>
                 </Box>
               </Stack>
-              <Stack direction="row" spacing={1.5} sx={{ borderRadius: 1, border: 1, borderColor: "grey.100", bgcolor: "grey.50", px: 1.75, py: 1.5 }}>
+              <Stack direction="row" spacing={1.5} sx={contactRowSx}>
                 <EmailOutlinedIcon sx={{ mt: 0.25, color: "primary.main", fontSize: 20 }} />
                 <Box>
                   <Typography variant="caption" fontWeight={600} color="text.secondary">
@@ -146,13 +202,13 @@ export default function SupportPageView() {
                     href={`mailto:${CONTACT_EMAIL}`}
                     fontWeight={600}
                     color="text.primary"
-                    sx={{ display: "block", textDecoration: "none", "&:hover": { color: "primary.main" } }}
+                    sx={{ display: "block", textDecoration: "none", transition: "color 0.2s ease", "&:hover": { color: "primary.main" } }}
                   >
                     {CONTACT_EMAIL}
                   </Typography>
                 </Box>
               </Stack>
-              <Stack direction="row" spacing={1.5} sx={{ borderRadius: 1, border: 1, borderColor: "grey.100", bgcolor: "grey.50", px: 1.75, py: 1.5 }}>
+              <Stack direction="row" spacing={1.5} sx={contactRowSx}>
                 <LocationOnOutlinedIcon sx={{ mt: 0.25, color: "primary.main", fontSize: 20 }} />
                 <Box>
                   <Typography variant="caption" fontWeight={600} color="text.secondary">
@@ -183,7 +239,7 @@ export default function SupportPageView() {
             </Stack>
           </PolicySection>
 
-          <PolicySection id="shipping" title="Shipping policy">
+          <PolicySection id="shipping" title="Shipping policy" index={1}>
             <Typography component="p">
               We ship nationwide with <strong>Cash on Delivery (COD)</strong>. After your order is confirmed, our team will call to confirm delivery.
             </Typography>
@@ -198,7 +254,7 @@ export default function SupportPageView() {
             </Typography>
           </PolicySection>
 
-          <PolicySection id="shipping-bn" title="শিপিং পলিসি" bangla>
+          <PolicySection id="shipping-bn" title="শিপিং পলিসি" bangla index={2}>
             <Typography component="p">
               আমরা <strong>ক্যাশ অন ডেলিভারি (COD)</strong> সহ সারাদেশে পণ্য পাঠাই। অর্ডার কনফার্ম হওয়ার পর আমাদের টিম ডেলিভারি নিশ্চিত করতে কল করবে।
             </Typography>
@@ -213,7 +269,7 @@ export default function SupportPageView() {
             </Typography>
           </PolicySection>
 
-          <PolicySection id="returns" title="Return policy">
+          <PolicySection id="returns" title="Return policy" index={3}>
             <Typography component="p">
               Your satisfaction comes first. If a product is defective or wrong, we offer return/replacement support.
             </Typography>
@@ -238,7 +294,7 @@ export default function SupportPageView() {
             </Typography>
           </PolicySection>
 
-          <PolicySection id="returns-bn" title="রিটার্ন পলিসি" bangla>
+          <PolicySection id="returns-bn" title="রিটার্ন পলিসি" bangla index={4}>
             <Typography component="p">
               আপনার সন্তুষ্টি আমাদের অগ্রাধিকার। পণ্যে ত্রুটি থাকলে বা ভুল পণ্য পেলে আমরা রিটার্ন/রিপ্লেসমেন্ট সাপোর্ট দিই।
             </Typography>
@@ -263,7 +319,7 @@ export default function SupportPageView() {
             </Typography>
           </PolicySection>
 
-          <PolicySection id="privacy" title="Privacy policy">
+          <PolicySection id="privacy" title="Privacy policy" index={5}>
             <Typography component="p">
               Raisa&apos;s Glam Nest is committed to keeping your personal information private. We only collect what we need to process orders.
             </Typography>
@@ -283,7 +339,7 @@ export default function SupportPageView() {
             </Typography>
           </PolicySection>
 
-          <PolicySection id="privacy-bn" title="প্রাইভেসি পলিসি" bangla>
+          <PolicySection id="privacy-bn" title="প্রাইভেসি পলিসি" bangla index={6}>
             <Typography component="p">
               Raisa&apos;s Glam Nest আপনার ব্যক্তিগত তথ্য গোপন রাখতে প্রতিশ্রুতিবদ্ধ। অর্ডার প্রসেস করতে যা প্রয়োজন শুধু তাই সংগ্রহ করি।
             </Typography>
