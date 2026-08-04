@@ -201,7 +201,10 @@ function NavbarContent() {
   const [cartOpen, setCartOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [spacerHeight, setSpacerHeight] = useState(0);
   const scrolledRef = useRef(false);
+  const announceRef = useRef(null);
+  const headerRef = useRef(null);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -216,9 +219,17 @@ function NavbarContent() {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const y = window.scrollY;
-        // Hysteresis: different enter/exit thresholds stop sticky flicker
-        const next = scrolledRef.current ? y > 16 : y > 72;
+        // Wide hysteresis avoids toggle loops near the threshold
+        const next = scrolledRef.current ? y > 48 : y > 100;
         if (next === scrolledRef.current) return;
+
+        // Capture full chrome height before collapsing into the floating pill
+        if (next && !scrolledRef.current) {
+          const announceH = announceRef.current?.getBoundingClientRect().height || 0;
+          const headerH = headerRef.current?.getBoundingClientRect().height || 0;
+          setSpacerHeight(Math.ceil(announceH + headerH));
+        }
+
         scrolledRef.current = next;
         setScrolled(next);
       });
@@ -232,13 +243,11 @@ function NavbarContent() {
     };
   }, []);
 
-  const shellTransition =
-    "padding 0.3s cubic-bezier(0.22, 1, 0.36, 1), border-radius 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, max-width 0.3s cubic-bezier(0.22, 1, 0.36, 1)";
-
   return (
     <>
       {!scrolled ? (
         <Box
+          ref={announceRef}
           sx={{
             background: (theme) =>
               `linear-gradient(105deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 55%, ${theme.palette.primary.dark} 100%)`,
@@ -256,24 +265,30 @@ function NavbarContent() {
             Trusted online shopping — fast delivery & easy order tracking
           </Typography>
         </Box>
-      ) : null}
+      ) : (
+        <Box aria-hidden sx={{ height: spacerHeight, flexShrink: 0 }} />
+      )}
 
       <Box
+        ref={headerRef}
         component="header"
         sx={{
-          position: "sticky",
+          position: scrolled ? "fixed" : "sticky",
           top: 0,
+          left: 0,
+          right: 0,
           zIndex: (theme) => theme.zIndex.appBar,
           px: scrolled ? { xs: 1.25, sm: 2, md: 2.5 } : 0,
           pt: scrolled ? { xs: 1, sm: 1.25 } : 0,
           pb: scrolled ? { xs: 1, sm: 1.25 } : 0,
           bgcolor: "transparent",
-          transition: shellTransition,
+          transition: "padding 0.28s cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       >
         <Box
           sx={{
             mx: "auto",
+            width: 1,
             maxWidth: scrolled ? { xs: 720, sm: 960, md: 1120, lg: 1200 } : "100%",
             overflow: "hidden",
             bgcolor: "background.paper",
@@ -283,7 +298,8 @@ function NavbarContent() {
             boxShadow: scrolled
               ? "0 12px 40px -16px rgba(15,23,42,0.28), 0 4px 12px -6px rgba(15,23,42,0.12)"
               : "0 8px 24px -18px rgba(15,23,42,0.35)",
-            transition: shellTransition,
+            transition:
+              "border-radius 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease, border-color 0.28s ease",
           }}
         >
           {!scrolled ? (
