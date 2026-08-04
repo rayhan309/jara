@@ -5,6 +5,8 @@ import HeroSwiper from "@/components/home/HeroSwiper";
 import HomeCategoriesSection from "@/components/categories/HomeCategoriesSection";
 import HomeCategoryProductsView from "@/components/home/HomeCategoryProductsView";
 import HomeBrandsSection from "@/components/home/HomeBrandsSection";
+import WhyChooseUs from "@/components/home/WhyChooseUs";
+import ClientReviews from "@/components/home/ClientReviews";
 import { useProducts } from "@/hooks/useProducts";
 import { getBrandList } from "@/lib/homeProducts";
 
@@ -18,6 +20,8 @@ export default function HomeView() {
       <HeroSwiper />
       <HomeCategoriesSection />
       <HomeCategoryProductsView />
+      <WhyChooseUs />
+      <ClientReviews />
       {/* <HomeBrandsSection brands={brands} /> */}
     </>
   );

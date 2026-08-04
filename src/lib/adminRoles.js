@@ -128,6 +128,7 @@ export function getNavItemsForRole(role) {
         { href: "/dashboard/settings/shipping", label: "Shipping", icon: "truck" },
         { href: "/dashboard/settings/contact", label: "Contact", icon: "mail" },
         { href: "/dashboard/settings/banners", label: "Hero Banners", icon: "image" },
+        { href: "/dashboard/settings/reviews", label: "Client Reviews", icon: "reviews" },
       ],
     });
   }

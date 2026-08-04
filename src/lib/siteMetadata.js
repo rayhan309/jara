@@ -18,7 +18,7 @@ export const DEFAULT_KEYWORDS = [
 ];
 
 const DEFAULT_OG_IMAGE = "/images/banner-1.jpg";
-const DEFAULT_ICON = "/images/brand-logo.png";
+const DEFAULT_ICON = "/images/favIcon.png";
 
 export function getSiteUrl() {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -159,10 +159,7 @@ export const rootMetadata = {
     },
   },
   icons: {
-    icon: [
-      { url: DEFAULT_ICON, type: "image/png" },
-      { url: "/icon.svg", type: "image/svg+xml" },
-    ],
+    icon: [{ url: DEFAULT_ICON, type: "image/png" }],
     apple: [{ url: DEFAULT_ICON, type: "image/png" }],
     shortcut: [{ url: DEFAULT_ICON, type: "image/png" }],
   },
@@ -183,10 +180,7 @@ export const adminRootMetadata = {
     googleBot: { index: false, follow: false },
   },
   icons: {
-    icon: [
-      { url: DEFAULT_ICON, type: "image/png" },
-      { url: "/icon.svg", type: "image/svg+xml" },
-    ],
+    icon: [{ url: DEFAULT_ICON, type: "image/png" }],
     apple: [{ url: DEFAULT_ICON, type: "image/png" }],
   },
 };

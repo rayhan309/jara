@@ -16,10 +16,7 @@ export async function generateMetadata() {
   return {
     ...adminRootMetadata,
     icons: {
-      icon: [
-        { url: faviconUrl, type: "image/png" },
-        { url: "/icon.svg", type: "image/svg+xml" },
-      ],
+      icon: [{ url: faviconUrl, type: "image/png" }],
       apple: [{ url: faviconUrl, type: "image/png" }],
     },
   };

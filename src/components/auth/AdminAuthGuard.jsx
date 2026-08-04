@@ -2,32 +2,34 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Box from "@mui/material/Box";
-import CircularProgress from "@mui/material/CircularProgress";
-import Typography from "@mui/material/Typography";
 import { fetchAdminProfile } from "@/lib/api/adminUsers";
 import { getAdminAuth, setAdminAuth, clearAdminAuth, isAdminAuthenticated } from "@/lib/auth";
 import { getDefaultDashboardPath } from "@/lib/adminRoles";
 
 export default function AdminAuthGuard({ children, initialProfile = null }) {
   const router = useRouter();
-  const [ready, setReady] = useState(false);
+  // Server already verified the cookie when initialProfile is present — start ready
+  // so SSR and client hydrate the same tree (avoids MUI/Emotion loading-state mismatch).
+  const [ready, setReady] = useState(() => Boolean(initialProfile));
 
   useEffect(() => {
+    let cancelled = false;
+
     async function verifySession() {
+      if (initialProfile) {
+        setAdminAuth(initialProfile);
+        if (!cancelled) setReady(true);
+        return;
+      }
+
       if (!isAdminAuthenticated()) {
         router.replace("/admin/login");
         return;
       }
 
-      if (initialProfile) {
-        setAdminAuth(initialProfile);
-        setReady(true);
-        return;
-      }
-
       try {
         const user = await fetchAdminProfile();
+        if (cancelled) return;
         setAdminAuth(user);
         setReady(true);
       } catch {
@@ -37,31 +39,37 @@ export default function AdminAuthGuard({ children, initialProfile = null }) {
     }
 
     verifySession();
+    return () => {
+      cancelled = true;
+    };
   }, [router, initialProfile]);
 
   if (!ready) {
+    // Plain HTML avoids Emotion style-insertion vs div hydration mismatches
+    // next to DashboardMuiThemeProvider's CssBaseline.
     return (
-      <Box
-        sx={{
+      <div
+        style={{
           minHeight: "100vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          bgcolor: "background.default",
+          backgroundColor: "#f8fafc",
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-          <CircularProgress size={28} />
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            fontWeight={700}
-            sx={{ letterSpacing: "0.2em", textTransform: "uppercase" }}
-          >
-            Verifying session
-          </Typography>
-        </Box>
-      </Box>
+        <p
+          style={{
+            margin: 0,
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "#64748b",
+          }}
+        >
+          Verifying session
+        </p>
+      </div>
     );
   }
 

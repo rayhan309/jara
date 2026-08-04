@@ -30,6 +30,7 @@ import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlin
 import PaletteOutlinedIcon from "@mui/icons-material/PaletteOutlined";
 import PeopleOutlineRoundedIcon from "@mui/icons-material/PeopleOutlineRounded";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
+import ReviewsOutlinedIcon from "@mui/icons-material/ReviewsOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined";
@@ -59,6 +60,7 @@ const ICONS = {
   truck: LocalShippingOutlinedIcon,
   mail: MailOutlineRoundedIcon,
   image: ImageOutlinedIcon,
+  reviews: ReviewsOutlinedIcon,
   users: ManageAccountsOutlinedIcon,
   account: PersonOutlineRoundedIcon,
 };

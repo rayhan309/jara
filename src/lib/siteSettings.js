@@ -5,6 +5,7 @@ export const SETTINGS_ID = "global";
 
 /** Default store logo & favicon (public path). */
 export const DEFAULT_BRAND_LOGO_PATH = "/images/brand-logo.png";
+export const DEFAULT_FAVICON_PATH = "/images/favIcon.png";
 
 export const SOCIAL_PLATFORMS = [
   { id: "facebook", label: "Facebook" },
@@ -140,7 +141,7 @@ export function getShopLogoUrl(settings) {
 }
 
 export function getFaviconUrl(settings) {
-  return settings?.favicon?.url || DEFAULT_BRAND_LOGO_PATH;
+  return settings?.favicon?.url || DEFAULT_FAVICON_PATH;
 }
 
 function normalizeSocialLink(link, index) {

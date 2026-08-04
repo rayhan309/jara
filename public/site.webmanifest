@@ -12,13 +12,13 @@
   "categories": ["shopping", "business"],
   "icons": [
     {
-      "src": "/images/brand-logo.png",
+      "src": "/images/favIcon.png",
       "sizes": "any",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/images/brand-logo.png",
+      "src": "/images/favIcon.png",
       "sizes": "any",
       "type": "image/png",
       "purpose": "maskable"
