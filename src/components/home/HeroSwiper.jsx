@@ -73,8 +73,8 @@ export default function HeroSwiper() {
                         priority
                         quality={100}
                         unoptimized={imageUrl.includes("ik.imagekit.io")}
-                        style={{ objectFit: "cover", objectPosition: "center" }}
-                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 92vw, 1200px"
+                        className="object-fill object-center"
+                        sizes="(max-width: 1170px) 100vw, 1170px"
                       />
                     </Box>
                   </Box>
