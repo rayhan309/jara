@@ -699,10 +699,17 @@ function NavbarContent() {
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
         slotProps={{
+          backdrop: {
+            sx: {
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              backgroundColor: "rgba(15, 23, 42, 0.28)",
+            },
+          },
           paper: {
             sx: {
-              width: { xs: "min(320px, 86vw)", sm: 320 },
-              maxWidth: "86vw",
+              width: { xs: "min(280px, 78vw)", sm: 300 },
+              maxWidth: "78vw",
               height: "100%",
               maxHeight: "100dvh",
               display: "flex",

@@ -26,16 +26,16 @@ export default function HeroSwiper() {
   const slides = getActiveHeroBanners(settings.heroBanners);
 
   return (
-    <Box component="section" sx={{ bgcolor: "background.paper", py: { xs: 1.5, sm: 2, lg: 2.5 } }}>
+    <Box component="section" sx={{ bgcolor: "background.paper", py: { xs: 2, sm: 2.5, lg: 3 } }}>
       <StoreContainer>
         <Box
           sx={{
             overflow: "hidden",
-            borderRadius: 1,
+            borderRadius: { xs: 1, sm: 1 },
             border: 1,
-            borderColor: "divider",
+            borderColor: "rgba(24, 24, 27, 0.1)",
             bgcolor: "grey.100",
-            boxShadow: 1,
+            boxShadow: "0 1px 2px rgba(15, 23, 42, 0.05)",
           }}
         >
           <Swiper
@@ -57,13 +57,9 @@ export default function HeroSwiper() {
                         position: "relative",
                         width: 1,
                         aspectRatio: {
-                          xs: "5 / 4",
-                          sm: "3 / 2",
-                          md: "16 / 10",
-                          lg: "12 / 5",
+                          xs: "16 / 8",
+                          sm: "21 / 9",
                         },
-                        minHeight: { xs: 280, sm: 360, md: 440, lg: 500 },
-                        maxHeight: { xs: 440, sm: 520, md: 580, lg: 640 },
                       }}
                     >
                       <Image

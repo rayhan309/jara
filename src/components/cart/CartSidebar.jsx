@@ -22,13 +22,19 @@ import { getVariantTypeLabel } from "@/lib/productVariants";
 import { getProductCardImageUrl } from "@/lib/imageUrl";
 
 const drawerPaperSx = {
-  width: { xs: "min(380px, 86vw)", sm: 380 },
-  maxWidth: "86vw",
+  width: { xs: "min(300px, 78vw)", sm: 340 },
+  maxWidth: "78vw",
   height: "100%",
   maxHeight: "100dvh",
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
+};
+
+const drawerBackdropSx = {
+  backdropFilter: "blur(8px)",
+  WebkitBackdropFilter: "blur(8px)",
+  backgroundColor: "rgba(15, 23, 42, 0.28)",
 };
 
 export default function CartSidebar({ open, onClose }) {
@@ -48,6 +54,7 @@ export default function CartSidebar({ open, onClose }) {
       onClose={onClose}
       ModalProps={{ keepMounted: true }}
       slotProps={{
+        backdrop: { sx: drawerBackdropSx },
         paper: { sx: drawerPaperSx },
       }}
     >
