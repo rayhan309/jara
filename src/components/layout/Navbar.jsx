@@ -1,8 +1,9 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
 import StoreContainer from "@/components/container/StoreContainer";
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
@@ -33,6 +34,9 @@ import WishlistSidebar from "@/components/wishlist/WishlistSidebar";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import ShopLogo from "@/components/layout/ShopLogo";
 import { getShopLogoUrl } from "@/lib/siteSettings";
+
+const NAV_EASE = [0.22, 1, 0.36, 1];
+const NAV_TRANSITION = { duration: 0.38, ease: NAV_EASE };
 
 const navLinks = [
   { href: "/", label: "Home" },
