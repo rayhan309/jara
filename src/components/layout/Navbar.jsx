@@ -190,6 +190,63 @@ function NavbarFallback() {
   );
 }
 
+function CategoryNavButtons({ pathname, activeCategorySlug, categories, isLoading, tone = "onPrimary" }) {
+  const onPrimary = tone === "onPrimary";
+  const homeActive = pathname === "/";
+
+  const btnSx = (active) => ({
+    color: onPrimary ? "inherit" : active ? "primary.main" : "text.primary",
+    minHeight: 32,
+    px: 1.5,
+    borderRadius: onPrimary ? 1 : 999,
+    bgcolor: active ? (onPrimary ? "rgba(255,255,255,0.22)" : "primary.50") : "transparent",
+    flexShrink: 0,
+    fontWeight: active ? 700 : onPrimary ? 600 : 500,
+    fontSize: 13,
+    "&:hover": {
+      bgcolor: onPrimary ? "rgba(255,255,255,0.14)" : "grey.100",
+    },
+  });
+
+  return (
+    <>
+      <Button component={Link} href="/" size="small" sx={btnSx(homeActive)}>
+        Home
+      </Button>
+      {isLoading ? (
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            px: 1,
+            color: onPrimary ? "rgba(255,255,255,0.75)" : "text.secondary",
+            alignItems: "center",
+          }}
+        >
+          <CircularProgress size={14} color="inherit" />
+          <Typography variant="caption">Loading...</Typography>
+        </Stack>
+      ) : (
+        categories.map((category) => {
+          const active = pathname === "/products" && activeCategorySlug === category.slug;
+          return (
+            <Button
+              key={category._id}
+              component={Link}
+              href={`/products?category=${category.slug}`}
+              onClick={() => setSelectedCategoryId(category._id)}
+              size="small"
+              sx={btnSx(active)}
+            >
+              {category.name}
+            </Button>
+          );
+        })
+      )}
+    </>
+  );
+}
+
 function NavbarContent() {
   const settings = useStoreSettings();
   const logoUrl = getShopLogoUrl(settings);
@@ -207,14 +264,18 @@ function NavbarContent() {
   const [scrolled, setScrolled] = useState(false);
   const [spacerHeight, setSpacerHeight] = useState(0);
   const scrolledRef = useRef(false);
-  const announceRef = useRef(null);
-  const headerRef = useRef(null);
+  const defaultNavRef = useRef(null);
 
   useEffect(() => {
     setMenuOpen(false);
     setCartOpen(false);
     setWishlistOpen(false);
   }, [pathname]);
+
+  useLayoutEffect(() => {
+    if (scrolled || !defaultNavRef.current) return;
+    setSpacerHeight(Math.ceil(defaultNavRef.current.getBoundingClientRect().height));
+  }, [scrolled, categories.length, isLoading]);
 
   useEffect(() => {
     let frame = 0;
@@ -223,15 +284,11 @@ function NavbarContent() {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const y = window.scrollY;
-        // Wide hysteresis avoids toggle loops near the threshold
         const next = scrolledRef.current ? y > 48 : y > 100;
         if (next === scrolledRef.current) return;
 
-        // Capture full chrome height before collapsing into the floating pill
-        if (next && !scrolledRef.current) {
-          const announceH = announceRef.current?.getBoundingClientRect().height || 0;
-          const headerH = headerRef.current?.getBoundingClientRect().height || 0;
-          setSpacerHeight(Math.ceil(announceH + headerH));
+        if (next && defaultNavRef.current) {
+          setSpacerHeight(Math.ceil(defaultNavRef.current.getBoundingClientRect().height));
         }
 
         scrolledRef.current = next;
@@ -247,240 +304,349 @@ function NavbarContent() {
     };
   }, []);
 
+  const compactIconSx = {
+    bgcolor: "grey.50",
+    color: "text.primary",
+    border: "1px solid",
+    borderColor: "divider",
+    borderRadius: "50%",
+    "&:hover": { bgcolor: "grey.100", transform: "translateY(-1px)" },
+  };
+
   return (
     <>
-      {!scrolled ? (
-        <Box
-          ref={announceRef}
-          sx={{
-            background: (theme) =>
-              `linear-gradient(105deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 55%, ${theme.palette.primary.dark} 100%)`,
-            color: "primary.contrastText",
-            py: 0.65,
-            px: 1.5,
-            textAlign: "center",
-          }}
-        >
-          <Typography
-            variant="caption"
-            fontWeight={500}
-            sx={{ letterSpacing: "0.02em", opacity: 0.95, whiteSpace: "nowrap" }}
-          >
-            Trusted online shopping — fast delivery & easy order tracking
-          </Typography>
-        </Box>
-      ) : (
-        <Box aria-hidden sx={{ height: spacerHeight, flexShrink: 0 }} />
-      )}
-
       <Box
-        ref={headerRef}
-        component="header"
         sx={{
-          position: scrolled ? "fixed" : "sticky",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: (theme) => theme.zIndex.appBar,
-          px: scrolled ? { xs: 1.25, sm: 2, md: 2.5 } : 0,
-          pt: scrolled ? { xs: 1, sm: 1.25 } : 0,
-          pb: scrolled ? { xs: 1, sm: 1.25 } : 0,
-          bgcolor: "transparent",
-          transition: "padding 0.28s cubic-bezier(0.22, 1, 0.36, 1)",
+          height: scrolled ? spacerHeight : "auto",
+          position: "relative",
+          zIndex: scrolled ? 0 : (theme) => theme.zIndex.appBar,
+          overflow: "hidden",
         }}
       >
-        <Box
-          sx={{
-            mx: "auto",
-            width: 1,
-            maxWidth: scrolled ? { xs: 720, sm: 960, md: 1120, lg: 1200 } : "100%",
-            overflow: "hidden",
-            bgcolor: "background.paper",
-            borderRadius: scrolled ? 999 : 0,
-            border: "1px solid",
-            borderColor: scrolled ? "rgba(15,23,42,0.08)" : "transparent",
-            boxShadow: scrolled
-              ? "0 12px 40px -16px rgba(15,23,42,0.28), 0 4px 12px -6px rgba(15,23,42,0.12)"
-              : "0 8px 24px -18px rgba(15,23,42,0.35)",
-            transition:
-              "border-radius 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease, border-color 0.28s ease",
-          }}
-        >
+        <AnimatePresence initial={false}>
           {!scrolled ? (
-            <StoreContainer>
-              <Toolbar
-                disableGutters
+            <Box
+              component={motion.div}
+              key="default-nav"
+              ref={defaultNavRef}
+              initial={{ y: "-55%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "-110%", opacity: 0 }}
+              transition={NAV_TRANSITION}
+              sx={{
+                width: 1,
+                bgcolor: "background.paper",
+                boxShadow: "0 8px 24px -18px rgba(15,23,42,0.35)",
+                willChange: "transform, opacity",
+              }}
+            >
+              <Box
                 sx={{
-                  py: 1.25,
-                  gap: { xs: 1, sm: 2 },
-                  minHeight: { xs: 72, sm: 84 },
+                  background: (theme) =>
+                    `linear-gradient(105deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 55%, ${theme.palette.primary.dark} 100%)`,
+                  color: "primary.contrastText",
+                  py: 0.65,
+                  px: 1.5,
+                  textAlign: "center",
                 }}
               >
-                <Stack
-                  component={Link}
-                  href="/"
-                  direction="row"
-                  spacing={1.5}
-                  sx={{ textDecoration: "none", color: "inherit", flexShrink: 0, alignItems: "center" }}
+                <Typography
+                  variant="caption"
+                  fontWeight={500}
+                  sx={{ letterSpacing: "0.02em", opacity: 0.95, whiteSpace: "nowrap" }}
                 >
-                  <ShopLogo logoUrl={logoUrl} size="md" />
-                </Stack>
+                  Trusted online shopping — fast delivery & easy order tracking
+                </Typography>
+              </Box>
 
-                <Box sx={{ flex: 1, display: { xs: "none", lg: "block" }, px: { lg: 2, xl: 3 } }}>
-                  <HeaderSearch />
-                </Box>
-
-                <Stack
-                  direction="row"
-                  spacing={1.25}
-                  sx={{ display: { xs: "none", lg: "flex" }, flexShrink: 0, alignItems: "center" }}
-                >
-                  <Box
-                    component="a"
-                    href={`tel:${CONTACT_PHONE}`}
+              <Box component="header">
+                <StoreContainer>
+                  <Toolbar
+                    disableGutters
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1.25,
-                      textDecoration: "none",
-                      color: "inherit",
-                      px: 1.25,
-                      py: 0.75,
-                      borderRadius: 1.5,
-                      border: "1px solid",
-                      borderColor: "rgba(15,23,42,0.08)",
-                      bgcolor: "grey.50",
-                      transition: "border-color 0.2s ease, background-color 0.2s ease",
-                      "&:hover": {
-                        borderColor: "primary.light",
-                        bgcolor: "primary.50",
-                      },
+                      py: 1.25,
+                      gap: { xs: 1, sm: 2 },
+                      minHeight: { xs: 72, sm: 84 },
                     }}
                   >
-                    <Box
-                      sx={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 1,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        bgcolor: "primary.main",
-                        color: "primary.contrastText",
-                        flexShrink: 0,
-                      }}
+                    <Stack
+                      component={Link}
+                      href="/"
+                      direction="row"
+                      spacing={1.5}
+                      sx={{ textDecoration: "none", color: "inherit", flexShrink: 0, alignItems: "center" }}
                     >
-                      <PhoneOutlinedIcon sx={{ fontSize: 18 }} />
-                    </Box>
-                    <Box sx={{ minWidth: 0 }}>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: "block", lineHeight: 1.2 }}>
-                        Contact us
-                      </Typography>
-                      <Typography variant="body2" fontWeight={700} noWrap sx={{ lineHeight: 1.3 }}>
-                        {CONTACT_PHONE}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Stack>
+                      <ShopLogo logoUrl={logoUrl} size="md" />
+                    </Stack>
 
-                <Stack
-                  direction="row"
-                  spacing={0.75}
-                  sx={{ display: { xs: "flex", lg: "none" }, ml: "auto", alignItems: "center" }}
+                    <Box sx={{ flex: 1, display: { xs: "none", lg: "block" }, px: { lg: 2, xl: 3 } }}>
+                      <HeaderSearch />
+                    </Box>
+
+                    <Stack
+                      direction="row"
+                      spacing={1.25}
+                      sx={{ display: { xs: "none", lg: "flex" }, flexShrink: 0, alignItems: "center" }}
+                    >
+                      <Box
+                        component="a"
+                        href={`tel:${CONTACT_PHONE}`}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.25,
+                          textDecoration: "none",
+                          color: "inherit",
+                          px: 1.25,
+                          py: 0.75,
+                          borderRadius: 1.5,
+                          border: "1px solid",
+                          borderColor: "rgba(15,23,42,0.08)",
+                          bgcolor: "grey.50",
+                          transition: "border-color 0.2s ease, background-color 0.2s ease",
+                          "&:hover": {
+                            borderColor: "primary.light",
+                            bgcolor: "primary.50",
+                          },
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 1,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            bgcolor: "primary.main",
+                            color: "primary.contrastText",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <PhoneOutlinedIcon sx={{ fontSize: 18 }} />
+                        </Box>
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ display: "block", lineHeight: 1.2 }}
+                          >
+                            Contact us
+                          </Typography>
+                          <Typography variant="body2" fontWeight={700} noWrap sx={{ lineHeight: 1.3 }}>
+                            {CONTACT_PHONE}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Stack>
+
+                    <Stack
+                      direction="row"
+                      spacing={0.75}
+                      sx={{ display: { xs: "flex", lg: "none" }, ml: "auto", alignItems: "center" }}
+                    >
+                      <IconButton
+                        aria-label="WhatsApp"
+                        onClick={() => window.open(`https://wa.me/${whatsappPhone}`, "_blank")}
+                        size="small"
+                        sx={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 1.25,
+                          bgcolor: "rgba(37,211,102,0.1)",
+                          color: "#128C7E",
+                        }}
+                      >
+                        <WhatsAppIcon sx={{ fontSize: 18 }} />
+                      </IconButton>
+                      <IconButton
+                        aria-label="Wishlist"
+                        onClick={() => setWishlistOpen(true)}
+                        size="small"
+                        sx={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 1.25,
+                          bgcolor: "grey.50",
+                          border: "1px solid",
+                          borderColor: "divider",
+                        }}
+                      >
+                        <Badge badgeContent={wishlistCount} color="primary" max={9}>
+                          <FavoriteBorderRoundedIcon sx={{ fontSize: 18 }} />
+                        </Badge>
+                      </IconButton>
+                      <IconButton
+                        aria-label="Cart"
+                        onClick={() => setCartOpen(true)}
+                        size="small"
+                        sx={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 1.25,
+                          bgcolor: "grey.50",
+                          border: "1px solid",
+                          borderColor: "divider",
+                        }}
+                      >
+                        <Badge badgeContent={cartCount} color="primary" max={9}>
+                          <ShoppingBagOutlinedIcon sx={{ fontSize: 18 }} />
+                        </Badge>
+                      </IconButton>
+                      <IconButton
+                        aria-label="Menu"
+                        onClick={() => setMenuOpen(true)}
+                        size="small"
+                        sx={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 1.25,
+                          bgcolor: "primary.main",
+                          color: "primary.contrastText",
+                          "&:hover": { bgcolor: "primary.dark" },
+                        }}
+                      >
+                        <MenuRoundedIcon sx={{ fontSize: 18 }} />
+                      </IconButton>
+                    </Stack>
+                  </Toolbar>
+                </StoreContainer>
+
+                <Box
+                  component="nav"
+                  aria-label="Shop categories"
+                  sx={{
+                    background: (theme) =>
+                      `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                    color: "primary.contrastText",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
+                  }}
                 >
-                  <IconButton
-                    aria-label="WhatsApp"
-                    onClick={() => window.open(`https://wa.me/${whatsappPhone}`, "_blank")}
-                    size="small"
-                    sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 1.25,
-                      bgcolor: "rgba(37,211,102,0.1)",
-                      color: "#128C7E",
-                    }}
-                  >
-                    <WhatsAppIcon sx={{ fontSize: 18 }} />
-                  </IconButton>
-                  <IconButton
-                    aria-label="Wishlist"
-                    onClick={() => setWishlistOpen(true)}
-                    size="small"
-                    sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 1.25,
-                      bgcolor: "grey.50",
-                      border: "1px solid",
-                      borderColor: "divider",
-                    }}
-                  >
-                    <Badge badgeContent={wishlistCount} color="primary" max={9}>
-                      <FavoriteBorderRoundedIcon sx={{ fontSize: 18 }} />
-                    </Badge>
-                  </IconButton>
-                  <IconButton
-                    aria-label="Cart"
-                    onClick={() => setCartOpen(true)}
-                    size="small"
-                    sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 1.25,
-                      bgcolor: "grey.50",
-                      border: "1px solid",
-                      borderColor: "divider",
-                    }}
-                  >
-                    <Badge badgeContent={cartCount} color="primary" max={9}>
-                      <ShoppingBagOutlinedIcon sx={{ fontSize: 18 }} />
-                    </Badge>
-                  </IconButton>
-                  <IconButton
-                    aria-label="Menu"
-                    onClick={() => setMenuOpen(true)}
-                    size="small"
-                    sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 1.25,
-                      bgcolor: "primary.main",
-                      color: "primary.contrastText",
-                      "&:hover": { bgcolor: "primary.dark" },
-                    }}
-                  >
-                    <MenuRoundedIcon sx={{ fontSize: 18 }} />
-                  </IconButton>
-                </Stack>
-              </Toolbar>
-            </StoreContainer>
-          ) : null}
+                  <StoreContainer>
+                    <Stack direction="row" spacing={1} sx={{ py: 0.85, alignItems: "center", gap: 1 }}>
+                      <Stack
+                        direction="row"
+                        spacing={0.5}
+                        sx={{
+                          flex: 1,
+                          minWidth: 0,
+                          overflowX: "auto",
+                          scrollbarWidth: "none",
+                          "&::-webkit-scrollbar": { display: "none" },
+                          alignItems: "center",
+                        }}
+                      >
+                        <CategoryNavButtons
+                          pathname={pathname}
+                          activeCategorySlug={activeCategorySlug}
+                          categories={categories}
+                          isLoading={isLoading}
+                          tone="onPrimary"
+                        />
+                      </Stack>
 
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                          display: { xs: "none", sm: "flex" },
+                          flexShrink: 0,
+                          pl: 1.5,
+                          ml: 0.5,
+                          borderLeft: "1px solid rgba(255,255,255,0.22)",
+                          alignItems: "center",
+                        }}
+                      >
+                        <ActionIconButton
+                          label="Wishlist"
+                          onClick={() => setWishlistOpen(true)}
+                          badgeContent={wishlistCount}
+                          sx={{ display: { xs: "none", lg: "inline-flex" } }}
+                        >
+                          <FavoriteBorderRoundedIcon sx={{ fontSize: 20 }} />
+                        </ActionIconButton>
+                        <ActionIconButton
+                          label="Cart"
+                          onClick={() => setCartOpen(true)}
+                          badgeContent={cartCount}
+                          sx={{ display: { xs: "none", lg: "inline-flex" } }}
+                        >
+                          <ShoppingBagOutlinedIcon sx={{ fontSize: 20 }} />
+                        </ActionIconButton>
+                        <Button
+                          component={Link}
+                          href="/orders-traking"
+                          size="small"
+                          startIcon={<LocalShippingOutlinedIcon sx={{ fontSize: "18px !important" }} />}
+                          sx={{
+                            display: { xs: "none", sm: "inline-flex" },
+                            bgcolor: "common.white",
+                            color: "primary.main",
+                            borderRadius: 1.25,
+                            px: 1.75,
+                            py: 0.75,
+                            fontWeight: 700,
+                            fontSize: 13,
+                            boxShadow: "0 6px 16px -8px rgba(15,23,42,0.45)",
+                            "&:hover": { bgcolor: "grey.50", color: "primary.dark" },
+                          }}
+                        >
+                          Track order
+                        </Button>
+                      </Stack>
+                    </Stack>
+                  </StoreContainer>
+                </Box>
+              </Box>
+            </Box>
+          ) : null}
+        </AnimatePresence>
+      </Box>
+
+      <AnimatePresence>
+        {scrolled ? (
           <Box
-            component="nav"
-            aria-label="Shop categories"
+            component={motion.header}
+            key="compact-nav"
+            initial={{ y: 36, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -18, opacity: 0 }}
+            transition={NAV_TRANSITION}
             sx={{
-              bgcolor: scrolled ? "background.paper" : "transparent",
-              backgroundImage: scrolled
-                ? "none"
-                : (theme) =>
-                    `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-              color: scrolled ? "text.primary" : "primary.contrastText",
-              boxShadow: scrolled ? "none" : "inset 0 1px 0 rgba(255,255,255,0.12)",
-              transition: "background-color 0.3s ease, color 0.3s ease",
+              position: "fixed",
+              top: { xs: 10, sm: 14 },
+              left: 0,
+              right: 0,
+              zIndex: (theme) => theme.zIndex.appBar,
+              px: { xs: 1.25, sm: 2, md: 2.5 },
+              pointerEvents: "none",
+              willChange: "transform, opacity",
             }}
           >
-            <StoreContainer>
-              <Stack
-                direction="row"
-                spacing={1}
-                sx={{
-                  py: scrolled ? 0.75 : 0.85,
-                  alignItems: "center",
-                  gap: scrolled ? { xs: 1, sm: 1.5 } : 1,
-                }}
-              >
-                {scrolled ? (
+            <Box
+              sx={{
+                pointerEvents: "auto",
+                mx: "auto",
+                width: 1,
+                maxWidth: { xs: 720, sm: 960, md: 1120, lg: 1200 },
+                bgcolor: "background.paper",
+                borderRadius: 999,
+                border: "1px solid",
+                borderColor: "rgba(15,23,42,0.08)",
+                boxShadow: "0 12px 40px -16px rgba(15,23,42,0.28), 0 4px 12px -6px rgba(15,23,42,0.12)",
+                overflow: "hidden",
+              }}
+            >
+              <StoreContainer>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{
+                    py: 0.75,
+                    alignItems: "center",
+                    gap: { xs: 1, sm: 1.5 },
+                  }}
+                >
                   <Stack
                     component={Link}
                     href="/"
@@ -497,206 +663,103 @@ function NavbarContent() {
                   >
                     <ShopLogo logoUrl={logoUrl} size="xs" />
                   </Stack>
-                ) : null}
 
-                <Stack
-                  direction="row"
-                  spacing={0.5}
-                  sx={{
-                    display: scrolled ? { xs: "none", sm: "flex" } : "flex",
-                    flex: scrolled ? "0 1 auto" : 1,
-                    minWidth: 0,
-                    maxWidth: scrolled ? { xs: "42%", sm: "none" } : "none",
-                    overflowX: "auto",
-                    scrollbarWidth: "none",
-                    "&::-webkit-scrollbar": { display: "none" },
-                    alignItems: "center",
-                    justifyContent: scrolled ? "center" : "flex-start",
-                  }}
-                >
-                  <Button
-                    component={Link}
-                    href="/"
-                    size="small"
+                  <Stack
+                    direction="row"
+                    spacing={0.5}
                     sx={{
-                      color: scrolled ? (pathname === "/" ? "primary.main" : "text.primary") : "inherit",
-                      minHeight: 32,
-                      px: 1.5,
-                      borderRadius: scrolled ? 999 : 1,
-                      bgcolor: pathname === "/"
-                        ? scrolled
-                          ? "primary.50"
-                          : "rgba(255,255,255,0.22)"
-                        : "transparent",
-                      flexShrink: 0,
-                      fontWeight: 600,
-                      fontSize: 13,
-                      transition: "border-radius 0.35s ease, background-color 0.2s ease, color 0.2s ease",
-                      "&:hover": {
-                        bgcolor: scrolled ? "grey.100" : "rgba(255,255,255,0.14)",
-                      },
+                      display: { xs: "none", sm: "flex" },
+                      flex: "0 1 auto",
+                      minWidth: 0,
+                      overflowX: "auto",
+                      scrollbarWidth: "none",
+                      "&::-webkit-scrollbar": { display: "none" },
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    Home
-                  </Button>
+                    <CategoryNavButtons
+                      pathname={pathname}
+                      activeCategorySlug={activeCategorySlug}
+                      categories={categories}
+                      isLoading={isLoading}
+                      tone="onSurface"
+                    />
+                  </Stack>
 
-                  {isLoading ? (
-                    <Stack
-                      direction="row"
-                      spacing={1}
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{
+                      flex: 1,
+                      minWidth: 0,
+                      flexShrink: 0,
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                    }}
+                  >
+                    <ActionIconButton
+                      label="Wishlist"
+                      onClick={() => setWishlistOpen(true)}
+                      badgeContent={wishlistCount}
+                      sx={compactIconSx}
+                    >
+                      <FavoriteBorderRoundedIcon sx={{ fontSize: 20 }} />
+                    </ActionIconButton>
+                    <ActionIconButton
+                      label="Cart"
+                      onClick={() => setCartOpen(true)}
+                      badgeContent={cartCount}
+                      sx={compactIconSx}
+                    >
+                      <ShoppingBagOutlinedIcon sx={{ fontSize: 20 }} />
+                    </ActionIconButton>
+                    <IconButton
+                      aria-label="Menu"
+                      onClick={() => setMenuOpen(true)}
+                      size="small"
                       sx={{
-                        px: 1,
-                        color: scrolled ? "text.secondary" : "rgba(255,255,255,0.75)",
-                        alignItems: "center",
+                        display: { xs: "inline-flex", md: "none" },
+                        width: 36,
+                        height: 36,
+                        borderRadius: "50%",
+                        bgcolor: "primary.main",
+                        color: "primary.contrastText",
+                        "&:hover": { bgcolor: "primary.dark" },
                       }}
                     >
-                      <CircularProgress size={14} color="inherit" />
-                      <Typography variant="caption">Loading...</Typography>
-                    </Stack>
-                  ) : (
-                    categories.map((category) => {
-                      const active = pathname === "/products" && activeCategorySlug === category.slug;
-                      return (
-                        <Button
-                          key={category._id}
-                          component={Link}
-                          href={`/products?category=${category.slug}`}
-                          onClick={() => setSelectedCategoryId(category._id)}
-                          size="small"
-                          sx={{
-                            color: scrolled
-                              ? active
-                                ? "primary.main"
-                                : "text.primary"
-                              : "inherit",
-                            minHeight: 32,
-                            px: 1.5,
-                            borderRadius: scrolled ? 999 : 1,
-                            bgcolor: active
-                              ? scrolled
-                                ? "primary.50"
-                                : "rgba(255,255,255,0.22)"
-                              : "transparent",
-                            flexShrink: 0,
-                            fontWeight: active ? 700 : 500,
-                            fontSize: 13,
-                            transition: "border-radius 0.35s ease, background-color 0.2s ease, color 0.2s ease",
-                            "&:hover": {
-                              bgcolor: scrolled ? "grey.100" : "rgba(255,255,255,0.14)",
-                            },
-                          }}
-                        >
-                          {category.name}
-                        </Button>
-                      );
-                    })
-                  )}
+                      <MenuRoundedIcon sx={{ fontSize: 18 }} />
+                    </IconButton>
+                    <Button
+                      component={Link}
+                      href="/orders-traking"
+                      size="small"
+                      startIcon={<LocalShippingOutlinedIcon sx={{ fontSize: "18px !important" }} />}
+                      sx={{
+                        display: { xs: "none", sm: "inline-flex" },
+                        bgcolor: "primary.main",
+                        color: "primary.contrastText",
+                        borderRadius: 999,
+                        px: 1.75,
+                        py: 0.75,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        boxShadow: "0 6px 16px -8px rgba(15,23,42,0.45)",
+                        "&:hover": {
+                          bgcolor: "primary.dark",
+                          color: "primary.contrastText",
+                        },
+                      }}
+                    >
+                      Track order
+                    </Button>
+                  </Stack>
                 </Stack>
-
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{
-                    display: scrolled ? "flex" : { xs: "none", sm: "flex" },
-                    flex: scrolled ? 1 : "0 0 auto",
-                    minWidth: 0,
-                    flexShrink: 0,
-                    pl: scrolled ? 0 : 1.5,
-                    ml: scrolled ? 0 : 0.5,
-                    borderLeft: scrolled ? "none" : "1px solid rgba(255,255,255,0.22)",
-                    justifyContent: scrolled ? "flex-end" : "flex-start",
-                    alignItems: "center",
-                  }}
-                >
-                  <ActionIconButton
-                    label="Wishlist"
-                    onClick={() => setWishlistOpen(true)}
-                    badgeContent={wishlistCount}
-                    sx={{
-                      display: scrolled ? "inline-flex" : { xs: "none", lg: "inline-flex" },
-                      borderRadius: scrolled ? "50%" : 1.25,
-                      ...(scrolled
-                        ? {
-                            bgcolor: "grey.50",
-                            color: "text.primary",
-                            border: "1px solid",
-                            borderColor: "divider",
-                            "&:hover": { bgcolor: "grey.100", transform: "translateY(-1px)" },
-                          }
-                        : null),
-                    }}
-                  >
-                    <FavoriteBorderRoundedIcon sx={{ fontSize: 20 }} />
-                  </ActionIconButton>
-                  <ActionIconButton
-                    label="Cart"
-                    onClick={() => setCartOpen(true)}
-                    badgeContent={cartCount}
-                    sx={{
-                      display: scrolled ? "inline-flex" : { xs: "none", lg: "inline-flex" },
-                      borderRadius: scrolled ? "50%" : 1.25,
-                      ...(scrolled
-                        ? {
-                            bgcolor: "grey.50",
-                            color: "text.primary",
-                            border: "1px solid",
-                            borderColor: "divider",
-                            "&:hover": { bgcolor: "grey.100", transform: "translateY(-1px)" },
-                          }
-                        : null),
-                    }}
-                  >
-                    <ShoppingBagOutlinedIcon sx={{ fontSize: 20 }} />
-                  </ActionIconButton>
-                  <IconButton
-                    aria-label="Menu"
-                    onClick={() => setMenuOpen(true)}
-                    size="small"
-                    sx={{
-                      display: scrolled ? { xs: "inline-flex", md: "none" } : "none",
-                      width: 36,
-                      height: 36,
-                      borderRadius: "50%",
-                      bgcolor: scrolled ? "primary.main" : "rgba(255,255,255,0.18)",
-                      color: scrolled ? "primary.contrastText" : "inherit",
-                      border: scrolled ? "none" : "1px solid rgba(255,255,255,0.22)",
-                      "&:hover": {
-                        bgcolor: scrolled ? "primary.dark" : "rgba(255,255,255,0.28)",
-                      },
-                    }}
-                  >
-                    <MenuRoundedIcon sx={{ fontSize: 18 }} />
-                  </IconButton>
-                  <Button
-                    component={Link}
-                    href="/orders-traking"
-                    size="small"
-                    startIcon={<LocalShippingOutlinedIcon sx={{ fontSize: "18px !important" }} />}
-                    sx={{
-                      display: { xs: "none", sm: "inline-flex" },
-                      bgcolor: scrolled ? "primary.main" : "common.white",
-                      color: scrolled ? "primary.contrastText" : "primary.main",
-                      borderRadius: scrolled ? 999 : 1.25,
-                      px: 1.75,
-                      py: 0.75,
-                      fontWeight: 700,
-                      fontSize: 13,
-                      boxShadow: "0 6px 16px -8px rgba(15,23,42,0.45)",
-                      transition: "border-radius 0.35s ease, background-color 0.2s ease, color 0.2s ease",
-                      "&:hover": {
-                        bgcolor: scrolled ? "primary.dark" : "grey.50",
-                        color: scrolled ? "primary.contrastText" : "primary.dark",
-                      },
-                    }}
-                  >
-                    Track order
-                  </Button>
-                </Stack>
-              </Stack>
-            </StoreContainer>
+              </StoreContainer>
+            </Box>
           </Box>
-        </Box>
-      </Box>
+        ) : null}
+      </AnimatePresence>
 
       <Drawer
         anchor="right"
