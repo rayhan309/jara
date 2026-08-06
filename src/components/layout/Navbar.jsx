@@ -23,7 +23,7 @@ import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import LocalMallOutlinedIcon from "@mui/icons-material/LocalMallOutlined";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { clearSelectedCategoryId, setSelectedCategoryId } from "@/lib/categoryFilter";
 import { useCart } from "@/hooks/useCart";
@@ -490,7 +490,7 @@ function NavbarContent() {
                         }}
                       >
                         <Badge badgeContent={cartCount} color="primary" max={9}>
-                          <LocalMallOutlinedIcon sx={{ fontSize: 18 }} />
+                          <ShoppingCartOutlinedIcon sx={{ fontSize: 18 }} />
                         </Badge>
                       </IconButton>
                       <IconButton
@@ -571,7 +571,7 @@ function NavbarContent() {
                           badgeContent={cartCount}
                           sx={{ display: { xs: "none", lg: "inline-flex" } }}
                         >
-                          <LocalMallOutlinedIcon sx={{ fontSize: 20 }} />
+                          <ShoppingCartOutlinedIcon sx={{ fontSize: 20 }} />
                         </ActionIconButton>
                         <Button
                           component={Link}
@@ -712,7 +712,7 @@ function NavbarContent() {
                       badgeContent={cartCount}
                       sx={compactIconSx}
                     >
-                      <LocalMallOutlinedIcon sx={{ fontSize: 20 }} />
+                      <ShoppingCartOutlinedIcon sx={{ fontSize: 20 }} />
                     </ActionIconButton>
                     <IconButton
                       aria-label="Menu"

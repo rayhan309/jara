@@ -23,12 +23,10 @@ import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LocalMallRoundedIcon from "@mui/icons-material/LocalMallRounded";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
-import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
-import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { motion } from "motion/react";
 import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
@@ -38,7 +36,6 @@ import { getProductVariantConfig } from "@/lib/productVariants";
 import { resolveProductPricing } from "@/lib/productPricing";
 import { isProductFullyOutOfStock, isVariantOutOfStock } from "@/lib/variantStock";
 import StoreProductCard from "@/components/products/StoreProductCard";
-import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import { buildProductPixelPayload, trackMetaEvent } from "@/lib/metaPixel";
 
 const productGridSx = {
@@ -71,10 +68,6 @@ function RatingStars({ rating }) {
 }
 
 export default function StoreProductDetailView({ product, relatedProducts = [] }) {
-  const settings = useStoreSettings();
-  const CONTACT_PHONE = settings.contactPhone || "+8801815131040";
-  const whatsappPhone = CONTACT_PHONE.replace(/\+/g, "").trim();
-  const WHATSAPP_URL = `https://wa.me/${whatsappPhone}`;
   const router = useRouter();
   const { addToCart, buyNow, removeFromCart, items } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -430,90 +423,87 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                 <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
                   Quantity
                 </Typography>
-                <Stack direction="row" alignItems="center" sx={{ display: "inline-flex", border: 1, borderColor: "divider", borderRadius: 1, bgcolor: "background.paper" }}>
-                  <IconButton aria-label="Decrease quantity" onClick={() => setQuantity((q) => clampQty(q - 1))}>
-                    <RemoveRoundedIcon fontSize="small" />
-                  </IconButton>
-                  <Typography variant="body1" fontWeight={700} sx={{ minWidth: 48, textAlign: "center" }}>
-                    {quantity}
-                  </Typography>
-                  <IconButton aria-label="Increase quantity" onClick={increaseQuantity}>
-                    <AddRoundedIcon fontSize="small" />
-                  </IconButton>
-                </Stack>
-              </Box>
-            ) : null}
-
-            <Grid container spacing={1} sx={{ mt: 3 }}>
-              <Grid size={{ xs: 3, sm: 6 }}>
-                <Button
-                  fullWidth
-                  variant={inCart ? "contained" : "outlined"}
-                  onClick={handleAddToCart}
-                  aria-label={inCart ? `In cart (${cartQty}) — remove` : "Add to cart"}
-                  startIcon={inCart ? <CheckRoundedIcon /> : <AddShoppingCartRoundedIcon />}
-                  sx={{ minHeight: 44 }}
-                >
-                  <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
-                    {inCart ? `In cart (${cartQty}) — remove` : "Add to cart"}
-                  </Box>
-                </Button>
-              </Grid>
-              <Grid size={{ xs: 9, sm: 6 }}>
-                <Box
-                  component={motion.div}
-                  animate={{ scale: [1, 1.02, 1] }}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ scale: { duration: 2.2, repeat: Infinity, ease: "easeInOut" } }}
-                >
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    onClick={handleBuy}
-                    startIcon={<LocalMallRoundedIcon />}
+                <Stack direction="row" alignItems="stretch" spacing={1.25}>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
                     sx={{
-                      minHeight: 44,
-                      boxShadow: "0 4px 14px -4px rgba(79,70,229,0.55)",
+                      flexShrink: 0,
+                      border: 1,
+                      borderColor: "divider",
+                      borderRadius: 1,
+                      bgcolor: "grey.50",
+                      height: 48,
                     }}
                   >
-                    {inCart ? "Go to checkout" : "Buy now"}
-                  </Button>
-                </Box>
-              </Grid>
-            </Grid>
+                    <IconButton aria-label="Decrease quantity" onClick={() => setQuantity((q) => clampQty(q - 1))} size="small">
+                      <RemoveRoundedIcon fontSize="small" />
+                    </IconButton>
+                    <Typography variant="body1" fontWeight={700} sx={{ minWidth: 36, textAlign: "center" }}>
+                      {quantity}
+                    </Typography>
+                    <IconButton aria-label="Increase quantity" onClick={increaseQuantity} size="small">
+                      <AddRoundedIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
 
-            <Grid container spacing={1} sx={{ mt: 1.5 }}>
-              <Grid size={6}>
+                  <Button
+                    fullWidth
+                    variant={inCart ? "outlined" : "contained"}
+                    onClick={handleAddToCart}
+                    aria-label={inCart ? `In cart (${cartQty}) — remove` : "Add to cart"}
+                    startIcon={inCart ? <CheckRoundedIcon /> : <AddShoppingCartRoundedIcon />}
+                    sx={{
+                      minHeight: 48,
+                      flex: 1,
+                      fontWeight: 700,
+                      textTransform: "none",
+                    }}
+                  >
+                    {inCart ? `In cart (${cartQty})` : "Add to cart"}
+                  </Button>
+                </Stack>
+              </Box>
+            ) : (
+              <Box sx={{ mt: 2.5 }}>
                 <Button
-                  component="a"
-                  href={WHATSAPP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   fullWidth
-                  variant="contained"
-                  color="success"
-                  startIcon={<WhatsAppIcon />}
-                  size="small"
+                  variant={inCart ? "outlined" : "contained"}
+                  onClick={handleAddToCart}
+                  disabled={!inCart}
+                  aria-label={inCart ? `In cart (${cartQty}) — remove` : "Add to cart"}
+                  startIcon={inCart ? <CheckRoundedIcon /> : <AddShoppingCartRoundedIcon />}
+                  sx={{ minHeight: 48, fontWeight: 700, textTransform: "none" }}
                 >
-                  WhatsApp
+                  {inCart ? `In cart (${cartQty})` : "Out of stock"}
                 </Button>
-              </Grid>
-              <Grid size={6}>
-                <Button
-                  component="a"
-                  href={`tel:${CONTACT_PHONE}`}
-                  fullWidth
-                  variant="contained"
-                  color="info"
-                  startIcon={<PhoneOutlinedIcon />}
-                  size="small"
-                  sx={{ fontSize: { xs: "0.7rem", sm: "0.8125rem" } }}
-                >
-                  {CONTACT_PHONE}
-                </Button>
-              </Grid>
-            </Grid>
+              </Box>
+            )}
+
+            <Box
+              component={motion.div}
+              animate={{ scale: [1, 1.015, 1] }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ scale: { duration: 2.2, repeat: Infinity, ease: "easeInOut" } }}
+              sx={{ mt: 1.25 }}
+            >
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleBuy}
+                disabled={outOfStock && !inCart}
+                startIcon={<LocalMallRoundedIcon />}
+                sx={{
+                  minHeight: 48,
+                  fontWeight: 700,
+                  textTransform: "none",
+                  boxShadow: "0 4px 14px -4px rgba(79,70,229,0.55)",
+                }}
+              >
+                {inCart ? "Go to checkout" : "Buy now"}
+              </Button>
+            </Box>
 
             <Grid container spacing={1.5} sx={{ mt: 2 }}>
               {trustFeatures.map(({ icon: Icon, label }) => (
