@@ -8,6 +8,7 @@ import {
   validateOrderItems,
 } from "@/lib/orderValidation";
 import { buildDeliveryOptions } from "@/lib/shipping";
+import { resolveDeliveryAreaFromDistrict } from "@/lib/bdLocations";
 import { getFreshSiteSettings } from "@/lib/siteSettingsServer";
 import { revalidateAdminOrdersCache } from "@/lib/adminOrdersServer";
 import { getProductVariantConfig } from "@/lib/productVariants";
@@ -116,19 +117,18 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { name, phone, address, delivery, items } = body;
+    const { name, phone, address, region, district, items } = body;
 
-    const customerResult = validateCustomerDetails({ name, phone, address });
+    const customerResult = validateCustomerDetails(
+      { name, phone, address, region, district },
+      { requireLocation: true }
+    );
     if (!customerResult.ok) {
       const firstError = Object.values(customerResult.errors)[0];
       return NextResponse.json({ error: firstError }, { status: 400 });
     }
 
     const settings = await getFreshSiteSettings();
-    const deliveryResult = validateDeliveryMethod(delivery, settings);
-    if (!deliveryResult.ok) {
-      return NextResponse.json({ error: deliveryResult.error }, { status: 400 });
-    }
 
     const itemsResult = validateOrderItems(items);
     if (!itemsResult.ok) {
@@ -226,9 +226,17 @@ export async function POST(request) {
       0
     );
     const deliveryOptions = buildDeliveryOptions(orderLines, settings);
+    const delivery = resolveDeliveryAreaFromDistrict(
+      customerResult.values.district,
+      deliveryOptions
+    );
+    const deliveryResult = validateDeliveryMethod(delivery, settings);
+    if (!deliveryResult.ok) {
+      return NextResponse.json({ error: deliveryResult.error }, { status: 400 });
+    }
     const selectedDelivery = deliveryOptions.find((option) => option.id === delivery);
     if (!selectedDelivery) {
-      return NextResponse.json({ error: "Please select a delivery method" }, { status: 400 });
+      return NextResponse.json({ error: "Could not determine delivery charge" }, { status: 400 });
     }
     const deliveryCharge = selectedDelivery.charge ?? 0;
     const total = subtotal + deliveryCharge;
@@ -243,7 +251,9 @@ export async function POST(request) {
         method: delivery,
         label: deliveryResult.area?.label || selectedDelivery?.label || "Delivery",
         charge: deliveryCharge,
-        area: deliveryResult.area?.label || "",
+        area: customerResult.values.delivery_area || deliveryResult.area?.label || "",
+        region: customerResult.values.region || "",
+        district: customerResult.values.district || "",
       },
       payment: {
         method: "cod",

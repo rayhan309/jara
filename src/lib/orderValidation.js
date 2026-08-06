@@ -1,3 +1,4 @@
+import { isValidDistrict, isValidRegion } from "@/lib/bdLocations";
 import { FREE_DELIVERY_OPTION_ID, getDeliveryAreas } from "@/lib/shipping";
 
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
@@ -13,11 +14,16 @@ export function isValidBdPhone(phone) {
   return BD_PHONE_REGEX.test(normalizePhone(phone));
 }
 
-export function validateCustomerDetails({ name, phone, address }) {
+export function validateCustomerDetails(
+  { name, phone, address, region, district },
+  { requireLocation = false } = {}
+) {
   const errors = {};
   const trimmedName = String(name || "").trim();
   const normalizedPhone = normalizePhone(phone);
   const trimmedAddress = String(address || "").trim();
+  const trimmedRegion = String(region || "").trim();
+  const trimmedDistrict = String(district || "").trim();
 
   if (!trimmedName) {
     errors.name = "Please enter your name";
@@ -31,6 +37,20 @@ export function validateCustomerDetails({ name, phone, address }) {
     errors.phone = "Please enter your phone number";
   } else if (!isValidBdPhone(normalizedPhone)) {
     errors.phone = "Enter a valid Bangladeshi mobile number (01XXXXXXXXX)";
+  }
+
+  if (requireLocation || trimmedRegion || trimmedDistrict) {
+    if (!trimmedRegion) {
+      errors.region = "Please select a region";
+    } else if (!isValidRegion(trimmedRegion)) {
+      errors.region = "Please select a valid region";
+    }
+
+    if (!trimmedDistrict) {
+      errors.district = "Please select a district";
+    } else if (trimmedRegion && !isValidDistrict(trimmedRegion, trimmedDistrict)) {
+      errors.district = "Please select a valid district";
+    }
   }
 
   if (!trimmedAddress) {
@@ -48,6 +68,11 @@ export function validateCustomerDetails({ name, phone, address }) {
       name: trimmedName,
       phone: normalizedPhone,
       address: trimmedAddress,
+      ...(trimmedRegion ? { region: trimmedRegion } : {}),
+      ...(trimmedDistrict ? { district: trimmedDistrict } : {}),
+      ...(trimmedDistrict && trimmedRegion
+        ? { delivery_area: `${trimmedDistrict}, ${trimmedRegion}` }
+        : {}),
     },
   };
 }

@@ -11,7 +11,7 @@ import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
+import LocalMallOutlinedIcon from "@mui/icons-material/LocalMallOutlined";
 import { motion } from "motion/react";
 import toast from "react-hot-toast";
 import { useCart } from "@/hooks/useCart";
@@ -255,7 +255,7 @@ export default function StoreProductCard({ product, index = 0 }) {
             {inCart ? (
               <CheckRoundedIcon sx={{ fontSize: { xs: 14, sm: 18 } }} />
             ) : (
-              <ShoppingBagOutlinedIcon sx={{ fontSize: { xs: 14, sm: 18 } }} />
+              <LocalMallOutlinedIcon sx={{ fontSize: { xs: 14, sm: 18 } }} />
             )}
           </IconButton>
           <Button

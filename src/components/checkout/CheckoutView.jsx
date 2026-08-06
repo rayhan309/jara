@@ -10,13 +10,13 @@ import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import FormHelperText from "@mui/material/FormHelperText";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
 import Select from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -24,6 +24,7 @@ import Typography from "@mui/material/Typography";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
@@ -33,12 +34,20 @@ import { useCart } from "@/hooks/useCart";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import { useProducts } from "@/hooks/useProducts";
 import { createOrder } from "@/lib/api/orders";
+import {
+  getDistrictsForRegion,
+  getRegionNames,
+  isInsideDhakaDistrict,
+  resolveDeliveryAreaFromDistrict,
+} from "@/lib/bdLocations";
 import { getMaxLineQuantity } from "@/lib/cart";
 import { normalizePhone, validateCustomerDetails } from "@/lib/orderValidation";
 import { getProductVariantConfig, getVariantTypeLabel } from "@/lib/productVariants";
 import { getProductCardImageUrl } from "@/lib/imageUrl";
 import { buildCartPixelPayload, trackMetaEvent } from "@/lib/metaPixel";
 import { buildDeliveryOptions } from "@/lib/shipping";
+
+const REGION_NAMES = getRegionNames();
 
 function getItemVariantOptions(item, products) {
   if (item.variant_options?.length) return item.variant_options;
@@ -180,7 +189,8 @@ export default function CheckoutView() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [delivery, setDelivery] = useState("");
+  const [region, setRegion] = useState("");
+  const [district, setDistrict] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
 
@@ -198,17 +208,17 @@ export default function CheckoutView() {
     [items]
   );
 
+  const districtOptions = useMemo(() => getDistrictsForRegion(region), [region]);
   const deliveryOptions = useMemo(() => buildDeliveryOptions(items, settings), [items, settings]);
 
-  useEffect(() => {
-    if (!deliveryOptions.length) return;
-    if (!delivery || !deliveryOptions.some((option) => option.id === delivery)) {
-      setDelivery(deliveryOptions[0].id);
-    }
-  }, [delivery, deliveryOptions]);
+  const delivery = useMemo(
+    () => (district ? resolveDeliveryAreaFromDistrict(district, deliveryOptions) : ""),
+    [district, deliveryOptions]
+  );
 
-  const deliveryCharge = deliveryOptions.find((option) => option.id === delivery)?.charge ?? 0;
-  const isFreeDelivery = deliveryOptions.some((option) => option.isFree);
+  const selectedDelivery = deliveryOptions.find((option) => option.id === delivery);
+  const deliveryCharge = selectedDelivery?.charge ?? 0;
+  const isFreeDelivery = Boolean(selectedDelivery?.isFree);
   const payable = subtotal + deliveryCharge;
   const initiateCheckoutTracked = useRef(false);
 
@@ -225,6 +235,18 @@ export default function CheckoutView() {
       delete next[field];
       return next;
     });
+  }
+
+  function handleRegionChange(nextRegion) {
+    setRegion(nextRegion);
+    setDistrict("");
+    clearFieldError("region");
+    clearFieldError("district");
+  }
+
+  function handleDistrictChange(nextDistrict) {
+    setDistrict(nextDistrict);
+    clearFieldError("district");
   }
 
   function handleUpdateQty(item, quantity) {
@@ -247,7 +269,10 @@ export default function CheckoutView() {
   async function handleConfirm(event) {
     event.preventDefault();
 
-    const validation = validateCustomerDetails({ name, phone, address });
+    const validation = validateCustomerDetails(
+      { name, phone, address, region, district },
+      { requireLocation: true }
+    );
     if (!validation.ok) {
       setFieldErrors(validation.errors);
       toast.error(Object.values(validation.errors)[0]);
@@ -262,7 +287,8 @@ export default function CheckoutView() {
         name: validation.values.name,
         phone: validation.values.phone,
         address: validation.values.address,
-        delivery,
+        region: validation.values.region,
+        district: validation.values.district,
         items: items.map((item) => ({
           _id: item._id,
           title: item.title,
@@ -367,10 +393,55 @@ export default function CheckoutView() {
                 fullWidth
               />
 
+              <Grid container spacing={1.5}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormControl fullWidth error={Boolean(fieldErrors.region)}>
+                    <InputLabel id="checkout-region-label">Region</InputLabel>
+                    <Select
+                      labelId="checkout-region-label"
+                      id="checkout-region"
+                      label="Region"
+                      value={region}
+                      onChange={(event) => handleRegionChange(event.target.value)}
+                    >
+                      {REGION_NAMES.map((name) => (
+                        <MenuItem key={name} value={name}>
+                          {name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {fieldErrors.region ? <FormHelperText>{fieldErrors.region}</FormHelperText> : null}
+                  </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormControl fullWidth error={Boolean(fieldErrors.district)} disabled={!region}>
+                    <InputLabel id="checkout-district-label">District</InputLabel>
+                    <Select
+                      labelId="checkout-district-label"
+                      id="checkout-district"
+                      label="District"
+                      value={district}
+                      onChange={(event) => handleDistrictChange(event.target.value)}
+                    >
+                      {districtOptions.map((name) => (
+                        <MenuItem key={name} value={name}>
+                          {name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {fieldErrors.district ? (
+                      <FormHelperText>{fieldErrors.district}</FormHelperText>
+                    ) : !region ? (
+                      <FormHelperText>Select a region first</FormHelperText>
+                    ) : null}
+                  </FormControl>
+                </Grid>
+              </Grid>
+
               <TextField
                 id="checkout-address"
                 label="Your address"
-                placeholder="House/road, area, district — full address"
+                placeholder="House/road, area — full address details"
                 value={address}
                 onChange={(event) => {
                   setAddress(event.target.value);
@@ -383,31 +454,56 @@ export default function CheckoutView() {
                 fullWidth
               />
 
-              <Box sx={{ pt: 1 }}>
+              <Box sx={{ pt: 0.5 }}>
                 <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>
                   Delivery charge
                 </Typography>
-                <RadioGroup value={delivery} onChange={(event) => setDelivery(event.target.value)}>
-                  {deliveryOptions.map((option) => (
-                    <Paper
-                      key={option.id}
-                      variant="outlined"
-                      sx={{
-                        mb: 1,
-                        px: 1.5,
-                        py: 0.5,
-                        borderColor: delivery === option.id ? "primary.main" : "divider",
-                        bgcolor: delivery === option.id ? "primary.50" : "grey.50",
-                      }}
-                    >
-                      <FormControlLabel
-                        value={option.id}
-                        control={<Radio size="small" />}
-                        label={option.isFree ? option.label : `${option.label} — ৳${option.charge}`}
-                      />
-                    </Paper>
-                  ))}
-                </RadioGroup>
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                    px: 2,
+                    py: 1.75,
+                    borderColor: district ? "primary.main" : "divider",
+                    bgcolor: district ? "primary.50" : "grey.50",
+                  }}
+                >
+                  <LocalShippingOutlinedIcon color={district ? "primary" : "disabled"} />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    {!district ? (
+                      <>
+                        <Typography variant="body2" fontWeight={700}>
+                          Select region & district
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Delivery charge is set automatically from your location
+                        </Typography>
+                      </>
+                    ) : isFreeDelivery ? (
+                      <>
+                        <Typography variant="body2" fontWeight={700} color="success.main">
+                          Free delivery
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          No delivery charge for this order
+                        </Typography>
+                      </>
+                    ) : (
+                      <>
+                        <Typography variant="body2" fontWeight={700}>
+                          {isInsideDhakaDistrict(district)
+                            ? `ঢাকার ভিতরে — ৳${deliveryCharge.toLocaleString()}`
+                            : `ঢাকার বাহিরে — ৳${deliveryCharge.toLocaleString()}`}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {selectedDelivery?.label || "Delivery"} · auto-detected from {district}
+                        </Typography>
+                      </>
+                    )}
+                  </Box>
+                </Paper>
               </Box>
 
               <Box sx={{ pt: 1 }}>
@@ -503,14 +599,18 @@ export default function CheckoutView() {
                     Delivery charge
                   </Typography>
                   <Typography variant="body2" fontWeight={600} color={isFreeDelivery ? "success.main" : "text.primary"}>
-                    {isFreeDelivery ? "Free delivery" : `৳${deliveryCharge.toLocaleString()}`}
+                    {!district
+                      ? "—"
+                      : isFreeDelivery
+                        ? "Free delivery"
+                        : `৳${deliveryCharge.toLocaleString()}`}
                   </Typography>
                 </Stack>
               </Stack>
               <Stack direction="row" justifyContent="space-between" sx={{ pt: 1.5 }}>
                 <Typography fontWeight={700}>Amount to pay</Typography>
                 <Typography variant="h6" fontWeight={700} color="primary.main">
-                  ৳{payable.toLocaleString()}
+                  {district ? `৳${payable.toLocaleString()}` : `৳${subtotal.toLocaleString()}+`}
                 </Typography>
               </Stack>
             </Paper>

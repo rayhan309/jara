@@ -15,17 +15,17 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
-import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import AddShoppingCartRoundedIcon from "@mui/icons-material/AddShoppingCartRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import LocalMallRoundedIcon from "@mui/icons-material/LocalMallRounded";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
@@ -451,7 +451,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                   variant={inCart ? "contained" : "outlined"}
                   onClick={handleAddToCart}
                   aria-label={inCart ? `In cart (${cartQty}) — remove` : "Add to cart"}
-                  startIcon={inCart ? <CheckRoundedIcon /> : <ShoppingCartOutlinedIcon />}
+                  startIcon={inCart ? <CheckRoundedIcon /> : <AddShoppingCartRoundedIcon />}
                   sx={{ minHeight: 44 }}
                 >
                   <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
@@ -471,7 +471,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                     fullWidth
                     variant="contained"
                     onClick={handleBuy}
-                    startIcon={<BoltRoundedIcon />}
+                    startIcon={<LocalMallRoundedIcon />}
                     sx={{
                       minHeight: 44,
                       boxShadow: "0 4px 14px -4px rgba(79,70,229,0.55)",
