@@ -52,11 +52,11 @@ export default function StoreCategoriesView() {
         sx={{
           position: "relative",
           overflow: "hidden",
-          borderRadius: 1,
+          borderRadius: 5,
           border: 1,
           borderColor: "primary.100",
           background: "linear-gradient(135deg, #eef2ff 0%, #fff 50%, rgba(237,233,254,0.6) 100%)",
-          p: { xs: 2, sm: 3, lg: 3.5 },
+          p: { xs: 2.25, sm: 3.25, lg: 3.75 },
         }}
       >
         <Box
@@ -64,14 +64,28 @@ export default function StoreCategoriesView() {
           sx={{
             pointerEvents: "none",
             position: "absolute",
-            top: -40,
-            right: -40,
-            width: 160,
-            height: 160,
-            borderRadius: 1,
+            top: -48,
+            right: -36,
+            width: 180,
+            height: 180,
+            borderRadius: "50%",
             bgcolor: "primary.200",
-            opacity: 0.3,
-            filter: "blur(48px)",
+            opacity: 0.35,
+            filter: "blur(36px)",
+          }}
+        />
+        <Box
+          aria-hidden
+          sx={{
+            pointerEvents: "none",
+            position: "absolute",
+            bottom: -28,
+            left: -20,
+            width: 90,
+            height: 90,
+            borderRadius: "50%",
+            bgcolor: "primary.100",
+            opacity: 0.7,
           }}
         />
         <Grid container spacing={3} sx={{ alignItems: "flex-end" }}>
@@ -96,19 +110,19 @@ export default function StoreCategoriesView() {
                 icon={<LayersOutlinedIcon />}
                 label={`${categories.length} categories`}
                 size="small"
-                sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.9)" }}
+                sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.9)", borderRadius: 999 }}
               />
               <Chip
                 icon={<ShoppingBagOutlinedIcon />}
                 label={`${totalProducts} products`}
                 size="small"
-                sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.9)" }}
+                sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.9)", borderRadius: 999 }}
               />
               <Chip
                 icon={<AutoAwesomeOutlinedIcon />}
                 label="New collection"
                 size="small"
-                sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.9)" }}
+                sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.9)", borderRadius: 999 }}
               />
             </Stack>
           </Grid>
@@ -138,7 +152,7 @@ export default function StoreCategoriesView() {
                 href="/products"
                 variant="contained"
                 endIcon={<ArrowForwardRoundedIcon />}
-                sx={{ width: { xs: 1, sm: "auto" } }}
+                sx={{ width: { xs: 1, sm: "auto" }, borderRadius: 999 }}
               >
                 View all products
               </Button>

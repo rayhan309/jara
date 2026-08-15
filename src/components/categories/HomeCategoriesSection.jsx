@@ -22,44 +22,50 @@ function CategoryCard({ category }) {
       href={`/products?category=${category.slug}`}
       onClick={() => setSelectedCategoryId(category._id)}
       sx={{
-        display: "block",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
         minWidth: 0,
         textDecoration: "none",
         color: "inherit",
         transition: "transform 0.3s ease",
-        "&:hover": { transform: "translateY(-3px)" },
+        "&:hover": { transform: "translateY(-4px)" },
         "&:hover .cat-card": {
-          borderColor: "rgba(15,23,42,0.14)",
-          boxShadow: "0 14px 32px -16px rgba(15,23,42,0.28)",
+          borderColor: "primary.main",
+          boxShadow: (theme) => `0 12px 28px -12px ${theme.palette.primary.main}88`,
         },
         "&:hover .cat-card-image": {
-          transform: "scale(1.06)",
+          transform: "scale(1.08)",
         },
-        "&:hover .cat-name": { color: "primary.main" },
+        "&:hover .cat-name": {
+          bgcolor: "primary.main",
+          color: "primary.contrastText",
+          borderColor: "primary.main",
+        },
       }}
     >
       <Box
-        className="cat-card rounded-md"
+        className="cat-card"
         sx={{
           aspectRatio: "1 / 1",
+          width: 1,
           overflow: "hidden",
-          borderRadius: 1.5,
-          border: 1,
+          borderRadius: "50%",
+          border: "3px solid",
           borderColor: "rgba(15,23,42,0.08)",
           bgcolor: "background.paper",
-          p: { xs: 0.75, sm: 1 },
-          boxShadow: "0 1px 2px rgba(15,23,42,0.04)",
+          p: { xs: 0.4, sm: 0.55 },
+          boxShadow: "0 8px 20px -14px rgba(15,23,42,0.35)",
           transition: "border-color 0.3s ease, box-shadow 0.3s ease",
         }}
       >
         <Box
-          className="rounded-md"
           sx={{
             position: "relative",
             height: 1,
             width: 1,
             overflow: "hidden",
-            borderRadius: 1,
+            borderRadius: "50%",
             bgcolor: "grey.50",
           }}
         >
@@ -85,17 +91,23 @@ function CategoryCard({ category }) {
       </Box>
       <Typography
         className="cat-name"
-        variant="body2"
-        fontWeight={600}
+        variant="caption"
+        fontWeight={700}
         sx={{
-          mt: 1.5,
-          px: 0.5,
+          mt: 1.25,
+          px: 1.25,
+          py: 0.4,
+          maxWidth: 1,
+          borderRadius: 999,
+          border: "1px solid",
+          borderColor: "rgba(15,23,42,0.08)",
+          bgcolor: "grey.50",
           textAlign: "center",
           display: "-webkit-box",
           WebkitLineClamp: 2,
           WebkitBoxOrient: "vertical",
           overflow: "hidden",
-          transition: "color 0.2s ease",
+          transition: "color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease",
         }}
       >
         {category.name}
@@ -106,20 +118,20 @@ function CategoryCard({ category }) {
 
 function CategoryCardSkeleton() {
   return (
-    <Box sx={{ minWidth: 0 }}>
-      <Skeleton variant="rounded" className="rounded-md" sx={{ width: 1, aspectRatio: "1 / 1", height: "auto", borderRadius: 1 }} />
-      <Skeleton width="75%" height={12} sx={{ mx: "auto", mt: 1 }} />
-    </Box>
+    <Stack sx={{ minWidth: 0, alignItems: "center" }}>
+      <Skeleton variant="circular" sx={{ width: 1, aspectRatio: "1 / 1", height: "auto" }} />
+      <Skeleton width="70%" height={22} sx={{ mt: 1.25, borderRadius: 999 }} />
+    </Stack>
   );
 }
 
 const SWIPER_BREAKPOINTS = {
-  0: { slidesPerView: 4, spaceBetween: 8 },
-  480: { slidesPerView: 4, spaceBetween: 10 },
-  640: { slidesPerView: 5, spaceBetween: 12 },
-  768: { slidesPerView: 6, spaceBetween: 14 },
-  1024: { slidesPerView: 7, spaceBetween: 16 },
-  1280: { slidesPerView: 8, spaceBetween: 18 },
+  0: { slidesPerView: 4, spaceBetween: 10 },
+  480: { slidesPerView: 4, spaceBetween: 12 },
+  640: { slidesPerView: 5, spaceBetween: 14 },
+  768: { slidesPerView: 6, spaceBetween: 16 },
+  1024: { slidesPerView: 7, spaceBetween: 18 },
+  1280: { slidesPerView: 8, spaceBetween: 20 },
 };
 
 export default function HomeCategoriesSection() {
@@ -130,23 +142,39 @@ export default function HomeCategoriesSection() {
   }
 
   return (
-    <Box component="section" sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "background.paper", py: { xs: 3, sm: 5, lg: 6 } }}>
+    <Box component="section" sx={{ bgcolor: "background.paper", py: { xs: 3.5, sm: 5.5, lg: 6.5 } }}>
       <StoreContainer>
         <Stack sx={{ mb: { xs: 3, sm: 4 }, alignItems: "center" }}>
           <Typography variant="h5" fontWeight={700} sx={{ textAlign: "center" }}>
             Our top categories
           </Typography>
-          <Box
-            className="rounded-md"
-            sx={{
-              mt: 1.5,
-              width: 56,
-              height: 4,
-              borderRadius: 1,
-              background: (theme) =>
-                `linear-gradient(90deg, ${theme.palette.primary.light}, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-            }}
-          />
+          <Stack direction="row" spacing={0.75} sx={{ mt: 1.5, alignItems: "center" }}>
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                bgcolor: "primary.light",
+              }}
+            />
+            <Box
+              sx={{
+                width: 28,
+                height: 8,
+                borderRadius: 999,
+                background: (theme) =>
+                  `linear-gradient(90deg, ${theme.palette.primary.light}, ${theme.palette.primary.main})`,
+              }}
+            />
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                bgcolor: "primary.main",
+              }}
+            />
+          </Stack>
         </Stack>
 
         <Swiper

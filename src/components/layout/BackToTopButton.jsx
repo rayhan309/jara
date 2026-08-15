@@ -30,6 +30,7 @@ export default function BackToTopButton() {
           right: { xs: 12, sm: 24 },
           bottom: "max(1rem, env(safe-area-inset-bottom, 0px))",
           zIndex: 40,
+          borderRadius: "50%",
         }}
       >
         <KeyboardArrowUpRoundedIcon />

@@ -79,7 +79,7 @@ function HeaderSearch() {
         width: 1,
         maxWidth: 560,
         mx: "auto",
-        borderRadius: 1.5,
+        borderRadius: 999,
         bgcolor: "grey.50",
         border: "1px solid",
         borderColor: "rgba(15,23,42,0.08)",
@@ -88,16 +88,16 @@ function HeaderSearch() {
         "&:focus-within": {
           bgcolor: "background.paper",
           borderColor: "primary.main",
-          boxShadow: (theme) => `0 0 0 3px ${theme.palette.primary.main}22`,
+          boxShadow: (theme) => `0 0 0 4px ${theme.palette.primary.main}1f`,
         },
       }}
     >
-      <SearchRoundedIcon sx={{ ml: 1.5, color: "text.disabled", fontSize: 20, flexShrink: 0 }} />
+      <SearchRoundedIcon sx={{ ml: 1.75, color: "text.disabled", fontSize: 20, flexShrink: 0 }} />
       <InputBase
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Search products..."
-        sx={{ flex: 1, px: 1.25, py: 1.1, fontSize: 14 }}
+        sx={{ flex: 1, px: 1.25, py: 1.05, fontSize: 14 }}
         slotProps={{ input: { "aria-label": "Search products" } }}
       />
       <Button
@@ -105,10 +105,12 @@ function HeaderSearch() {
         aria-label="Search products"
         variant="contained"
         sx={{
-          minWidth: 0,
-          px: 2,
-          py: 1.15,
-          borderRadius: 0,
+          minWidth: 40,
+          width: 40,
+          height: 40,
+          p: 0,
+          mr: 0.4,
+          borderRadius: "50%",
           boxShadow: "none",
           "&:hover": { boxShadow: "none" },
         }}
@@ -127,7 +129,7 @@ function ActionIconButton({ label, onClick, badgeContent, children, sx = {} }) {
       sx={{
         width: 40,
         height: 40,
-        borderRadius: 1.25,
+        borderRadius: "50%",
         bgcolor: "rgba(255,255,255,0.14)",
         color: "inherit",
         border: "1px solid rgba(255,255,255,0.18)",
@@ -173,19 +175,28 @@ export default function Navbar() {
 
 function NavbarFallback() {
   return (
-    <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+    <Box sx={{ px: { xs: 1.25, sm: 2 }, pt: { xs: 1, sm: 1.25 }, pb: 2 }}>
       <Box
         sx={{
-          background: (theme) =>
-            `linear-gradient(90deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-          color: "primary.contrastText",
-          py: 0.75,
-          textAlign: "center",
+          borderRadius: 4,
+          overflow: "hidden",
+          bgcolor: "background.paper",
+          boxShadow: "0 12px 32px -20px rgba(15,23,42,0.35)",
         }}
       >
-        <Typography variant="caption">Trusted online shopping — fast delivery & easy order tracking</Typography>
+        <Box
+          sx={{
+            background: (theme) =>
+              `linear-gradient(90deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+            color: "primary.contrastText",
+            py: 0.75,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="caption">Trusted online shopping — fast delivery & easy order tracking</Typography>
+        </Box>
+        <Toolbar sx={{ minHeight: { xs: 72, sm: 80 } }} />
       </Box>
-      <Toolbar sx={{ minHeight: { xs: 72, sm: 80 } }} />
     </Box>
   );
 }
@@ -196,10 +207,18 @@ function CategoryNavButtons({ pathname, activeCategorySlug, categories, isLoadin
 
   const btnSx = (active) => ({
     color: onPrimary ? "inherit" : active ? "primary.main" : "text.primary",
-    minHeight: 32,
-    px: 1.5,
-    borderRadius: onPrimary ? 1 : 999,
-    bgcolor: active ? (onPrimary ? "rgba(255,255,255,0.22)" : "primary.50") : "transparent",
+    minHeight: 30,
+    px: 1.6,
+    borderRadius: 999,
+    bgcolor: active
+      ? onPrimary
+        ? "rgba(255,255,255,0.22)"
+        : "primary.50"
+      : onPrimary
+        ? "transparent"
+        : "grey.50",
+    border: onPrimary ? "1px solid transparent" : "1px solid",
+    borderColor: onPrimary ? "transparent" : active ? "primary.light" : "rgba(15,23,42,0.06)",
     flexShrink: 0,
     fontWeight: active ? 700 : onPrimary ? 600 : 500,
     fontSize: 13,
@@ -335,11 +354,22 @@ function NavbarContent() {
               transition={NAV_TRANSITION}
               sx={{
                 width: 1,
-                bgcolor: "background.paper",
-                boxShadow: "0 8px 24px -18px rgba(15,23,42,0.35)",
+                px: { xs: 1.25, sm: 2 },
+                pt: { xs: 1, sm: 1.25 },
+                pb: 2,
                 willChange: "transform, opacity",
               }}
             >
+              <Box
+                sx={{
+                  bgcolor: "background.paper",
+                  borderRadius: 4,
+                  overflow: "hidden",
+                  border: "1px solid",
+                  borderColor: "rgba(15,23,42,0.06)",
+                  boxShadow: "0 16px 40px -24px rgba(15,23,42,0.4), 0 4px 12px -8px rgba(15,23,42,0.12)",
+                }}
+              >
               <Box
                 sx={{
                   background: (theme) =>
@@ -398,8 +428,8 @@ function NavbarContent() {
                           textDecoration: "none",
                           color: "inherit",
                           px: 1.25,
-                          py: 0.75,
-                          borderRadius: 1.5,
+                          py: 0.6,
+                          borderRadius: 999,
                           border: "1px solid",
                           borderColor: "rgba(15,23,42,0.08)",
                           bgcolor: "grey.50",
@@ -414,7 +444,7 @@ function NavbarContent() {
                           sx={{
                             width: 36,
                             height: 36,
-                            borderRadius: 1,
+                            borderRadius: "50%",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -452,7 +482,7 @@ function NavbarContent() {
                         sx={{
                           width: 36,
                           height: 36,
-                          borderRadius: 1.25,
+                          borderRadius: "50%",
                           bgcolor: "rgba(37,211,102,0.1)",
                           color: "#128C7E",
                         }}
@@ -466,7 +496,7 @@ function NavbarContent() {
                         sx={{
                           width: 36,
                           height: 36,
-                          borderRadius: 1.25,
+                          borderRadius: "50%",
                           bgcolor: "grey.50",
                           border: "1px solid",
                           borderColor: "divider",
@@ -483,7 +513,7 @@ function NavbarContent() {
                         sx={{
                           width: 36,
                           height: 36,
-                          borderRadius: 1.25,
+                          borderRadius: "50%",
                           bgcolor: "grey.50",
                           border: "1px solid",
                           borderColor: "divider",
@@ -500,7 +530,7 @@ function NavbarContent() {
                         sx={{
                           width: 36,
                           height: 36,
-                          borderRadius: 1.25,
+                          borderRadius: "50%",
                           bgcolor: "primary.main",
                           color: "primary.contrastText",
                           "&:hover": { bgcolor: "primary.dark" },
@@ -515,15 +545,19 @@ function NavbarContent() {
                 <Box
                   component="nav"
                   aria-label="Shop categories"
-                  sx={{
-                    background: (theme) =>
-                      `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-                    color: "primary.contrastText",
-                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
-                  }}
+                  sx={{ px: { xs: 1.25, sm: 2 }, pb: 1.25 }}
                 >
-                  <StoreContainer>
-                    <Stack direction="row" spacing={1} sx={{ py: 0.85, alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      background: (theme) =>
+                        `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                      color: "primary.contrastText",
+                      borderRadius: 999,
+                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.14)",
+                      px: { xs: 1, sm: 1.5 },
+                    }}
+                  >
+                    <Stack direction="row" spacing={1} sx={{ py: 0.7, alignItems: "center", gap: 1 }}>
                       <Stack
                         direction="row"
                         spacing={0.5}
@@ -582,7 +616,7 @@ function NavbarContent() {
                             display: { xs: "none", sm: "inline-flex" },
                             bgcolor: "common.white",
                             color: "primary.main",
-                            borderRadius: 1.25,
+                            borderRadius: 999,
                             px: 1.75,
                             py: 0.75,
                             fontWeight: 700,
@@ -595,8 +629,9 @@ function NavbarContent() {
                         </Button>
                       </Stack>
                     </Stack>
-                  </StoreContainer>
+                  </Box>
                 </Box>
+              </Box>
               </Box>
             </Box>
           ) : null}
@@ -782,6 +817,7 @@ function NavbarContent() {
               display: "flex",
               flexDirection: "column",
               overflow: "hidden",
+              borderRadius: "28px 0 0 28px",
             },
           },
         }}
@@ -797,6 +833,7 @@ function NavbarContent() {
               flexShrink: 0,
               justifyContent: "space-between",
               alignItems: "center",
+              borderRadius: "28px 0 0 0",
             }}
           >
             <Typography fontWeight={700}>Menu</Typography>
@@ -817,6 +854,7 @@ function NavbarContent() {
                   fullWidth
                   sx={{
                     justifyContent: "flex-start",
+                    borderRadius: 999,
                     bgcolor: active ? "primary.light" : "transparent",
                     color: active ? "primary.dark" : "text.primary",
                     fontWeight: 600,
@@ -850,13 +888,13 @@ function NavbarContent() {
             <Stack
               direction="row"
               spacing={1.5}
-              sx={{ bgcolor: "grey.50", p: 1.5, borderRadius: 1.25, alignItems: "center" }}
+              sx={{ bgcolor: "grey.50", p: 1.5, borderRadius: 999, alignItems: "center" }}
             >
               <Box
                 sx={{
                   width: 36,
                   height: 36,
-                  borderRadius: 1,
+                  borderRadius: "50%",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",

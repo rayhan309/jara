@@ -34,30 +34,32 @@ export function CategoryTile({ category, index = 0 }) {
           alignItems: "center",
           gap: { xs: 1.5, sm: 1.75 },
           "&:hover .cat-tile-media": {
-            borderColor: "rgba(15,23,42,0.14)",
-            boxShadow: "0 16px 36px -18px rgba(15,23,42,0.28)",
+            borderColor: "primary.main",
+            boxShadow: (theme) => `0 16px 32px -14px ${theme.palette.primary.main}88`,
           },
           "&:hover .cat-tile-image": {
-            transform: "scale(1.06)",
+            transform: "scale(1.08)",
           },
           "&:hover .cat-tile-name": {
-            color: "primary.main",
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
+            borderColor: "primary.main",
           },
         }}
       >
         <Box
-          className="cat-tile-media rounded-md"
+          className="cat-tile-media"
           sx={{
             position: "relative",
             aspectRatio: "1 / 1",
             width: 1,
             overflow: "hidden",
-            borderRadius: 1.5,
-            border: 1,
+            borderRadius: "50%",
+            border: "3px solid",
             borderColor: "rgba(15,23,42,0.08)",
             bgcolor: "background.paper",
-            p: { xs: 2, sm: 2.5 },
-            boxShadow: "0 1px 2px rgba(15,23,42,0.04)",
+            p: { xs: 1.5, sm: 2 },
+            boxShadow: "0 8px 20px -14px rgba(15,23,42,0.35)",
             transition: "border-color 0.3s ease, box-shadow 0.3s ease",
           }}
         >
@@ -68,6 +70,8 @@ export function CategoryTile({ category, index = 0 }) {
               width: 1,
               alignItems: "center",
               justifyContent: "center",
+              borderRadius: "50%",
+              overflow: "hidden",
             }}
           >
             {category.image?.url ? (
@@ -94,18 +98,24 @@ export function CategoryTile({ category, index = 0 }) {
         <Typography
           className="cat-tile-name"
           variant="body2"
-          fontWeight={600}
+          fontWeight={700}
           color="text.primary"
           sx={{
-            minHeight: "2.5rem",
-            width: 1,
-            px: 0.5,
+            minHeight: "2.25rem",
+            width: "fit-content",
+            maxWidth: 1,
+            px: 1.5,
+            py: 0.4,
+            borderRadius: 999,
+            border: "1px solid",
+            borderColor: "rgba(15,23,42,0.08)",
+            bgcolor: "grey.50",
             textAlign: "center",
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
-            transition: "color 0.2s ease",
+            transition: "color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease",
           }}
         >
           {category.name}
@@ -118,8 +128,8 @@ export function CategoryTile({ category, index = 0 }) {
 export function CategoryTileSkeleton() {
   return (
     <Stack spacing={1.5} sx={{ alignItems: "center" }}>
-      <Skeleton variant="rounded" sx={{ aspectRatio: "1 / 1", width: 1, borderRadius: 1.5 }} />
-      <Skeleton width="60%" height={14} />
+      <Skeleton variant="circular" sx={{ aspectRatio: "1 / 1", width: 1, height: "auto" }} />
+      <Skeleton width="60%" height={22} sx={{ borderRadius: 999 }} />
     </Stack>
   );
 }

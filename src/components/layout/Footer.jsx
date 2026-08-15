@@ -31,6 +31,8 @@ const supportLinks = [
 ];
 
 const easeOut = [0.22, 1, 0.36, 1];
+const FOOTER_BG = "#0b1220";
+const MUTED = "rgba(255,255,255,0.68)";
 
 const columnVariants = {
   hidden: { opacity: 0, y: 18 },
@@ -47,9 +49,10 @@ const linkSx = {
   alignItems: "center",
   gap: 0.5,
   width: "fit-content",
+  color: MUTED,
   transition: "color 0.2s ease, transform 0.2s ease",
   "&:hover": {
-    color: "primary.main",
+    color: "common.white",
     transform: "translateX(3px)",
   },
   "&:hover .footer-link-arrow": {
@@ -76,7 +79,7 @@ function FooterColumn({ index, children }) {
 
 function FooterNavLink({ href, label }) {
   return (
-    <Typography component={Link} href={href} variant="body2" color="text.secondary" sx={linkSx}>
+    <Typography component={Link} href={href} variant="body2" sx={linkSx}>
       {label}
       <CallMadeRoundedIcon
         className="footer-link-arrow"
@@ -87,6 +90,48 @@ function FooterNavLink({ href, label }) {
         }}
       />
     </Typography>
+  );
+}
+
+function ContactChip({ icon, children, delay }) {
+  return (
+    <Stack
+      component={motion.div}
+      initial={{ opacity: 0, x: -8 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay, duration: 0.35, ease: easeOut }}
+      direction="row"
+      spacing={1.25}
+      alignItems="flex-start"
+      sx={{
+        px: 1.25,
+        py: 1,
+        borderRadius: 999,
+        bgcolor: "rgba(255,255,255,0.06)",
+        border: "1px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      <Box
+        sx={{
+          width: 28,
+          height: 28,
+          borderRadius: "50%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: "primary.main",
+          color: "primary.contrastText",
+          flexShrink: 0,
+          mt: 0.1,
+        }}
+      >
+        {icon}
+      </Box>
+      <Typography variant="body2" sx={{ color: MUTED, lineHeight: 1.5, pt: 0.35 }}>
+        {children}
+      </Typography>
+    </Stack>
   );
 }
 
@@ -106,163 +151,178 @@ export default function Footer() {
   const logoUrl = getShopLogoUrl(settings);
 
   return (
-    <Box component="footer" sx={{ borderTop: 1, borderColor: "divider", bgcolor: "background.paper" }}>
-      <StoreContainer className="py-10 sm:py-12 lg:py-16">
-        <Grid container spacing={{ xs: 4, sm: 4, lg: 5 }}>
-          <FooterColumn index={0}>
-            <Stack
-              component={Link}
-              href="/"
-              direction="row"
-              spacing={1.5}
-              alignItems="center"
-              sx={{ textDecoration: "none", color: "inherit", width: "fit-content" }}
-            >
-              <ShopLogo logoUrl={logoUrl} size="md" />
-            </Stack>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2, maxWidth: 280, lineHeight: 1.7 }}>
-              {shortDescription}
-            </Typography>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 2.5 }}>
-              {socialLinks.length > 0 ? (
-                socialLinks.map((link, index) => {
-                  const Icon = getSocialIcon(link.platform);
-                  return (
-                    <Box
-                      key={link.id}
-                      component={motion.div}
-                      initial={{ opacity: 0, scale: 0.85 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.2 + index * 0.05, duration: 0.3, ease: easeOut }}
-                      whileHover={{ y: -2 }}
-                    >
-                      <IconButton
-                        component="a"
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={link.label}
-                        size="small"
-                        sx={{
-                          border: 1,
-                          borderColor: "divider",
-                          borderRadius: 1,
-                          color: "text.secondary",
-                          transition: "border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease",
-                          "&:hover": {
-                            borderColor: "primary.light",
-                            bgcolor: "primary.light",
-                            color: "primary.main",
-                          },
-                        }}
-                      >
-                        <Icon fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  );
-                })
-              ) : (
-                <Typography variant="caption" color="text.disabled">
-                  Add social links from admin settings.
-                </Typography>
-              )}
-            </Stack>
-          </FooterColumn>
-
-          <FooterColumn index={1}>
-            <Typography variant="subtitle2" fontWeight={700} gutterBottom>
-              Quick links
-            </Typography>
-            <Stack spacing={1.25} sx={{ mt: 1 }}>
-              {quickLinks.map((link) => (
-                <FooterNavLink key={link.href} href={link.href} label={link.label} />
-              ))}
-            </Stack>
-          </FooterColumn>
-
-          <FooterColumn index={2}>
-            <Typography variant="subtitle2" fontWeight={700} gutterBottom>
-              Help
-            </Typography>
-            <Stack spacing={1.25} sx={{ mt: 1 }}>
-              {supportLinks.map((link) => (
-                <FooterNavLink key={link.label} href={link.href} label={link.label} />
-              ))}
-            </Stack>
-          </FooterColumn>
-
-          <FooterColumn index={3}>
-            <Typography variant="subtitle2" fontWeight={700} gutterBottom>
-              Contact
-            </Typography>
-            <Stack spacing={1.5} sx={{ mt: 1 }}>
-              <Stack
-                component={motion.div}
-                initial={{ opacity: 0, x: -8 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.28, duration: 0.35, ease: easeOut }}
-                direction="row"
-                spacing={1.25}
-                alignItems="flex-start"
-              >
-                <LocationOnOutlinedIcon color="primary" fontSize="small" sx={{ mt: 0.25 }} />
-                <Typography variant="body2" color="text.secondary">
-                  {contactAddress}
-                </Typography>
-              </Stack>
-              <Stack
-                component={motion.div}
-                initial={{ opacity: 0, x: -8 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.34, duration: 0.35, ease: easeOut }}
-                direction="row"
-                spacing={1.25}
-                alignItems="center"
-              >
-                <PhoneOutlinedIcon color="primary" fontSize="small" />
-                <Typography variant="body2" color="text.secondary">
-                  {contactPhone}
-                </Typography>
-              </Stack>
-              <Stack
-                component={motion.div}
-                initial={{ opacity: 0, x: -8 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4, duration: 0.35, ease: easeOut }}
-                direction="row"
-                spacing={1.25}
-                alignItems="center"
-              >
-                <EmailOutlinedIcon color="primary" fontSize="small" />
-                <Typography variant="body2" color="text.secondary">
-                  {contactEmail}
-                </Typography>
-              </Stack>
-            </Stack>
-          </FooterColumn>
-        </Grid>
-      </StoreContainer>
-
+    <Box component="footer" sx={{ mt: { xs: 4, sm: 6 }, position: "relative", color: "common.white" }}>
       <Box
-        component={motion.div}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.45, delay: 0.15, ease: easeOut }}
-        sx={{ borderTop: 1, borderColor: "divider", bgcolor: "grey.50" }}
+        aria-hidden
+        sx={{
+          position: "relative",
+          height: { xs: 36, sm: 52 },
+          lineHeight: 0,
+          color: FOOTER_BG,
+        }}
       >
-        <StoreContainer className="flex flex-col sm:flex-row items-center justify-between gap-1.5 py-2.5 text-center sm:text-left">
-          <Typography variant="caption" color="text.disabled">
-            {renderedCopyright}
-          </Typography>
-          <Typography variant="caption" color="text.disabled">
-            {tagline}
-          </Typography>
+        <Box
+          component="svg"
+          viewBox="0 0 1440 52"
+          preserveAspectRatio="none"
+          sx={{ display: "block", width: 1, height: 1 }}
+        >
+          <path fill="currentColor" d="M0 52C240 8 480 0 720 12 960 24 1200 44 1440 18V52H0Z" />
+        </Box>
+      </Box>
+
+      <Box sx={{ bgcolor: FOOTER_BG, pt: { xs: 1, sm: 2 }, pb: 0 }}>
+        <StoreContainer className="pb-8 sm:pb-10 lg:pb-12">
+          <Grid container spacing={{ xs: 4, sm: 4, lg: 5 }}>
+            <FooterColumn index={0}>
+              <Stack
+                component={Link}
+                href="/"
+                direction="row"
+                spacing={1.5}
+                alignItems="center"
+                sx={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  width: "fit-content",
+                  bgcolor: "common.white",
+                  borderRadius: 999,
+                  px: 1.5,
+                  py: 0.75,
+                }}
+              >
+                <ShopLogo logoUrl={logoUrl} size="sm" />
+              </Stack>
+              <Typography variant="body2" sx={{ mt: 2.25, maxWidth: 280, lineHeight: 1.7, color: MUTED }}>
+                {shortDescription}
+              </Typography>
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 2.5 }}>
+                {socialLinks.length > 0 ? (
+                  socialLinks.map((link, index) => {
+                    const Icon = getSocialIcon(link.platform);
+                    return (
+                      <Box
+                        key={link.id}
+                        component={motion.div}
+                        initial={{ opacity: 0, scale: 0.85 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.2 + index * 0.05, duration: 0.3, ease: easeOut }}
+                        whileHover={{ y: -2 }}
+                      >
+                        <IconButton
+                          component="a"
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={link.label}
+                          size="small"
+                          sx={{
+                            width: 38,
+                            height: 38,
+                            border: "1px solid rgba(255,255,255,0.14)",
+                            borderRadius: "50%",
+                            color: MUTED,
+                            transition: "border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease",
+                            "&:hover": {
+                              borderColor: "primary.light",
+                              bgcolor: "primary.main",
+                              color: "common.white",
+                            },
+                          }}
+                        >
+                          <Icon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    );
+                  })
+                ) : (
+                  <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.4)" }}>
+                    Add social links from admin settings.
+                  </Typography>
+                )}
+              </Stack>
+            </FooterColumn>
+
+            <FooterColumn index={1}>
+              <Typography variant="subtitle2" fontWeight={700} gutterBottom sx={{ letterSpacing: "0.04em" }}>
+                Quick links
+              </Typography>
+              <Stack spacing={1.25} sx={{ mt: 1 }}>
+                {quickLinks.map((link) => (
+                  <FooterNavLink key={link.href} href={link.href} label={link.label} />
+                ))}
+              </Stack>
+            </FooterColumn>
+
+            <FooterColumn index={2}>
+              <Typography variant="subtitle2" fontWeight={700} gutterBottom sx={{ letterSpacing: "0.04em" }}>
+                Help
+              </Typography>
+              <Stack spacing={1.25} sx={{ mt: 1 }}>
+                {supportLinks.map((link) => (
+                  <FooterNavLink key={link.label} href={link.href} label={link.label} />
+                ))}
+              </Stack>
+            </FooterColumn>
+
+            <FooterColumn index={3}>
+              <Typography variant="subtitle2" fontWeight={700} gutterBottom sx={{ letterSpacing: "0.04em" }}>
+                Contact
+              </Typography>
+              <Stack spacing={1.25} sx={{ mt: 1 }}>
+                <ContactChip delay={0.28} icon={<LocationOnOutlinedIcon sx={{ fontSize: 15 }} />}>
+                  {contactAddress}
+                </ContactChip>
+                <ContactChip delay={0.34} icon={<PhoneOutlinedIcon sx={{ fontSize: 15 }} />}>
+                  {contactPhone}
+                </ContactChip>
+                <ContactChip delay={0.4} icon={<EmailOutlinedIcon sx={{ fontSize: 15 }} />}>
+                  {contactEmail}
+                </ContactChip>
+              </Stack>
+            </FooterColumn>
+          </Grid>
         </StoreContainer>
+
+        <Box
+          component={motion.div}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45, delay: 0.15, ease: easeOut }}
+          sx={{ px: { xs: 1.5, sm: 2 }, pb: 1.5 }}
+        >
+          <Box
+            sx={{
+              mx: "auto",
+              width: 1,
+              maxWidth: "80rem",
+              borderRadius: 999,
+              bgcolor: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              px: { xs: 2, sm: 3 },
+            }}
+          >
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1.5}
+              sx={{
+                py: 1.25,
+                alignItems: "center",
+                justifyContent: "space-between",
+                textAlign: { xs: "center", sm: "left" },
+              }}
+            >
+              <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.45)" }}>
+                {renderedCopyright}
+              </Typography>
+              <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.45)" }}>
+                {tagline}
+              </Typography>
+            </Stack>
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
