@@ -20,7 +20,7 @@ export const SOCIAL_PLATFORMS = [
 export const DEFAULT_SETTINGS = {
   shopShortDescription: "Your trusted online shopping destination. Quality products, fast delivery, and easy order tracking.",
   shopTagline: "Built for modern e-commerce",
-  copyrightText: "© {year} Raisa's Glam Nest. All rights reserved.",
+  copyrightText: "© {year} Jara. All rights reserved.",
   shopLogo: null,
   favicon: null,
   primaryColor: "#4f46e5",

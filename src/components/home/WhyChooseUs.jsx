@@ -53,7 +53,7 @@ export default function WhyChooseUs() {
         <HomeSectionHeader
           align="center"
           eyebrow="Why choose us?"
-          title="Why Raisa's Glamnest special?"
+          title="Why is Jara special?"
           subtitle="Simple shopping, careful packaging, and support that actually helps — every order."
         />
 

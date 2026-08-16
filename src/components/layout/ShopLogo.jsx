@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Box from "@mui/material/Box";
 import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
+import { SITE_NAME } from "@/lib/siteMetadata";
 
 /** Trimmed wordmark ≈ 520×255 (~2∶1) */
 const LOGO_ASPECT = 520 / 255;
@@ -37,7 +38,7 @@ export default function ShopLogo({
       >
         <Image
           src={logoUrl}
-          alt="Raisa's Glam Nest"
+          alt={SITE_NAME}
           width={width}
           height={sizeConfig.height}
           priority={size === "md" || size === "lg"}

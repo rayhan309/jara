@@ -488,7 +488,7 @@ export default function GeneralSettings() {
               fullWidth
               value={copyrightText}
               onChange={(event) => setCopyrightText(event.target.value)}
-              placeholder="© {year} Raisa's Glam Nest. All rights reserved."
+              placeholder="© {year} Jara. All rights reserved."
               helperText={`Use {year} to insert the current year automatically.`}
             />
           </Stack>

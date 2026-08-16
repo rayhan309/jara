@@ -70,6 +70,7 @@ import {
   ORDER_STATUSES,
 } from "@/lib/orderHelpers";
 import { normalizePhone } from "@/lib/orderValidation";
+import { SITE_NAME } from "@/lib/siteMetadata";
 
 const PRINT_STYLES = `
   :root { color-scheme: light; }
@@ -148,7 +149,7 @@ function buildInvoiceHtml(order) {
       <div style="display:flex; justify-content:space-between; align-items:flex-start;">
         <div>
           <p class="subtitle">Invoice</p>
-          <h1 class="title">Raisa's Glam Nest</h1>
+          <h1 class="title">${SITE_NAME}</h1>
           <p class="muted" style="margin-top:4px;">Order #${orderNumber}</p>
         </div>
         <div style="text-align:right;">

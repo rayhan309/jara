@@ -12,7 +12,7 @@ export const FALLBACK_HERO_BANNERS = [
   {
     id: "fallback-1",
     image: { url: "/images/banner-1.jpg" },
-    alt: "Raisa's Glam Nest banner",
+    alt: "Jara banner",
     href: "/products",
     enabled: true,
   },

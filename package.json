@@ -1,12 +1,13 @@
 {
-  "name": "raisas_glam_nest",
+  "name": "jara",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:seed:admin": "node scripts/seed-admin.js"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

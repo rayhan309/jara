@@ -5,7 +5,7 @@ import { createPageMetadata } from "@/lib/siteMetadata";
 export const metadata = createPageMetadata({
   title: "Home",
   description:
-    "Shop quality products at Raisa's Glam Nest. Fast delivery, cash on delivery, and a secure online shopping experience.",
+    "Shop quality products at Jara. Fast delivery, cash on delivery, and a secure online shopping experience.",
   path: "/",
 });
 

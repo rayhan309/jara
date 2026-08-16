@@ -6,7 +6,7 @@ import Box from "@mui/material/Box";
 
 export const metadata = createPageMetadata({
   title: "Checkout",
-  description: "Complete your order at Raisa's Glam Nest — a fast, secure, and simple checkout.",
+  description: "Complete your order at Jara — a fast, secure, and simple checkout.",
   path: "/checkout",
   noIndex: true,
 });

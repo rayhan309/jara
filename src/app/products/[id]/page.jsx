@@ -20,7 +20,7 @@ export async function generateMetadata({ params }) {
   const title = product.title_bn || product.title_en;
   const description =
     product.description?.slice(0, 160) ||
-    `${title} — buy at Raisa's Glam Nest. Fast delivery and cash on delivery available.`;
+    `${title} — buy at Jara. Fast delivery and cash on delivery available.`;
 
   return createPageMetadata({
     title,

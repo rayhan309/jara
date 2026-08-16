@@ -1,13 +1,13 @@
-export const SITE_NAME = "Raisa's Glam Nest";
-export const SITE_NAME_SHORT = "Raisa's Glam Nest";
-export const ADMIN_NAME = "Raisa's Glam Nest Admin";
+export const SITE_NAME = "Jara";
+export const SITE_NAME_SHORT = "Jara";
+export const ADMIN_NAME = "Jara Admin";
 
 export const DEFAULT_DESCRIPTION =
-  "Raisa's Glam Nest — one of Bangladesh's trusted online shops. Quality products, fast delivery, cash on delivery, and easy order tracking.";
+  "Jara — one of Bangladesh's trusted online shops. Quality products, fast delivery, cash on delivery, and easy order tracking.";
 
 export const DEFAULT_KEYWORDS = [
-  "Raisa's Glam Nest",
-  "raisas glam nest",
+  "Jara",
+  "jara",
   "online shopping Bangladesh",
   "e-commerce",
   "online shopping",
@@ -99,7 +99,7 @@ export function createAdminPageMetadata(title, description) {
   return {
     title,
     description:
-      description || `${title} — Raisa's Glam Nest admin dashboard management panel.`,
+      description || `${title} — ${SITE_NAME} admin dashboard management panel.`,
     robots: {
       index: false,
       follow: false,
@@ -172,7 +172,7 @@ export const adminRootMetadata = {
     default: `Dashboard | ${ADMIN_NAME}`,
     template: `%s | ${ADMIN_NAME}`,
   },
-  description: "Raisa's Glam Nest admin dashboard — manage orders, products, customers and store settings.",
+  description: `${SITE_NAME} admin dashboard — manage orders, products, customers and store settings.`,
   applicationName: ADMIN_NAME,
   robots: {
     index: false,

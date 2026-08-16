@@ -37,6 +37,7 @@ import { resolveProductPricing } from "@/lib/productPricing";
 import { isProductFullyOutOfStock, isVariantOutOfStock } from "@/lib/variantStock";
 import StoreProductCard from "@/components/products/StoreProductCard";
 import { buildProductPixelPayload, trackMetaEvent } from "@/lib/metaPixel";
+import { SITE_NAME } from "@/lib/siteMetadata";
 
 const productGridSx = {
   display: "grid",
@@ -201,7 +202,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
   async function handleShare() {
     const url = typeof window !== "undefined" ? window.location.href : "";
-    const shareText = `${title} — ৳${salePrice.toLocaleString()} | Raisa's Glam Nest`;
+    const shareText = `${title} — ৳${salePrice.toLocaleString()} | ${SITE_NAME}`;
 
     if (typeof navigator !== "undefined" && navigator.share) {
       try {

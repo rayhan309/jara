@@ -16,6 +16,7 @@ import { motion } from "motion/react";
 import StoreContainer from "@/components/container/StoreContainer";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import { hindSiliguri } from "@/lib/fonts";
+import { SITE_NAME } from "@/lib/siteMetadata";
 
 const navItems = [
   { id: "contact", label: "Contact support" },
@@ -321,7 +322,7 @@ export default function SupportPageView() {
 
           <PolicySection id="privacy" title="Privacy policy" index={5}>
             <Typography component="p">
-              Raisa&apos;s Glam Nest is committed to keeping your personal information private. We only collect what we need to process orders.
+              {SITE_NAME} is committed to keeping your personal information private. We only collect what we need to process orders.
             </Typography>
             <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
               <Typography component="li">We collect: name, phone number, delivery address, and order details.</Typography>
@@ -341,7 +342,7 @@ export default function SupportPageView() {
 
           <PolicySection id="privacy-bn" title="প্রাইভেসি পলিসি" bangla index={6}>
             <Typography component="p">
-              Raisa&apos;s Glam Nest আপনার ব্যক্তিগত তথ্য গোপন রাখতে প্রতিশ্রুতিবদ্ধ। অর্ডার প্রসেস করতে যা প্রয়োজন শুধু তাই সংগ্রহ করি।
+              {SITE_NAME} আপনার ব্যক্তিগত তথ্য গোপন রাখতে প্রতিশ্রুতিবদ্ধ। অর্ডার প্রসেস করতে যা প্রয়োজন শুধু তাই সংগ্রহ করি।
             </Typography>
             <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
               <Typography component="li">আমরা সংগ্রহ করি: নাম, ফোন নম্বর, ডেলিভারি ঠিকানা এবং অর্ডারের বিবরণ।</Typography>

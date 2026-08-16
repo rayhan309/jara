@@ -7,7 +7,7 @@ import Box from "@mui/material/Box";
 export const metadata = createPageMetadata({
   title: "All products",
   description:
-    "Browse the full product catalog at Raisa's Glam Nest. Find what you need with categories and search.",
+    "Browse the full product catalog at Jara. Find what you need with categories and search.",
   path: "/products",
   keywords: ["products", "shop", "online store", "catalog"],
 });

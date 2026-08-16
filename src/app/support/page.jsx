@@ -5,7 +5,7 @@ import { createPageMetadata } from "@/lib/siteMetadata";
 export const metadata = createPageMetadata({
   title: "Help & policies",
   description:
-    "Contact, shipping, returns, and privacy information for Raisa's Glam Nest — we're here to help.",
+    "Contact, shipping, returns, and privacy information for Jara — we're here to help.",
   path: "/support",
   keywords: ["support", "contact", "shipping policy", "return policy", "help"],
 });

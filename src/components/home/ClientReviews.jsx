@@ -105,7 +105,7 @@ export default function ClientReviews() {
           align="center"
           eyebrow="Testimonials"
           title="What our clients say"
-          subtitle="Real feedback from customers who shopped with Raisa's Glam Nest."
+          subtitle="Real feedback from customers who shopped with Jara."
         />
 
         {isLoading ? (
