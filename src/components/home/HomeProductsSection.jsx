@@ -24,7 +24,7 @@ const productGridSx = {
 function ProductSkeleton() {
   return (
     <Box>
-      <Skeleton variant="rounded" sx={{ aspectRatio: "4 / 5", width: 1, borderRadius: 1.5, bgcolor: "#f3f0ee" }} />
+      <Skeleton variant="rounded" sx={{ aspectRatio: "1 / 1", width: 1, borderRadius: 1.5, bgcolor: "grey.100" }} />
       <Stack spacing={0.75} sx={{ pt: 1.5, px: 0.25 }}>
         <Skeleton height={12} />
         <Skeleton width="70%" height={12} />

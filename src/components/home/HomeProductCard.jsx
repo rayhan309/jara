@@ -73,7 +73,7 @@ export default function HomeProductCard({ product, index = 0 }) {
           boxShadow: "0 18px 40px -24px rgba(15,23,42,0.35)",
         },
         "&:hover .home-image": {
-          transform: "scale(1.04)",
+          transform: "scale(1.03)",
         },
       }}
     >
@@ -82,10 +82,10 @@ export default function HomeProductCard({ product, index = 0 }) {
         sx={{
           position: "relative",
           width: 1,
-          aspectRatio: "4 / 5",
+          aspectRatio: "1 / 1",
           overflow: "hidden",
           borderRadius: 1.5,
-          bgcolor: "#f3f0ee",
+          bgcolor: "common.white",
           transition: "box-shadow 0.35s ease",
         }}
       >
@@ -103,8 +103,9 @@ export default function HomeProductCard({ product, index = 0 }) {
               fill
               unoptimized
               style={{
-                objectFit: "cover",
+                objectFit: "contain",
                 objectPosition: "center",
+                padding: 8,
                 transition: "transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)",
               }}
             />
@@ -199,7 +200,7 @@ export default function HomeProductCard({ product, index = 0 }) {
 export function HomeProductCardSkeleton() {
   return (
     <Box>
-      <Skeleton variant="rounded" sx={{ aspectRatio: "4 / 5", width: 1, borderRadius: 1.5 }} />
+      <Skeleton variant="rounded" sx={{ aspectRatio: "1 / 1", width: 1, borderRadius: 1.5 }} />
       <Stack spacing={1} sx={{ pt: 1.5, alignItems: "center" }}>
         <Skeleton width="80%" height={14} />
         <Skeleton width="35%" height={18} />

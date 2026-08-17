@@ -37,7 +37,8 @@ import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined";
 import GpsFixedOutlinedIcon from "@mui/icons-material/GpsFixedOutlined";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { logoutAdmin } from "@/lib/api/adminUsers";
-import { clearAdminAuth, getAdminAuth } from "@/lib/auth";
+import { useAdminAuth } from "@/components/auth/AdminAuthGuard";
+import { clearAdminAuth } from "@/lib/auth";
 import { getNavItemsForRole, getRoleLabel } from "@/lib/adminRoles";
 import { useStoreSettings } from "@/components/providers/SiteSettingsProvider";
 import ShopLogo from "@/components/layout/ShopLogo";
@@ -79,7 +80,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const router = useRouter();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
-  const auth = getAdminAuth();
+  const auth = useAdminAuth();
   const settings = useStoreSettings();
   const logoUrl = getShopLogoUrl(settings);
   const navItems = getNavItemsForRole(auth?.role);

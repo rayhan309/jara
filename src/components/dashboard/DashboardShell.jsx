@@ -16,25 +16,25 @@ import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownR
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import { getAdminAuth } from "@/lib/auth";
+import { useAdminAuth } from "@/components/auth/AdminAuthGuard";
 import { getRoleLabel, hasPermission, PERMISSIONS } from "@/lib/adminRoles";
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardBackground from "@/components/dashboard/DashboardBackground";
 
-function getGreeting() {
-  const hour = new Date().getHours();
+function getGreeting(date) {
+  const hour = date.getHours();
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
 }
 
-function formatDate(long = true) {
+function formatDate(date, long = true) {
   return new Intl.DateTimeFormat("en-US", {
     weekday: long ? "long" : undefined,
     month: "short",
     day: "numeric",
     year: "numeric",
-  }).format(new Date());
+  }).format(date);
 }
 
 function getInitials(name = "") {
@@ -45,16 +45,21 @@ function getInitials(name = "") {
 }
 
 export default function DashboardShell({ children }) {
-  const auth = getAdminAuth();
+  const auth = useAdminAuth();
   const username = auth?.name || auth?.username || "Admin";
   const roleLabel = getRoleLabel(auth?.role);
   const initials = getInitials(username);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState(null);
+  const [now, setNow] = useState(null);
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
   const openSidebar = useCallback(() => setSidebarOpen(true), []);
   const menuOpen = Boolean(menuAnchor);
   const canAccessSettings = hasPermission(auth?.role, PERMISSIONS.SETTINGS);
+
+  useEffect(() => {
+    setNow(new Date());
+  }, []);
 
   return (
     <Box sx={{ display: "flex", height: "100vh", overflow: "hidden", bgcolor: "background.default" }}>
@@ -96,15 +101,15 @@ export default function DashboardShell({ children }) {
                   Hi, {username}
                 </Box>
                 <Box component="span" sx={{ display: { xs: "none", md: "inline" } }}>
-                  {getGreeting()}, {username}
+                  {now ? `${getGreeting(now)}, ${username}` : `Hi, ${username}`}
                 </Box>
               </Typography>
               <Typography variant="caption" color="text.secondary" noWrap>
                 <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
-                  {formatDate(false)}
+                  {now ? formatDate(now, false) : "\u00a0"}
                 </Box>
                 <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
-                  {formatDate(true)}
+                  {now ? formatDate(now, true) : "\u00a0"}
                 </Box>
               </Typography>
             </Box>

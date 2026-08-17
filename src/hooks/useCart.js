@@ -101,9 +101,9 @@ export function useCart() {
       removeProductFromCart(productId, selectedVariant);
       syncCart();
       if (title) {
-        toast(`${title} removed from cart`);
+        toast(`${title} কার্ট থেকে সরানো হয়েছে`);
       } else {
-        toast("Removed from cart");
+        toast("কার্ট থেকে সরানো হয়েছে");
       }
     },
     [syncCart]
@@ -122,7 +122,7 @@ export function useCart() {
       }
 
       if (result.removed && title) {
-        toast(`${title} removed from cart`);
+        toast(`${title} কার্ট থেকে সরানো হয়েছে`);
       }
       return true;
     },

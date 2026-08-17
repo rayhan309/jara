@@ -1,16 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchAdminProfile } from "@/lib/api/adminUsers";
 import { getAdminAuth, setAdminAuth, clearAdminAuth, isAdminAuthenticated } from "@/lib/auth";
 import { getDefaultDashboardPath } from "@/lib/adminRoles";
+
+const AdminAuthContext = createContext(null);
+
+export function useAdminAuth() {
+  return useContext(AdminAuthContext);
+}
 
 export default function AdminAuthGuard({ children, initialProfile = null }) {
   const router = useRouter();
   // Server already verified the cookie when initialProfile is present — start ready
   // so SSR and client hydrate the same tree (avoids MUI/Emotion loading-state mismatch).
   const [ready, setReady] = useState(() => Boolean(initialProfile));
+  const [profile, setProfile] = useState(initialProfile);
 
   useEffect(() => {
     let cancelled = false;
@@ -18,7 +25,10 @@ export default function AdminAuthGuard({ children, initialProfile = null }) {
     async function verifySession() {
       if (initialProfile) {
         setAdminAuth(initialProfile);
-        if (!cancelled) setReady(true);
+        if (!cancelled) {
+          setProfile(initialProfile);
+          setReady(true);
+        }
         return;
       }
 
@@ -31,6 +41,7 @@ export default function AdminAuthGuard({ children, initialProfile = null }) {
         const user = await fetchAdminProfile();
         if (cancelled) return;
         setAdminAuth(user);
+        setProfile(user);
         setReady(true);
       } catch {
         clearAdminAuth();
@@ -73,7 +84,7 @@ export default function AdminAuthGuard({ children, initialProfile = null }) {
     );
   }
 
-  return children;
+  return <AdminAuthContext.Provider value={profile}>{children}</AdminAuthContext.Provider>;
 }
 
 export function getPostLoginPath() {

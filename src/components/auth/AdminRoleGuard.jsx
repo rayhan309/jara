@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { getAdminAuth } from "@/lib/auth";
+import { useAdminAuth } from "@/components/auth/AdminAuthGuard";
 import { canAccessDashboardPath, getDefaultDashboardPath } from "@/lib/adminRoles";
 
 export default function AdminRoleGuard({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-  const auth = getAdminAuth();
+  const auth = useAdminAuth();
 
   useEffect(() => {
     if (!auth?.role) return;

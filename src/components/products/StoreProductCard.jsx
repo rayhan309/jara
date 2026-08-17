@@ -74,7 +74,7 @@ export default function StoreProductCard({ product, index = 0 }) {
           boxShadow: "0 18px 40px -24px rgba(15,23,42,0.35)",
         },
         "&:hover .product-image": {
-          transform: "scale(1.04)",
+          transform: "scale(1.03)",
         },
         "&:hover .product-title": {
           color: "primary.main",
@@ -89,11 +89,11 @@ export default function StoreProductCard({ product, index = 0 }) {
         className="product-media"
         sx={{
           position: "relative",
-          aspectRatio: "4 / 5",
+          aspectRatio: "1 / 1",
           width: 1,
           overflow: "hidden",
           borderRadius: 1.5,
-          bgcolor: "#f3f0ee",
+          bgcolor: "common.white",
           transition: "box-shadow 0.35s ease",
         }}
       >
@@ -112,8 +112,9 @@ export default function StoreProductCard({ product, index = 0 }) {
               unoptimized
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
               style={{
-                objectFit: "cover",
+                objectFit: "contain",
                 objectPosition: "center",
+                padding: 8,
                 transition: "transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)",
               }}
             />
