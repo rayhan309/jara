@@ -96,31 +96,31 @@ export default function StoreCategoriesView() {
               color="primary"
               sx={{ letterSpacing: "0.22em", textTransform: "uppercase" }}
             >
-              Explore categories
+              ক্যাটাগরি দেখুন
             </Typography>
             <Typography variant="h4" fontWeight={700} sx={{ mt: 1 }}>
-              All categories
+              সব ক্যাটাগরি
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1, maxWidth: 560 }}>
-              Browse all categories in a compact grid — pick one and shop.
+              সব ক্যাটাগরি গ্রিডে দেখুন — একটি বেছে নিয়ে কিনুন।
             </Typography>
 
             <Stack direction="row" flexWrap="wrap" spacing={1} useFlexGap sx={{ mt: 2 }}>
               <Chip
                 icon={<LayersOutlinedIcon />}
-                label={`${categories.length} categories`}
+                label={`${categories.length}টি ক্যাটাগরি`}
                 size="small"
                 sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.9)", borderRadius: 999 }}
               />
               <Chip
                 icon={<ShoppingBagOutlinedIcon />}
-                label={`${totalProducts} products`}
+                label={`${totalProducts}টি পণ্য`}
                 size="small"
                 sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.9)", borderRadius: 999 }}
               />
               <Chip
                 icon={<AutoAwesomeOutlinedIcon />}
-                label="New collection"
+                label="নতুন কালেকশন"
                 size="small"
                 sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.9)", borderRadius: 999 }}
               />
@@ -134,7 +134,7 @@ export default function StoreCategoriesView() {
                 type="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search categories..."
+                placeholder="ক্যাটাগরি খুঁজুন..."
                 size="small"
                 fullWidth
                 slotProps={{
@@ -154,7 +154,7 @@ export default function StoreCategoriesView() {
                 endIcon={<ArrowForwardRoundedIcon />}
                 sx={{ width: { xs: 1, sm: "auto" }, borderRadius: 999 }}
               >
-                View all products
+                সব পণ্য দেখুন
               </Button>
             </Stack>
           </Grid>
@@ -171,10 +171,10 @@ export default function StoreCategoriesView() {
         >
           <Box>
             <Typography variant="caption" fontWeight={700} color="primary" sx={{ letterSpacing: "0.2em", textTransform: "uppercase" }}>
-              {search.trim() ? "Results" : "Browse"}
+              {search.trim() ? "ফলাফল" : "ব্রাউজ"}
             </Typography>
             <Typography variant="h6" fontWeight={700} sx={{ mt: 0.5 }}>
-              {search.trim() ? `Search for "${search.trim()}"` : "All categories"}
+              {search.trim() ? `"${search.trim()}" এর সার্চ` : "সব ক্যাটাগরি"}
             </Typography>
           </Box>
           {!isLoading && !isError ? (
@@ -193,27 +193,27 @@ export default function StoreCategoriesView() {
         ) : isError ? (
           <Stack alignItems="center" sx={{ mx: "auto", maxWidth: 420, py: 5, px: 3, textAlign: "center", borderRadius: 1, border: 1, borderColor: "error.light", bgcolor: "error.50" }}>
             <Typography variant="body2" color="error.main">
-              {error?.message || "Could not load categories."}
+              {error?.message || "ক্যাটাগরি লোড করা যায়নি।"}
             </Typography>
             <Button startIcon={<RefreshRoundedIcon />} onClick={() => refetch()} sx={{ mt: 2 }}>
-              Try again
+              আবার চেষ্টা করুন
             </Button>
           </Stack>
         ) : categories.length === 0 ? (
           <Stack alignItems="center" sx={{ mx: "auto", maxWidth: 420, py: 7, px: 3, textAlign: "center", borderRadius: 1, border: 1, borderStyle: "dashed", borderColor: "divider", bgcolor: "background.paper" }}>
             <LayersOutlinedIcon sx={{ fontSize: 36, color: "primary.light" }} />
             <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-              No categories have been added yet.
+              এখনো কোনো ক্যাটাগরি যোগ করা হয়নি।
             </Typography>
           </Stack>
         ) : filteredCategories.length === 0 ? (
           <Stack alignItems="center" sx={{ py: 7, px: 3, textAlign: "center", borderRadius: 1, border: 1, borderStyle: "dashed", borderColor: "divider", bgcolor: "background.paper" }}>
             <SearchRoundedIcon sx={{ fontSize: 32, color: "grey.300" }} />
             <Typography variant="body2" fontWeight={600} sx={{ mt: 1.5 }}>
-              No categories found
+              কোনো ক্যাটাগরি পাওয়া যায়নি
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Try a different keyword.
+              অন্য কিওয়ার্ড দিয়ে চেষ্টা করুন।
             </Typography>
           </Stack>
         ) : (

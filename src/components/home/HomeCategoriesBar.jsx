@@ -21,7 +21,7 @@ export default function HomeCategoriesBar() {
   return (
     <Box
       component="nav"
-      aria-label="Category menu"
+      aria-label="ক্যাটাগরি মেনু"
       sx={{ borderBottom: 1, borderColor: "primary.dark", bgcolor: "primary.main", color: "primary.contrastText" }}
     >
       <StoreContainer>
@@ -48,14 +48,14 @@ export default function HomeCategoriesBar() {
               "&:hover": { bgcolor: "primary.light" },
             }}
           >
-            Home
+            হোম
           </Button>
 
           {isLoading ? (
             <Stack direction="row" alignItems="center" spacing={1} sx={{ flexShrink: 0, px: 1.5, py: 0.75 }}>
               <CircularProgress size={14} color="inherit" sx={{ opacity: 0.7 }} />
               <Typography variant="caption" sx={{ color: "primary.100" }}>
-                Loading...
+                লোড হচ্ছে...
               </Typography>
             </Stack>
           ) : (
@@ -95,7 +95,7 @@ export default function HomeCategoriesBar() {
                 "&:hover": { borderColor: "common.white", bgcolor: "rgba(255,255,255,0.1)" },
               }}
             >
-              All categories
+              সব ক্যাটাগরি
             </Button>
           ) : null}
         </Stack>

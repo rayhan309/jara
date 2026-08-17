@@ -64,7 +64,7 @@ export async function GET(request) {
     if (phone) {
       if (!isValidBdPhone(phone)) {
         return NextResponse.json(
-          { error: "Enter a valid Bangladeshi mobile number (01XXXXXXXXX)" },
+          { error: "সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)" },
           { status: 400 }
         );
       }
@@ -77,7 +77,7 @@ export async function GET(request) {
 
       if (!list.length) {
         return NextResponse.json(
-          { error: "No orders found for this number" },
+          { error: "এই নম্বরে কোনো অর্ডার পাওয়া যায়নি" },
           { status: 404 }
         );
       }
@@ -90,7 +90,7 @@ export async function GET(request) {
 
     if (!orderNumber) {
       return NextResponse.json(
-        { error: "Please provide a phone number or order number" },
+        { error: "ফোন নম্বর বা অর্ডার নম্বর দিন" },
         { status: 400 }
       );
     }
@@ -98,7 +98,7 @@ export async function GET(request) {
     const order = await ordersCol.findOne(buildOrderNumberLookupFilter(orderNumber));
 
     if (!order) {
-      return NextResponse.json({ error: "No order found" }, { status: 404 });
+      return NextResponse.json({ error: "কোনো অর্ডার পাওয়া যায়নি" }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -108,7 +108,7 @@ export async function GET(request) {
   } catch (error) {
     console.error("GET /api/orders error:", error);
     return NextResponse.json(
-      { error: error.message || "Could not find order" },
+      { error: error.message || "অর্ডার খুঁজে পাওয়া যায়নি" },
       { status: 500 }
     );
   }
@@ -142,13 +142,13 @@ export async function POST(request) {
     for (const cartItem of items) {
       const objectId = parseObjectId(cartItem._id);
       if (!objectId) {
-        return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
+        return NextResponse.json({ error: "পণ্য আইডি সঠিক নয়" }, { status: 400 });
       }
 
       const product = await productsCol.findOne({ _id: objectId });
       if (!product) {
         return NextResponse.json(
-          { error: `"${cartItem.title || "Product"}" is no longer available` },
+          { error: `"${cartItem.title || "পণ্য"}" আর পাওয়া যাচ্ছে না` },
           { status: 400 }
         );
       }
@@ -158,14 +158,14 @@ export async function POST(request) {
 
       if (variantConfig.required && !selectedVariant) {
         return NextResponse.json(
-          { error: `"${product.title_bn || product.title_en}" — please select ${variantConfig.label}` },
+          { error: `"${product.title_bn || product.title_en}" — অনুগ্রহ করে ${variantConfig.label} নির্বাচন করুন` },
           { status: 400 }
         );
       }
 
       if (selectedVariant && variantConfig.options.length && !variantConfig.options.includes(selectedVariant)) {
         return NextResponse.json(
-          { error: `"${product.title_bn || product.title_en}" — invalid ${variantConfig.label}` },
+          { error: `"${product.title_bn || product.title_en}" — ${variantConfig.label} সঠিক নয়` },
           { status: 400 }
         );
       }
@@ -176,8 +176,8 @@ export async function POST(request) {
         return NextResponse.json(
           {
             error: selectedVariant
-              ? `"${product.title_bn || product.title_en}" (${selectedVariant}) is out of stock`
-              : `"${product.title_bn || product.title_en}" is out of stock`,
+              ? `"${product.title_bn || product.title_en}" (${selectedVariant}) স্টকে নেই`
+              : `"${product.title_bn || product.title_en}" স্টকে নেই`,
           },
           { status: 400 }
         );
@@ -192,7 +192,7 @@ export async function POST(request) {
       if (totalRequested > maxStock) {
         return NextResponse.json(
           {
-            error: `"${product.title_bn || product.title_en}"${selectedVariant ? ` (${selectedVariant})` : ""} — maximum ${maxStock} can be ordered`,
+            error: `"${product.title_bn || product.title_en}"${selectedVariant ? ` (${selectedVariant})` : ""} — সর্বোচ্চ ${maxStock}টি অর্ডার করা যাবে`,
           },
           { status: 400 }
         );
@@ -236,7 +236,7 @@ export async function POST(request) {
     }
     const selectedDelivery = deliveryOptions.find((option) => option.id === delivery);
     if (!selectedDelivery) {
-      return NextResponse.json({ error: "Could not determine delivery charge" }, { status: 400 });
+      return NextResponse.json({ error: "ডেলিভারি চার্জ নির্ধারণ করা যায়নি" }, { status: 400 });
     }
     const deliveryCharge = selectedDelivery.charge ?? 0;
     const total = subtotal + deliveryCharge;
@@ -249,7 +249,7 @@ export async function POST(request) {
       items: orderLines,
       delivery: {
         method: delivery,
-        label: deliveryResult.area?.label || selectedDelivery?.label || "Delivery",
+        label: deliveryResult.area?.label || selectedDelivery?.label || "ডেলিভারি",
         charge: deliveryCharge,
         area: customerResult.values.delivery_area || deliveryResult.area?.label || "",
         region: customerResult.values.region || "",
@@ -257,7 +257,7 @@ export async function POST(request) {
       },
       payment: {
         method: "cod",
-        label: "Cash On Delivery",
+        label: "ক্যাশ অন ডেলিভারি",
       },
       pricing: {
         subtotal,
@@ -285,7 +285,7 @@ export async function POST(request) {
 
       if (!result.ok && result.reason === "insufficient_stock") {
         return NextResponse.json(
-          { error: "Could not update stock for one or more products" },
+          { error: "এক বা একাধিক পণ্যের স্টক আপডেট করা যায়নি" },
           { status: 400 }
         );
       }
@@ -303,7 +303,7 @@ export async function POST(request) {
   } catch (error) {
     console.error("POST /api/orders error:", error);
     return NextResponse.json(
-      { error: error.message || "Could not save order" },
+      { error: error.message || "অর্ডার সেভ করা যায়নি" },
       { status: 500 }
     );
   }

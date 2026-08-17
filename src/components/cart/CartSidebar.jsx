@@ -72,13 +72,13 @@ export default function CartSidebar({ open, onClose }) {
       >
         <Box sx={{ minWidth: 0 }}>
           <Typography variant="subtitle1" fontWeight={700} noWrap>
-            Your cart
+            আপনার কার্ট
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {count} items
+            {count}টি পণ্য
           </Typography>
         </Box>
-        <IconButton aria-label="Close cart" onClick={onClose} size="small">
+        <IconButton aria-label="কার্ট বন্ধ করুন" onClick={onClose} size="small">
           <CloseRoundedIcon fontSize="small" />
         </IconButton>
       </Stack>
@@ -97,13 +97,13 @@ export default function CartSidebar({ open, onClose }) {
         >
           <ShoppingBagOutlinedIcon sx={{ fontSize: 48, color: "grey.300", display: "block" }} />
           <Typography variant="body2" fontWeight={600}>
-            Your cart is empty
+            আপনার কার্ট খালি
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Tap Add to cart on a product to get started
+            পণ্যে কার্টে যোগ করুন ট্যাপ করে শুরু করুন
           </Typography>
           <Button component={Link} href="/products" onClick={onClose} variant="contained" sx={{ mt: 1 }}>
-            Browse products
+            পণ্য দেখুন
           </Button>
         </Stack>
       ) : (
@@ -206,7 +206,7 @@ export default function CartSidebar({ open, onClose }) {
                         </Box>
                         <IconButton
                           size="small"
-                          aria-label="Remove from cart"
+                          aria-label="কার্ট থেকে সরান"
                           onClick={() =>
                             removeFromCart(item._id, item.title, item.selected_variant)
                           }
@@ -236,7 +236,7 @@ export default function CartSidebar({ open, onClose }) {
                         >
                           <IconButton
                             size="small"
-                            aria-label="Decrease quantity"
+                            aria-label="পরিমাণ কমান"
                             onClick={() =>
                               updateQuantity(
                                 item._id,
@@ -264,7 +264,7 @@ export default function CartSidebar({ open, onClose }) {
                           </Typography>
                           <IconButton
                             size="small"
-                            aria-label="Increase quantity"
+                            aria-label="পরিমাণ বাড়ান"
                             disabled={item.quantity >= getMaxLineQuantity(item, items)}
                             onClick={() =>
                               updateQuantity(
@@ -300,14 +300,14 @@ export default function CartSidebar({ open, onClose }) {
           >
             <Stack direction="row" sx={{ mb: 2, justifyContent: "space-between" }}>
               <Typography variant="body2" color="text.secondary">
-                Total
+                মোট
               </Typography>
               <Typography variant="h6" fontWeight={700}>
                 ৳{total.toLocaleString()}
               </Typography>
             </Stack>
             <Button fullWidth variant="contained" size="large" onClick={handleCheckout}>
-              Checkout
+              চেকআউট
             </Button>
           </Box>
         </>

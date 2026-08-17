@@ -12,7 +12,7 @@ export default function HomeSectionHeader({
   title,
   subtitle,
   href,
-  linkLabel = "View all",
+  linkLabel = "সব দেখুন",
   align = "left",
 }) {
   const isCenter = align === "center";

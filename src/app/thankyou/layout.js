@@ -1,8 +1,8 @@
 import { createPageMetadata } from "@/lib/siteMetadata";
 
 export const metadata = createPageMetadata({
-  title: "Order successful",
-  description: "Your Jara order has been received successfully. We will contact you shortly.",
+  title: "অর্ডার সফল",
+  description: "আপনার Jara অর্ডার সফলভাবে গ্রহণ করা হয়েছে। আমরা শিগগিরই যোগাযোগ করব।",
   path: "/thankyou",
   noIndex: true,
 });

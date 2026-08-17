@@ -23,7 +23,7 @@ export default function BackToTopButton() {
       <Fab
         color="primary"
         size="medium"
-        aria-label="Back to top"
+        aria-label="উপরে যান"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         sx={{
           position: "fixed",

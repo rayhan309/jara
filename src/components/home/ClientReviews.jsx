@@ -103,9 +103,9 @@ export default function ClientReviews() {
       <StoreContainer>
         <HomeSectionHeader
           align="center"
-          eyebrow="Testimonials"
-          title="What our clients say"
-          subtitle="Real feedback from customers who shopped with Jara."
+          eyebrow="কাস্টমার রিভিউ"
+          title="গ্রাহকরা কী বলেন"
+          subtitle="জারা থেকে কেনা গ্রাহকদের আসল মতামত।"
         />
 
         {isLoading ? (

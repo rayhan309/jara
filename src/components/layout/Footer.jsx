@@ -17,17 +17,17 @@ import { getShopLogoUrl } from "@/lib/siteSettings";
 import { SITE_NAME_SHORT } from "@/lib/siteMetadata";
 
 const shopLinks = [
-  { href: "/", label: "Home" },
-  { href: "/products", label: "Products" },
-  { href: "/categories", label: "Categories" },
-  { href: "/orders-traking", label: "Track order" },
+  { href: "/", label: "হোম" },
+  { href: "/products", label: "পণ্য" },
+  { href: "/categories", label: "ক্যাটাগরি" },
+  { href: "/orders-traking", label: "অর্ডার ট্র্যাক" },
 ];
 
 const supportLinks = [
-  { href: "/support#contact", label: "Contact support" },
-  { href: "/support#shipping", label: "Shipping policy" },
-  { href: "/support#returns", label: "Return policy" },
-  { href: "/support#privacy", label: "Privacy policy" },
+  { href: "/support#contact", label: "যোগাযোগ" },
+  { href: "/support#shipping", label: "শিপিং পলিসি" },
+  { href: "/support#returns", label: "রিটার্ন পলিসি" },
+  { href: "/support#privacy", label: "প্রাইভেসি পলিসি" },
 ];
 
 const FOOTER_BG = "#0b1220";
@@ -87,13 +87,13 @@ export default function Footer() {
   const socialLinks = getActiveSocialLinks(settings);
   const contactPhone = settings?.contactPhone || "+8801815131040";
   const contactEmail = settings?.contactEmail || "support@raisasglamnest.com";
-  const contactAddress = settings?.contactAddress || "Dhaka, Bangladesh";
+  const contactAddress = settings?.contactAddress || "ঢাকা, বাংলাদেশ";
   const shortDescription =
     settings?.shopShortDescription ||
-    "Your trusted online shopping destination. Quality products, fast delivery, and easy order tracking.";
-  const tagline = settings?.shopTagline || "Built for modern e-commerce";
+    "আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। মানসম্মত পণ্য, দ্রুত ডেলিভারি এবং সহজ অর্ডার ট্র্যাকিং।";
+  const tagline = settings?.shopTagline || "আধুনিক ই-কমার্সের জন্য তৈরি";
   const copyrightText =
-    settings?.copyrightText || `© {year} ${SITE_NAME_SHORT}. All rights reserved.`;
+    settings?.copyrightText || `© {year} ${SITE_NAME_SHORT}। সর্বস্বত্ব সংরক্ষিত।`;
   const renderedCopyright = copyrightText.replace("{year}", new Date().getFullYear());
   const logoUrl = getShopLogoUrl(settings);
 
@@ -158,7 +158,7 @@ export default function Footer() {
           </Grid>
 
           <Grid size={{ xs: 6, md: 2 }}>
-            <FooterHeading>Shop</FooterHeading>
+            <FooterHeading>শপ</FooterHeading>
             <Stack spacing={1.25}>
               {shopLinks.map((link) => (
                 <FooterNavLink key={link.href} href={link.href} label={link.label} />
@@ -167,7 +167,7 @@ export default function Footer() {
           </Grid>
 
           <Grid size={{ xs: 6, md: 3 }}>
-            <FooterHeading>Help</FooterHeading>
+            <FooterHeading>সহায়তা</FooterHeading>
             <Stack spacing={1.25}>
               {supportLinks.map((link) => (
                 <FooterNavLink key={link.label} href={link.href} label={link.label} />
@@ -176,7 +176,7 @@ export default function Footer() {
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }}>
-            <FooterHeading>Contact</FooterHeading>
+            <FooterHeading>যোগাযোগ</FooterHeading>
             <Stack spacing={1.5}>
               <ContactRow icon={<LocationOnOutlinedIcon sx={{ fontSize: 18 }} />}>
                 {contactAddress}

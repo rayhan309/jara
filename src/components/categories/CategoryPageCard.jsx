@@ -148,7 +148,7 @@ export function CategoryPageCard({ category, productCount = 0, index = 0 }) {
             {category.name}
           </Typography>
           <Typography variant="caption" color="text.disabled" sx={{ mt: 0.5 }}>
-            {productCount} products
+            {productCount}টি পণ্য
           </Typography>
         </Stack>
       </Box>

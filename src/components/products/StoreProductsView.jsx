@@ -93,10 +93,10 @@ function StoreProductsContent() {
   }, [page]);
 
   const pageTitle = searchQuery
-    ? `"${searchQuery}" — Search`
+    ? `"${searchQuery}" — সার্চ`
     : selectedCategory
       ? selectedCategory.name
-      : "All products";
+      : "সব পণ্য";
   const isLoadingContent = isLoading || categoriesLoading;
 
   function handleShowAllProducts() {
@@ -132,10 +132,10 @@ function StoreProductsContent() {
         ) : isError ? (
           <Box sx={{ border: 1, borderColor: "error.light", bgcolor: "error.50", borderRadius: 1, p: 4, textAlign: "center" }}>
             <Typography variant="body2" color="error.main">
-              {error?.message || "Could not load products."}
+              {error?.message || "পণ্য লোড করা যায়নি।"}
             </Typography>
             <Button onClick={() => refetch()} sx={{ mt: 1.5 }}>
-              Try again
+              আবার চেষ্টা করুন
             </Button>
           </Box>
         ) : filteredProducts.length === 0 ? (
@@ -143,14 +143,14 @@ function StoreProductsContent() {
             <Inventory2OutlinedIcon sx={{ fontSize: 40, color: "grey.300" }} />
             <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
               {searchQuery
-                ? `No products found for "${searchQuery}".`
+                ? `"${searchQuery}" এর জন্য কোনো পণ্য পাওয়া যায়নি।`
                 : selectedCategory
-                  ? `No products in "${selectedCategory.name}" yet.`
-                  : "No products have been added yet."}
+                  ? `"${selectedCategory.name}"-এ এখনো পণ্য নেই।`
+                  : "এখনো কোনো পণ্য যোগ করা হয়নি।"}
             </Typography>
             {searchQuery || selectedCategory ? (
               <Button onClick={handleShowAllProducts} sx={{ mt: 2 }}>
-                View all products
+                সব পণ্য দেখুন
               </Button>
             ) : null}
           </Box>
@@ -171,13 +171,13 @@ function StoreProductsContent() {
             spacing={1}
             sx={{ border: 1, borderColor: "divider", bgcolor: "background.paper", borderRadius: 1, px: 1.5, py: 1 }}
           >
-            <IconButton size="small" onClick={() => setPage(page - 1)} disabled={page <= 1} aria-label="Previous page">
+            <IconButton size="small" onClick={() => setPage(page - 1)} disabled={page <= 1} aria-label="আগের পেজ">
               <ChevronLeftRoundedIcon fontSize="small" />
             </IconButton>
             <Typography variant="caption" fontWeight={600} sx={{ minWidth: 86, textAlign: "center" }}>
-              Page {page} / {totalPages}
+              পেজ {page} / {totalPages}
             </Typography>
-            <IconButton size="small" onClick={() => setPage(page + 1)} disabled={page >= totalPages} aria-label="Next page">
+            <IconButton size="small" onClick={() => setPage(page + 1)} disabled={page >= totalPages} aria-label="পরের পেজ">
               <ChevronRightRoundedIcon fontSize="small" />
             </IconButton>
           </Stack>

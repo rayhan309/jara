@@ -144,11 +144,11 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
   function handleAddToCart() {
     if (outOfStock) {
-      toast.error("This product is out of stock");
+      toast.error("এই পণ্যটি স্টকে নেই");
       return;
     }
     if (variantConfig.required && !selectedVariant) {
-      toast.error(`Please select ${variantConfig.label}`);
+      toast.error(`অনুগ্রহ করে ${variantConfig.label} নির্বাচন করুন`);
       return;
     }
     if (inCart) {
@@ -156,7 +156,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
       return;
     }
     if (remainingStock === 0) {
-      toast.error("Cannot add more — stock limit reached");
+      toast.error("আর যোগ করা যাবে না — স্টক শেষ");
       return;
     }
     addToCart(product, quantity, selectedVariant);
@@ -165,11 +165,11 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
   function handleBuy() {
     if (outOfStock) {
-      toast.error("This product is out of stock");
+      toast.error("এই পণ্যটি স্টকে নেই");
       return;
     }
     if (variantConfig.required && !selectedVariant) {
-      toast.error(`Please select ${variantConfig.label}`);
+      toast.error(`অনুগ্রহ করে ${variantConfig.label} নির্বাচন করুন`);
       return;
     }
     if (inCart) {
@@ -177,7 +177,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
       return;
     }
     if (remainingStock === 0) {
-      toast.error("Cannot add more — stock limit reached");
+      toast.error("আর যোগ করা যাবে না — স্টক শেষ");
       return;
     }
     buyNow(product, quantity, selectedVariant);
@@ -186,11 +186,11 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
   function increaseQuantity() {
     if (remainingStock === 0) {
-      toast.error("Cannot add more — stock limit reached");
+      toast.error("আর যোগ করা যাবে না — স্টক শেষ");
       return;
     }
     if (quantity >= remainingStock) {
-      toast.error(`You can add up to ${remainingStock} more`);
+      toast.error(`আরও ${remainingStock}টি যোগ করতে পারবেন`);
       return;
     }
     setQuantity((q) => clampQty(q + 1));
@@ -215,16 +215,16 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("Product link copied");
+      toast.success("পণ্যের লিংক কপি হয়েছে");
     } catch {
-      toast.error("Could not share");
+      toast.error("শেয়ার করা যায়নি");
     }
   }
 
   const trustFeatures = [
-    { icon: LocalShippingOutlinedIcon, label: "Fast delivery" },
-    { icon: VerifiedUserOutlinedIcon, label: "Safe shopping" },
-    { icon: Inventory2OutlinedIcon, label: "Quality products" },
+    { icon: LocalShippingOutlinedIcon, label: "দ্রুত ডেলিভারি" },
+    { icon: VerifiedUserOutlinedIcon, label: "নিরাপদ শপিং" },
+    { icon: Inventory2OutlinedIcon, label: "মানসম্মত পণ্য" },
   ];
 
   return (
@@ -234,10 +234,10 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
         sx={{ mb: 3, typography: "caption", color: "text.secondary" }}
       >
         <Typography component={Link} href="/" color="inherit" sx={{ textDecoration: "none", "&:hover": { color: "primary.main" } }}>
-          Home
+          হোম
         </Typography>
         <Typography component={Link} href="/products" color="inherit" sx={{ textDecoration: "none", "&:hover": { color: "primary.main" } }}>
-          Products
+          পণ্য
         </Typography>
         {product.category ? (
           <Typography
@@ -278,7 +278,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
                 {discount > 0 ? (
                   <Chip
-                    label={`-${discount}% off`}
+                    label={`-${discount}% ছাড়`}
                     color="error"
                     size="small"
                     sx={{ position: "absolute", top: 16, left: 16, fontWeight: 700 }}
@@ -287,7 +287,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
 
                 {outOfStock ? (
                   <Chip
-                    label="Out of stock"
+                    label="স্টক নেই"
                     size="small"
                     sx={{
                       position: "absolute",
@@ -303,7 +303,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                 <Stack direction="row" spacing={0.5} sx={{ position: "absolute", top: 16, right: 16 }}>
                   <IconButton
                     size="small"
-                    aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                    aria-label={wishlisted ? "উইশলিস্ট থেকে সরান" : "উইশলিস্টে যোগ করুন"}
                     onClick={handleWishlistToggle}
                     sx={{ bgcolor: "rgba(255,255,255,0.95)", border: 1, borderColor: "divider" }}
                   >
@@ -315,7 +315,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                   </IconButton>
                   <IconButton
                     size="small"
-                    aria-label="Share"
+                    aria-label="শেয়ার"
                     onClick={handleShare}
                     sx={{ bgcolor: "rgba(255,255,255,0.95)", border: 1, borderColor: "divider" }}
                   >
@@ -387,7 +387,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
               </Stack>
               {!outOfStock && inCart && remainingStock === 0 ? (
                 <Typography variant="caption" fontWeight={600} color="warning.main" sx={{ mt: 0.5, display: "block" }}>
-                  Cannot add more — stock limit reached
+                  আর যোগ করা যাবে না — স্টক শেষ
                 </Typography>
               ) : null}
             </Box>
@@ -395,7 +395,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
             {variantConfig.required ? (
               <Box sx={{ mt: 2.5 }}>
                 <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
-                  Select {variantConfig.label} <Typography component="span" color="error.main">*</Typography>
+                  {variantConfig.label} নির্বাচন করুন <Typography component="span" color="error.main">*</Typography>
                 </Typography>
                 <Stack direction="row" flexWrap="wrap" useFlexGap spacing={1}>
                   {variantConfig.options.map((option) => {
@@ -437,13 +437,13 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                       height: 48,
                     }}
                   >
-                    <IconButton aria-label="Decrease quantity" onClick={() => setQuantity((q) => clampQty(q - 1))} size="small">
+                    <IconButton aria-label="পরিমাণ কমান" onClick={() => setQuantity((q) => clampQty(q - 1))} size="small">
                       <RemoveRoundedIcon fontSize="small" />
                     </IconButton>
                     <Typography variant="body1" fontWeight={700} sx={{ minWidth: 36, textAlign: "center" }}>
                       {quantity}
                     </Typography>
-                    <IconButton aria-label="Increase quantity" onClick={increaseQuantity} size="small">
+                    <IconButton aria-label="পরিমাণ বাড়ান" onClick={increaseQuantity} size="small">
                       <AddRoundedIcon fontSize="small" />
                     </IconButton>
                   </Stack>
@@ -452,7 +452,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                     fullWidth
                     variant={inCart ? "outlined" : "contained"}
                     onClick={handleAddToCart}
-                    aria-label={inCart ? `In cart (${cartQty}) — remove` : "Add to cart"}
+                    aria-label={inCart ? `কার্টে আছে (${cartQty}) — সরান` : "কার্টে যোগ করুন"}
                     startIcon={inCart ? <CheckRoundedIcon /> : <AddShoppingCartRoundedIcon />}
                     sx={{
                       minHeight: 48,
@@ -461,7 +461,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                       textTransform: "none",
                     }}
                   >
-                    {inCart ? `In cart (${cartQty})` : "Add to cart"}
+                    {inCart ? `কার্টে আছে (${cartQty})` : "কার্টে যোগ করুন"}
                   </Button>
                 </Stack>
               </Box>
@@ -472,11 +472,11 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                   variant={inCart ? "outlined" : "contained"}
                   onClick={handleAddToCart}
                   disabled={!inCart}
-                  aria-label={inCart ? `In cart (${cartQty}) — remove` : "Add to cart"}
+                  aria-label={inCart ? `কার্টে আছে (${cartQty}) — সরান` : "কার্টে যোগ করুন"}
                   startIcon={inCart ? <CheckRoundedIcon /> : <AddShoppingCartRoundedIcon />}
                   sx={{ minHeight: 48, fontWeight: 700, textTransform: "none" }}
                 >
-                  {inCart ? `In cart (${cartQty})` : "Out of stock"}
+                  {inCart ? `কার্টে আছে (${cartQty})` : "স্টক নেই"}
                 </Button>
               </Box>
             )}
@@ -502,7 +502,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                   boxShadow: "0 4px 14px -4px rgba(79,70,229,0.55)",
                 }}
               >
-                {inCart ? "Go to checkout" : "Buy now"}
+                {inCart ? "চেকআউটে যান" : "এখনই কিনুন"}
               </Button>
             </Box>
 
@@ -522,7 +522,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
             {(variantConfig.required || product.attributes?.material) && (
               <Paper variant="outlined" sx={{ mt: 4, p: { xs: 2, sm: 2.5 } }}>
                 <Typography variant="body2" fontWeight={700}>
-                  Details
+                  বিস্তারিত
                 </Typography>
                 <Stack spacing={1} sx={{ mt: 1.5 }}>
                   {variantConfig.required ? (
@@ -538,7 +538,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
                   {product.attributes?.material ? (
                     <Stack direction="row" justifyContent="space-between" spacing={2}>
                       <Typography variant="body2" color="text.secondary">
-                        Material
+                        ম্যাটেরিয়াল
                       </Typography>
                       <Typography variant="body2" fontWeight={500}>
                         {product.attributes.material}
@@ -552,7 +552,7 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
             {product.description ? (
               <Paper variant="outlined" sx={{ mt: 2, p: { xs: 2, sm: 2.5 } }}>
                 <Typography variant="body2" fontWeight={700}>
-                  Product description
+                  পণ্যের বিবরণ
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5, whiteSpace: "pre-line", lineHeight: 1.7 }}>
                   {product.description}
@@ -568,19 +568,19 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
           <Stack direction={{ xs: "column", sm: "row" }} alignItems={{ sm: "flex-end" }} justifyContent="space-between" spacing={1} sx={{ mb: 3 }}>
             <Box sx={{ minWidth: 0, flex: 1 }}>
               <Typography variant="caption" fontWeight={600} color="primary.main">
-                Same category
+                একই ক্যাটাগরি
               </Typography>
               <Typography variant="h5" fontWeight={700} sx={{ mt: 0.5 }}>
-                {product.category} — more products
+                {product.category} — আরও পণ্য
               </Typography>
             </Box>
             {product.category_slug ? (
               <Typography component={Link} href={`/products?category=${product.category_slug}`} variant="body2" fontWeight={600} color="primary.main" sx={{ flexShrink: 0, textDecoration: "none" }}>
-                View all
+                সব দেখুন
               </Typography>
             ) : (
               <Typography component={Link} href="/products" variant="body2" fontWeight={600} color="primary.main" sx={{ textDecoration: "none" }}>
-                All products
+                সব পণ্য
               </Typography>
             )}
           </Stack>
@@ -594,10 +594,10 @@ export default function StoreProductDetailView({ product, relatedProducts = [] }
           ) : (
             <Paper variant="outlined" sx={{ borderStyle: "dashed", px: 3, py: 5, textAlign: "center" }}>
               <Typography variant="body2" color="text.secondary">
-                No more products in this category.
+                এই ক্যাটাগরিতে আর পণ্য নেই।
               </Typography>
               <Typography component={Link} href="/products" variant="body2" fontWeight={600} color="primary.main" sx={{ mt: 1.5, display: "inline-block", textDecoration: "none" }}>
-                View all products
+                সব পণ্য দেখুন
               </Typography>
             </Paper>
           )}

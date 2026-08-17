@@ -2,11 +2,11 @@ import OrdersTrackingView from "@/components/orders/OrdersTrackingView";
 import { createPageMetadata } from "@/lib/siteMetadata";
 
 export const metadata = createPageMetadata({
-  title: "Order tracking",
+  title: "অর্ডার ট্র্যাকিং",
   description:
-    "Check your Jara order status and delivery updates with your phone number.",
+    "ফোন নম্বর দিয়ে Jara অর্ডারের স্ট্যাটাস ও ডেলিভারি আপডেট দেখুন।",
   path: "/orders-traking",
-  keywords: ["order tracking", "delivery status", "track order"],
+  keywords: ["অর্ডার ট্র্যাকিং", "ডেলিভারি স্ট্যাটাস", "অর্ডার খুঁজুন"],
 });
 
 export default function OrdersTrackingPage() {

@@ -65,17 +65,17 @@ function mapOrderToView(order) {
     customer: order.customer?.name || "—",
     phone: order.customer?.phone || "",
     items: items.map((item) => ({
-      title: item.title || "Product",
+      title: item.title || "পণ্য",
       quantity: item.quantity || 1,
       line_total: item.line_total || (item.price || 0) * (item.quantity || 1),
     })),
     total: Number(order.pricing?.total || 0),
     totalFormatted: `৳ ${Number(order.pricing?.total || 0).toLocaleString()}`,
-    paymentLabel: order.payment?.label || "Cash on Delivery",
+    paymentLabel: order.payment?.label || "ক্যাশ অন ডেলিভারি",
     status: order.status,
     statusLabel: statusInfo.label,
     dateTime: order.createdAt
-      ? new Date(order.createdAt).toLocaleString("en-GB", {
+      ? new Date(order.createdAt).toLocaleString("bn-BD", {
           day: "numeric",
           month: "long",
           year: "numeric",
@@ -154,9 +154,9 @@ function OrderTrackingCard({ order, index }) {
   async function copyOrderId() {
     try {
       await navigator.clipboard.writeText(order.id);
-      toast.success("Order ID copied");
+      toast.success("অর্ডার আইডি কপি হয়েছে");
     } catch {
-      toast.error("Could not copy");
+      toast.error("কপি করা যায়নি");
     }
   }
 
@@ -179,9 +179,9 @@ function OrderTrackingCard({ order, index }) {
         <Box>
           <Stack direction="row" alignItems="center" flexWrap="wrap" spacing={1}>
             <Typography variant="h6" fontWeight={700}>
-              Order {order.id}
+              অর্ডার {order.id}
             </Typography>
-            <IconButton size="small" onClick={copyOrderId} aria-label="Copy order ID" color="primary">
+            <IconButton size="small" onClick={copyOrderId} aria-label="অর্ডার আইডি কপি করুন" color="primary">
               <ContentCopyRoundedIcon sx={{ fontSize: 16 }} />
             </IconButton>
           </Stack>
@@ -195,7 +195,7 @@ function OrderTrackingCard({ order, index }) {
       <Grid container spacing={2} sx={{ borderBottom: 1, borderColor: "grey.100", px: { xs: 1.5, sm: 2.5 }, py: 2 }}>
         <Grid size={{ xs: 12, sm: 4 }}>
           <Typography variant="caption" fontWeight={700} color="text.disabled" sx={{ letterSpacing: "0.14em", textTransform: "uppercase" }}>
-            Customer
+            গ্রাহক
           </Typography>
           <Typography variant="body2" fontWeight={700} sx={{ mt: 0.75 }}>
             {order.customer}
@@ -206,7 +206,7 @@ function OrderTrackingCard({ order, index }) {
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
           <Typography variant="caption" fontWeight={700} color="text.disabled" sx={{ letterSpacing: "0.14em", textTransform: "uppercase" }}>
-            Shipping Address
+            শিপিং ঠিকানা
           </Typography>
           <Typography variant="body2" sx={{ mt: 0.75, lineHeight: 1.6 }}>
             {order.address}
@@ -214,7 +214,7 @@ function OrderTrackingCard({ order, index }) {
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
           <Typography variant="caption" fontWeight={700} color="text.disabled" sx={{ letterSpacing: "0.14em", textTransform: "uppercase" }}>
-            Payment
+            পেমেন্ট
           </Typography>
           <Typography variant="body2" sx={{ mt: 0.75 }}>
             {order.paymentLabel}
@@ -253,11 +253,11 @@ function OrderTrackingCard({ order, index }) {
         <Table size="small">
           <TableHead>
             <TableRow sx={{ bgcolor: "grey.50" }}>
-              <TableCell>Product</TableCell>
+              <TableCell>পণ্য</TableCell>
               <TableCell align="center" sx={{ width: 80 }}>
-                Qty
+                পরিমাণ
               </TableCell>
-              <TableCell sx={{ width: 112 }}>Total</TableCell>
+              <TableCell sx={{ width: 112 }}>মোট</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -324,12 +324,12 @@ function OrdersTrackingContent() {
       const normalized = normalizePhone(rawPhone);
 
       if (!normalized) {
-        setError("Please enter a phone number");
+        setError("ফোন নম্বর দিন");
         return;
       }
 
       if (!isValidBdPhone(normalized)) {
-        setError("Enter a valid Bangladeshi mobile number (01XXXXXXXXX)");
+        setError("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)");
         return;
       }
 
@@ -349,7 +349,7 @@ function OrdersTrackingContent() {
           router.replace(`/orders-traking?${params.toString()}`, { scroll: false });
         }
       } catch (err) {
-        setError(err.message || "No orders found");
+        setError(err.message || "কোনো অর্ডার পাওয়া যায়নি");
       } finally {
         setLoading(false);
       }
@@ -369,9 +369,9 @@ function OrdersTrackingContent() {
   }
 
   const hintCards = [
-    { icon: PhoneOutlinedIcon, title: "Enter phone number", desc: "Use the number from checkout" },
-    { icon: SearchRoundedIcon, title: "Search", desc: "See your latest 5 orders" },
-    { icon: LocalShippingOutlinedIcon, title: "Check status", desc: "Product table and progress bar" },
+    { icon: PhoneOutlinedIcon, title: "ফোন নম্বর দিন", desc: "চেকআউটের নম্বর ব্যবহার করুন" },
+    { icon: SearchRoundedIcon, title: "সার্চ", desc: "সর্বশেষ ৫টি অর্ডার দেখুন" },
+    { icon: LocalShippingOutlinedIcon, title: "স্ট্যাটাস দেখুন", desc: "পণ্যের টেবিল ও প্রগ্রেস বার" },
   ];
 
   return (
@@ -380,10 +380,10 @@ function OrdersTrackingContent() {
         <StoreContainer>
           <Paper variant="outlined" sx={{ p: { xs: 2, sm: 2.5 } }}>
             <Typography variant="h6" fontWeight={700}>
-              Track Your Order
+              আপনার অর্ডার ট্র্যাক করুন
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              View your latest {TRACKING_ORDER_LIMIT} orders with your checkout phone number
+              চেকআউটের ফোন নম্বর দিয়ে সর্বশেষ {TRACKING_ORDER_LIMIT}টি অর্ডার দেখুন
             </Typography>
 
             <Box component="form" onSubmit={handleTrack} sx={{ mt: 2 }}>
@@ -410,7 +410,7 @@ function OrdersTrackingContent() {
                   }}
                 />
                 <Button type="submit" variant="contained" disabled={loading} startIcon={<SearchRoundedIcon />} sx={{ flexShrink: 0 }}>
-                  {loading ? "Searching..." : "Search"}
+                  {loading ? "খোঁজা হচ্ছে..." : "সার্চ"}
                 </Button>
               </Stack>
             </Box>
@@ -446,7 +446,7 @@ function OrdersTrackingContent() {
                 >
                   <Inventory2OutlinedIcon sx={{ mb: 1.5, fontSize: 36, color: "primary.main", animation: "pulse 1.5s ease-in-out infinite" }} />
                   <Typography variant="body2" fontWeight={500} color="text.secondary">
-                    Searching for orders...
+                    অর্ডার খোঁজা হচ্ছে...
                   </Typography>
                 </Paper>
               ) : orders.length > 0 ? (
@@ -474,7 +474,7 @@ function OrdersTrackingContent() {
                 >
                   <Inventory2OutlinedIcon sx={{ fontSize: 40, color: "grey.300" }} />
                   <Typography variant="body2" fontWeight={600} sx={{ mt: 2 }}>
-                    No orders found
+                    কোনো অর্ডার পাওয়া যায়নি
                   </Typography>
                 </Paper>
               ) : (

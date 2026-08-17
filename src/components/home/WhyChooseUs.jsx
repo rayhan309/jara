@@ -15,23 +15,23 @@ import HomeSectionHeader from "@/components/home/HomeSectionHeader";
 const FEATURES = [
   {
     icon: PaymentsOutlinedIcon,
-    title: "Cash on delivery",
-    description: "Shop with confidence — pay only when your parcel arrives.",
+    title: "ক্যাশ অন ডেলিভারি",
+    description: "নিশ্চিন্তে কিনুন — পার্সেল হাতে পেয়ে তারপর টাকা দিন।",
   },
   {
     icon: PublicOutlinedIcon,
-    title: "Imported products",
-    description: "We offer a wide range of imported products from around the world.",
+    title: "ইমপোর্টেড পণ্য",
+    description: "বিশ্বের বিভিন্ন দেশ থেকে আনা পণ্য আমরা অফার করি।",
   },
   {
     icon: VerifiedOutlinedIcon,
-    title: "Quality you can trust",
-    description: "Carefully selected pieces with attention to finish and detail.",
+    title: "বিশ্বস্ত মান",
+    description: "ফিনিশ ও ডিটেইলে যত্ন নিয়ে বেছে নেওয়া পণ্য।",
   },
   {
     icon: SupportAgentOutlinedIcon,
-    title: "Friendly support",
-    description: "Need help with an order? We’re here whenever you need us.",
+    title: "বন্ধুত্বপূর্ণ সাপোর্ট",
+    description: "অর্ডারে সাহায্য লাগলে আমরা সবসময় আছি।",
   },
 ];
 
@@ -52,9 +52,9 @@ export default function WhyChooseUs() {
       <StoreContainer>
         <HomeSectionHeader
           align="center"
-          eyebrow="Why choose us?"
-          title="Why is Jara special?"
-          subtitle="Simple shopping, careful packaging, and support that actually helps — every order."
+          eyebrow="কেন আমাদের বেছে নেবেন?"
+          title="কেন জারা স্পেশাল?"
+          subtitle="সহজ শপিং, যত্নসহকারে প্যাকেজিং, আর আসল সাহায্য — প্রতিটি অর্ডারে।"
         />
 
         <Box

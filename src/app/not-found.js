@@ -2,8 +2,8 @@ import NotFoundPage from "@/components/NotFoundPage";
 import { createPageMetadata } from "@/lib/siteMetadata";
 
 export const metadata = createPageMetadata({
-  title: "404 — Page not found",
-  description: "The page you are looking for could not be found or has been moved.",
+  title: "৪০৪ — পেজ পাওয়া যায়নি",
+  description: "আপনি যে পেজটি খুঁজছেন সেটি পাওয়া যায়নি বা সরিয়ে নেওয়া হয়েছে।",
   noIndex: true,
 });
 

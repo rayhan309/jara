@@ -36,7 +36,7 @@ export default function HomeProductCard({ product, index = 0 }) {
     event.stopPropagation();
 
     if (outOfStock) {
-      toast.error("This product is out of stock");
+      toast.error("এই পণ্যটি স্টকে নেই");
       return;
     }
 
@@ -118,7 +118,7 @@ export default function HomeProductCard({ product, index = 0 }) {
         <IconButton
           component={motion.button}
           whileTap={{ scale: 0.9 }}
-          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          aria-label={wishlisted ? "উইশলিস্ট থেকে সরান" : "উইশলিস্টে যোগ করুন"}
           onClick={handleWishlistToggle}
           size="small"
           sx={{
@@ -159,7 +159,7 @@ export default function HomeProductCard({ product, index = 0 }) {
               "&:hover": { bgcolor: "secondary.main" },
             }}
           >
-            {outOfStock ? "Out of stock" : "Order now"}
+            {outOfStock ? "স্টক নেই" : "অর্ডার করুন"}
           </Button>
         </Box>
       </Box>

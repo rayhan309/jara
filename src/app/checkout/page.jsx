@@ -5,8 +5,8 @@ import { createPageMetadata } from "@/lib/siteMetadata";
 import Box from "@mui/material/Box";
 
 export const metadata = createPageMetadata({
-  title: "Checkout",
-  description: "Complete your order at Jara — a fast, secure, and simple checkout.",
+  title: "চেকআউট",
+  description: "Jara-তে অর্ডার সম্পন্ন করুন — দ্রুত, নিরাপদ এবং সহজ চেকআউট।",
   path: "/checkout",
   noIndex: true,
 });

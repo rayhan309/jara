@@ -119,7 +119,7 @@ function CheckoutItemCard({ item, items, products, onUpdateQty, onUpdateVariant,
                 ) : null}
               </Stack>
             </Box>
-            <IconButton size="small" aria-label="Remove item" onClick={() => onRemove(item)} color="error">
+            <IconButton size="small" aria-label="পণ্য সরান" onClick={() => onRemove(item)} color="error">
               <DeleteOutlineRoundedIcon fontSize="small" />
             </IconButton>
           </Stack>
@@ -145,10 +145,10 @@ function CheckoutItemCard({ item, items, products, onUpdateQty, onUpdateVariant,
 
             <Box>
               <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ display: "block", mb: 0.5, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                Quantity
+                পরিমাণ
               </Typography>
               <Stack direction="row" alignItems="center" sx={{ border: 1, borderColor: "divider", borderRadius: 1, bgcolor: "grey.50", height: 36 }}>
-                <IconButton size="small" aria-label="Decrease quantity" onClick={() => onUpdateQty(item, item.quantity - 1)}>
+                <IconButton size="small" aria-label="পরিমাণ কমান" onClick={() => onUpdateQty(item, item.quantity - 1)}>
                   <RemoveRoundedIcon fontSize="small" />
                 </IconButton>
                 <Typography variant="body2" fontWeight={700} sx={{ minWidth: 32, textAlign: "center", borderInline: 1, borderColor: "divider", bgcolor: "background.paper", px: 1, py: 0.5 }}>
@@ -156,7 +156,7 @@ function CheckoutItemCard({ item, items, products, onUpdateQty, onUpdateVariant,
                 </Typography>
                 <IconButton
                   size="small"
-                  aria-label="Increase quantity"
+                  aria-label="পরিমাণ বাড়ান"
                   onClick={() => onUpdateQty(item, item.quantity + 1)}
                   disabled={item.quantity >= maxQty}
                 >
@@ -173,7 +173,7 @@ function CheckoutItemCard({ item, items, products, onUpdateQty, onUpdateVariant,
           {item.quantity} × ৳{item.price.toLocaleString()}
         </Typography>
         <Typography variant="body2" fontWeight={700} color="primary.dark">
-          Total ৳{lineTotal.toLocaleString()}
+          মোট ৳{lineTotal.toLocaleString()}
         </Typography>
       </Stack>
     </Paper>
@@ -251,7 +251,7 @@ export default function CheckoutView() {
 
   function handleUpdateQty(item, quantity) {
     if (quantity > getMaxLineQuantity(item, items)) {
-      toast.error(`You can keep up to ${getMaxLineQuantity(item, items)}`);
+      toast.error(`সর্বোচ্চ ${getMaxLineQuantity(item, items)}টি রাখতে পারবেন`);
       return;
     }
     updateQuantity(item._id, quantity, item.title, item.selected_variant);
@@ -316,9 +316,9 @@ export default function CheckoutView() {
 
       router.push("/thankyou");
       clearCart();
-      toast.success("Order placed successfully!");
+      toast.success("অর্ডার সফলভাবে সম্পন্ন হয়েছে!");
     } catch (error) {
-      toast.error(error.message || "Could not place order");
+      toast.error(error.message || "অর্ডার করা যায়নি");
     } finally {
       setSubmitting(false);
     }
@@ -329,10 +329,10 @@ export default function CheckoutView() {
       <Paper variant="outlined" sx={{ mx: "auto", maxWidth: 480, p: { xs: 3, sm: 5 }, textAlign: "center" }}>
         <ShoppingBagOutlinedIcon sx={{ mx: "auto", fontSize: 40, color: "grey.300" }} />
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-          Your cart is empty.
+          আপনার কার্ট খালি।
         </Typography>
         <Button component={Link} href="/products" sx={{ mt: 2 }}>
-          Browse products
+          পণ্য দেখুন
         </Button>
       </Paper>
     );
@@ -342,10 +342,10 @@ export default function CheckoutView() {
     <Box sx={{ mx: "auto", maxWidth: 1152, minWidth: 0 }}>
       <Stack sx={{ mx: "auto", maxWidth: 720, alignItems: "center", textAlign: "center" }}>
         <Typography variant="h4" fontWeight={700}>
-          Confirm your order
+          আপনার অর্ডার নিশ্চিত করুন
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-          Enter your name, address, and phone number
+          নাম, ঠিকানা এবং ফোন নম্বর দিন
         </Typography>
       </Stack>
 
@@ -365,8 +365,8 @@ export default function CheckoutView() {
             <Stack spacing={2.5}>
               <TextField
                 id="checkout-name"
-                label="Your name"
-                placeholder="Enter your full name"
+                label="আপনার নাম"
+                placeholder="পূর্ণ নাম লিখুন"
                 value={name}
                 onChange={(event) => {
                   setName(event.target.value);
@@ -379,7 +379,7 @@ export default function CheckoutView() {
 
               <TextField
                 id="checkout-phone"
-                label="Phone number"
+                label="ফোন নম্বর"
                 placeholder="01XXXXXXXXX"
                 type="tel"
                 inputMode="numeric"
@@ -396,11 +396,11 @@ export default function CheckoutView() {
               <Grid container spacing={1.5}>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl fullWidth error={Boolean(fieldErrors.region)}>
-                    <InputLabel id="checkout-region-label">Region</InputLabel>
+                    <InputLabel id="checkout-region-label">বিভাগ</InputLabel>
                     <Select
                       labelId="checkout-region-label"
                       id="checkout-region"
-                      label="Region"
+                      label="বিভাগ"
                       value={region}
                       onChange={(event) => handleRegionChange(event.target.value)}
                     >
@@ -415,11 +415,11 @@ export default function CheckoutView() {
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl fullWidth error={Boolean(fieldErrors.district)} disabled={!region}>
-                    <InputLabel id="checkout-district-label">District</InputLabel>
+                    <InputLabel id="checkout-district-label">জেলা</InputLabel>
                     <Select
                       labelId="checkout-district-label"
                       id="checkout-district"
-                      label="District"
+                      label="জেলা"
                       value={district}
                       onChange={(event) => handleDistrictChange(event.target.value)}
                     >
@@ -432,7 +432,7 @@ export default function CheckoutView() {
                     {fieldErrors.district ? (
                       <FormHelperText>{fieldErrors.district}</FormHelperText>
                     ) : !region ? (
-                      <FormHelperText>Select a region first</FormHelperText>
+                      <FormHelperText>আগে বিভাগ নির্বাচন করুন</FormHelperText>
                     ) : null}
                   </FormControl>
                 </Grid>
@@ -440,8 +440,8 @@ export default function CheckoutView() {
 
               <TextField
                 id="checkout-address"
-                label="Your address"
-                placeholder="House/road, area — full address details"
+                label="আপনার ঠিকানা"
+                placeholder="বাড়ি/রোড, এলাকা — সম্পূর্ণ ঠিকানা"
                 value={address}
                 onChange={(event) => {
                   setAddress(event.target.value);
@@ -456,7 +456,7 @@ export default function CheckoutView() {
 
               <Box sx={{ pt: 0.5 }}>
                 <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>
-                  Delivery charge
+                  ডেলিভারি চার্জ
                 </Typography>
                 <Paper
                   variant="outlined"
@@ -475,19 +475,19 @@ export default function CheckoutView() {
                     {!district ? (
                       <>
                         <Typography variant="body2" fontWeight={700}>
-                          Select region & district
+                          বিভাগ ও জেলা নির্বাচন করুন
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          Delivery charge is set automatically from your location
+                          আপনার লোকেশন থেকে ডেলিভারি চার্জ অটো সেট হবে
                         </Typography>
                       </>
                     ) : isFreeDelivery ? (
                       <>
                         <Typography variant="body2" fontWeight={700} color="success.main">
-                          Free delivery
+                          ফ্রি ডেলিভারি
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          No delivery charge for this order
+                          এই অর্ডারে ডেলিভারি চার্জ নেই
                         </Typography>
                       </>
                     ) : (
@@ -498,7 +498,7 @@ export default function CheckoutView() {
                             : `ঢাকার বাহিরে — ৳${deliveryCharge.toLocaleString()}`}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {selectedDelivery?.label || "Delivery"} · auto-detected from {district}
+                          {selectedDelivery?.label || "ডেলিভারি"} · {district} থেকে অটো-ডিটেক্টেড
                         </Typography>
                       </>
                     )}
@@ -508,7 +508,7 @@ export default function CheckoutView() {
 
               <Box sx={{ pt: 1 }}>
                 <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>
-                  Payment method
+                  পেমেন্ট পদ্ধতি
                 </Typography>
                 <Paper
                   variant="outlined"
@@ -528,13 +528,13 @@ export default function CheckoutView() {
                   <PaymentsOutlinedIcon color="primary" />
                   <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Typography variant="body2" fontWeight={700}>
-                      Cash On Delivery
+                      ক্যাশ অন ডেলিভারি
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Pay when you receive your products
+                      পণ্য হাতে পেয়ে টাকা দিন
                     </Typography>
                   </Box>
-                  <LockOutlinedIcon fontSize="small" color="disabled" titleAccess="Only payment option" />
+                  <LockOutlinedIcon fontSize="small" color="disabled" titleAccess="একমাত্র পেমেন্ট অপশন" />
                 </Paper>
               </Box>
 
@@ -548,7 +548,7 @@ export default function CheckoutView() {
                 className="animate-checkout-confirm-shake"
                 sx={{ display: { lg: "none" }, py: 1.75, fontWeight: 800 }}
               >
-                {submitting ? "Processing..." : "Confirm order"}
+                {submitting ? "প্রসেস হচ্ছে..." : "অর্ডার নিশ্চিত করুন"}
               </Button>
             </Stack>
           </Paper>
@@ -557,7 +557,7 @@ export default function CheckoutView() {
         <Grid size={{ xs: 12, lg: 6 }}>
           <Box sx={{ position: { lg: "sticky" }, top: { lg: 96 } }}>
             <Typography variant="h6" fontWeight={700}>
-              Your order
+              আপনার অর্ডার
             </Typography>
 
             <Stack spacing={1.5} sx={{ mt: 2 }}>
@@ -578,7 +578,7 @@ export default function CheckoutView() {
               <Stack spacing={1} divider={<Divider />}>
                 <Stack direction="row" justifyContent="space-between">
                   <Typography variant="body2" color="text.secondary">
-                    Subtotal
+                    সাবটোটাল
                   </Typography>
                   <Typography variant="body2" fontWeight={600}>
                     ৳{subtotal.toLocaleString()}
@@ -587,7 +587,7 @@ export default function CheckoutView() {
                 {totalDiscount > 0 ? (
                   <Stack direction="row" justifyContent="space-between">
                     <Typography variant="body2" color="success.main">
-                      You're saving
+                      আপনি সাশ্রয় করছেন
                     </Typography>
                     <Typography variant="body2" fontWeight={600} color="success.main">
                       -৳{totalDiscount.toLocaleString()}
@@ -596,19 +596,19 @@ export default function CheckoutView() {
                 ) : null}
                 <Stack direction="row" justifyContent="space-between">
                   <Typography variant="body2" color="text.secondary">
-                    Delivery charge
+                    ডেলিভারি চার্জ
                   </Typography>
                   <Typography variant="body2" fontWeight={600} color={isFreeDelivery ? "success.main" : "text.primary"}>
                     {!district
                       ? "—"
                       : isFreeDelivery
-                        ? "Free delivery"
+                        ? "ফ্রি ডেলিভারি"
                         : `৳${deliveryCharge.toLocaleString()}`}
                   </Typography>
                 </Stack>
               </Stack>
               <Stack direction="row" justifyContent="space-between" sx={{ pt: 1.5 }}>
-                <Typography fontWeight={700}>Amount to pay</Typography>
+                <Typography fontWeight={700}>পরিশোধযোগ্য</Typography>
                 <Typography variant="h6" fontWeight={700} color="primary.main">
                   {district ? `৳${payable.toLocaleString()}` : `৳${subtotal.toLocaleString()}+`}
                 </Typography>
@@ -624,7 +624,7 @@ export default function CheckoutView() {
               fullWidth
               sx={{ mt: 2, display: { xs: "none", lg: "inline-flex" }, py: 1.5, fontWeight: 700 }}
             >
-              {submitting ? "Processing..." : "Confirm order"}
+              {submitting ? "প্রসেস হচ্ছে..." : "অর্ডার নিশ্চিত করুন"}
             </Button>
           </Box>
         </Grid>

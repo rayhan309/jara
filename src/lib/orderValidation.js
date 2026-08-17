@@ -26,39 +26,39 @@ export function validateCustomerDetails(
   const trimmedDistrict = String(district || "").trim();
 
   if (!trimmedName) {
-    errors.name = "Please enter your name";
+    errors.name = "অনুগ্রহ করে আপনার নাম লিখুন";
   } else if (trimmedName.length < 2) {
-    errors.name = "Name must be at least 2 characters";
+    errors.name = "নাম কমপক্ষে ২ অক্ষরের হতে হবে";
   } else if (!NAME_REGEX.test(trimmedName)) {
-    errors.name = "Please enter a valid name (letters only)";
+    errors.name = "সঠিক নাম লিখুন (শুধু অক্ষর)";
   }
 
   if (!normalizedPhone) {
-    errors.phone = "Please enter your phone number";
+    errors.phone = "অনুগ্রহ করে ফোন নম্বর দিন";
   } else if (!isValidBdPhone(normalizedPhone)) {
-    errors.phone = "Enter a valid Bangladeshi mobile number (01XXXXXXXXX)";
+    errors.phone = "সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)";
   }
 
   if (requireLocation || trimmedRegion || trimmedDistrict) {
     if (!trimmedRegion) {
-      errors.region = "Please select a region";
+      errors.region = "অনুগ্রহ করে বিভাগ নির্বাচন করুন";
     } else if (!isValidRegion(trimmedRegion)) {
-      errors.region = "Please select a valid region";
+      errors.region = "সঠিক বিভাগ নির্বাচন করুন";
     }
 
     if (!trimmedDistrict) {
-      errors.district = "Please select a district";
+      errors.district = "অনুগ্রহ করে জেলা নির্বাচন করুন";
     } else if (trimmedRegion && !isValidDistrict(trimmedRegion, trimmedDistrict)) {
-      errors.district = "Please select a valid district";
+      errors.district = "সঠিক জেলা নির্বাচন করুন";
     }
   }
 
   if (!trimmedAddress) {
-    errors.address = "Please enter your address";
+    errors.address = "অনুগ্রহ করে আপনার ঠিকানা লিখুন";
   } else if (trimmedAddress.length < 10) {
-    errors.address = "Enter a complete address (at least 10 characters)";
+    errors.address = "সম্পূর্ণ ঠিকানা লিখুন (কমপক্ষে ১০ অক্ষর)";
   } else if (trimmedAddress.length > 500) {
-    errors.address = "Address cannot exceed 500 characters";
+    errors.address = "ঠিকানা ৫০০ অক্ষরের বেশি হতে পারবে না";
   }
 
   return {
@@ -82,30 +82,30 @@ export function validateDeliveryMethod(delivery, settings) {
     return {
       ok: true,
       delivery,
-      area: { id: FREE_DELIVERY_OPTION_ID, label: "Free delivery" },
+      area: { id: FREE_DELIVERY_OPTION_ID, label: "ফ্রি ডেলিভারি" },
     };
   }
 
   const areas = getDeliveryAreas(settings);
   const match = areas.find((area) => area.id === delivery);
   if (!match) {
-    return { ok: false, error: "Please select a delivery method" };
+    return { ok: false, error: "অনুগ্রহ করে ডেলিভারি পদ্ধতি নির্বাচন করুন" };
   }
   return { ok: true, delivery, area: match };
 }
 
 export function validateOrderItems(items) {
   if (!Array.isArray(items) || items.length === 0) {
-    return { ok: false, error: "Your cart is empty" };
+    return { ok: false, error: "আপনার কার্ট খালি" };
   }
 
   for (const item of items) {
     if (!item?._id) {
-      return { ok: false, error: "Invalid product information" };
+      return { ok: false, error: "পণ্যের তথ্য সঠিক নয়" };
     }
     const qty = Number(item.quantity);
     if (!Number.isFinite(qty) || qty < 1 || qty > 99) {
-      return { ok: false, error: "Invalid product quantity" };
+      return { ok: false, error: "পণ্যের পরিমাণ সঠিক নয়" };
     }
   }
 

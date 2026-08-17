@@ -19,11 +19,11 @@ import {
 import { resolveProductVariant } from "@/lib/productVariants";
 
 function productTitle(product) {
-  return product.title_bn || product.title_en || product.title || "Product";
+  return product.title_bn || product.title_en || product.title || "পণ্য";
 }
 
 function stockLimitMessage(maxStock) {
-  return `Only ${maxStock} in stock`;
+  return `স্টকে মাত্র ${maxStock}টি আছে`;
 }
 
 export function useCart() {
@@ -48,7 +48,7 @@ export function useCart() {
       const maxStock = getProductMaxStock(product, variant);
 
       if (maxStock <= 0) {
-        toast.error("This product is out of stock");
+        toast.error("এই পণ্যটি স্টকে নেই");
         return false;
       }
 
@@ -65,9 +65,9 @@ export function useCart() {
       const title = productTitle(product);
       const variantNote = variant ? ` (${variant})` : "";
       if (result.limited) {
-        toast.success(`${title}${variantNote} added to cart (${stockLimitMessage(result.maxStock)})`);
+        toast.success(`${title}${variantNote} কার্টে যোগ হয়েছে (${stockLimitMessage(result.maxStock)})`);
       } else {
-        toast.success(`${title}${variantNote} added to cart`);
+        toast.success(`${title}${variantNote} কার্টে যোগ হয়েছে`);
       }
       return true;
     },
@@ -80,14 +80,14 @@ export function useCart() {
       const maxStock = getProductMaxStock(product, variant);
 
       if (maxStock <= 0) {
-        toast.error("This product is out of stock");
+        toast.error("এই পণ্যটি স্টকে নেই");
         return false;
       }
 
       if (isProductInCart(product._id, variant)) {
         removeProductFromCart(product._id, variant);
         syncCart();
-        toast(`${productTitle(product)} removed from cart`);
+        toast(`${productTitle(product)} কার্ট থেকে সরানো হয়েছে`);
         return true;
       }
 
@@ -138,13 +138,13 @@ export function useCart() {
         if (result.reason === "max_stock") {
           toast.error(stockLimitMessage(result.maxStock));
         } else if (result.reason === "out_of_stock") {
-          toast.error("This product is out of stock");
+          toast.error("এই পণ্যটি স্টকে নেই");
         }
         return false;
       }
 
       if (title && oldVariant !== newVariant) {
-        toast.success(`${title} — ${newVariant || "variant"} updated`);
+        toast.success(`${title} — ${newVariant || "ভ্যারিয়েন্ট"} আপডেট হয়েছে`);
       }
       return true;
     },
@@ -167,7 +167,7 @@ export function useCart() {
       const maxStock = getProductMaxStock(product, variant);
 
       if (maxStock <= 0) {
-        toast.error("This product is out of stock");
+        toast.error("এই পণ্যটি স্টকে নেই");
         return false;
       }
 

@@ -29,10 +29,10 @@ export const ALL_VALID_ORDER_STATUSES = [...ORDER_STATUS_VALUES, ...LEGACY_STATU
 export const EXCLUDED_ORDER_STATUSES = ["scammer", "cancelled"];
 
 export const ORDER_TRACKING_STEPS = [
-  "New order",
-  "Order confirmed",
-  "Entered with courier",
-  "Out for delivery",
+  "নতুন অর্ডার",
+  "অর্ডার নিশ্চিত",
+  "কুরিয়ারে এন্ট্রি",
+  "ডেলিভারির পথে",
 ];
 
 const STATUS_STYLE = {
@@ -52,19 +52,19 @@ const STATUS_STYLE = {
 };
 
 const TRACKING_INFO = {
-  new: { step: 1, label: "New order" },
-  confirmed: { step: 2, label: "Order confirmed" },
-  steadfast_entered: { step: 3, label: "Entered in Steadfast" },
-  no_response: { step: 2, label: "No response" },
-  will_inform_later: { step: 2, label: "Will inform later" },
-  color_code_pending: { step: 2, label: "Color code pending — follow up needed" },
-  out_for_delivery: { step: 4, label: "Out for delivery" },
-  scammer: { step: 0, label: "Scammer / fraudulent" },
-  pending: { step: 1, label: "New order" },
-  processing: { step: 2, label: "Order confirmed" },
-  shipped: { step: 3, label: "Entered in Steadfast" },
-  delivered: { step: 4, label: "Out for delivery" },
-  cancelled: { step: 0, label: "Scammer / fraudulent" },
+  new: { step: 1, label: "নতুন অর্ডার" },
+  confirmed: { step: 2, label: "অর্ডার নিশ্চিত" },
+  steadfast_entered: { step: 3, label: "স্টিডফাস্টে এন্ট্রি" },
+  no_response: { step: 2, label: "কোনো রেসপন্স নেই" },
+  will_inform_later: { step: 2, label: "পরে জানাবেন" },
+  color_code_pending: { step: 2, label: "কালার কোড পেন্ডিং" },
+  out_for_delivery: { step: 4, label: "ডেলিভারির পথে" },
+  scammer: { step: 0, label: "প্রতারণামূলক" },
+  pending: { step: 1, label: "নতুন অর্ডার" },
+  processing: { step: 2, label: "অর্ডার নিশ্চিত" },
+  shipped: { step: 3, label: "স্টিডফাস্টে এন্ট্রি" },
+  delivered: { step: 4, label: "ডেলিভারির পথে" },
+  cancelled: { step: 0, label: "প্রতারণামূলক" },
 };
 
 export function normalizeOrderStatus(status) {

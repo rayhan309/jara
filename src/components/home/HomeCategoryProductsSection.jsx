@@ -88,7 +88,7 @@ export default function HomeCategoryProductsSection({
               size="small"
               sx={{ mt: 1.5 }}
             >
-              View all
+              সব দেখুন
             </Button>
           ) : null}
         </Stack>

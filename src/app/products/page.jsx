@@ -5,11 +5,11 @@ import { createPageMetadata } from "@/lib/siteMetadata";
 import Box from "@mui/material/Box";
 
 export const metadata = createPageMetadata({
-  title: "All products",
+  title: "সব পণ্য",
   description:
-    "Browse the full product catalog at Jara. Find what you need with categories and search.",
+    "Jara-তে সব পণ্য দেখুন। ক্যাটাগরি ও সার্চ দিয়ে সহজে খুঁজে নিন।",
   path: "/products",
-  keywords: ["products", "shop", "online store", "catalog"],
+  keywords: ["পণ্য", "শপ", "অনলাইন স্টোর", "ক্যাটালগ"],
 });
 
 export default function ProductsPage() {

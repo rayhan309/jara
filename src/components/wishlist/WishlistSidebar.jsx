@@ -89,13 +89,13 @@ export default function WishlistSidebar({ open, onClose }) {
       >
         <Box sx={{ minWidth: 0 }}>
           <Typography variant="subtitle1" fontWeight={700} noWrap>
-            Wishlist
+            উইশলিস্ট
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {count} items
+            {count}টি পণ্য
           </Typography>
         </Box>
-        <IconButton aria-label="Close wishlist" onClick={onClose} size="small">
+        <IconButton aria-label="উইশলিস্ট বন্ধ করুন" onClick={onClose} size="small">
           <CloseRoundedIcon fontSize="small" />
         </IconButton>
       </Stack>
@@ -114,13 +114,13 @@ export default function WishlistSidebar({ open, onClose }) {
         >
           <FavoriteBorderRoundedIcon sx={{ fontSize: 48, color: "grey.300", display: "block" }} />
           <Typography variant="body2" fontWeight={600} color="text.primary">
-            Your wishlist is empty
+            উইশলিস্ট খালি
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Tap the heart icon on products you love
+            পছন্দের পণ্যে হার্ট আইকনে ট্যাপ করুন
           </Typography>
           <Button component={Link} href="/products" onClick={onClose} variant="contained" sx={{ mt: 1 }}>
-            Browse products
+            পণ্য দেখুন
           </Button>
         </Stack>
       ) : (
@@ -202,7 +202,7 @@ export default function WishlistSidebar({ open, onClose }) {
                       </Box>
                       <IconButton
                         size="small"
-                        aria-label="Remove from wishlist"
+                        aria-label="উইশলিস্ট থেকে সরান"
                         onClick={() =>
                           removeFromWishlist(item._id, item.title, item.selected_variant)
                         }
@@ -230,7 +230,7 @@ export default function WishlistSidebar({ open, onClose }) {
                         onClick={onClose}
                         fullWidth
                       >
-                        View
+                        দেখুন
                       </Button>
                       <Button
                         size="small"
@@ -239,7 +239,7 @@ export default function WishlistSidebar({ open, onClose }) {
                         onClick={() => handleAddToCart(item)}
                         fullWidth
                       >
-                        Cart
+                        কার্ট
                       </Button>
                     </Stack>
                   </Box>
@@ -262,7 +262,7 @@ export default function WishlistSidebar({ open, onClose }) {
             }}
           >
             <Button fullWidth variant="contained" component={Link} href="/products" onClick={onClose}>
-              Browse more products
+              আরও পণ্য দেখুন
             </Button>
           </Box>
         </>

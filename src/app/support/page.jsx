@@ -3,11 +3,11 @@ import SupportPageView from "@/components/support/SupportPageView";
 import { createPageMetadata } from "@/lib/siteMetadata";
 
 export const metadata = createPageMetadata({
-  title: "Help & policies",
+  title: "সহায়তা ও পলিসি",
   description:
-    "Contact, shipping, returns, and privacy information for Jara — we're here to help.",
+    "Jara-এর যোগাযোগ, শিপিং, রিটার্ন এবং প্রাইভেসি তথ্য — আমরা সাহায্য করতে প্রস্তুত।",
   path: "/support",
-  keywords: ["support", "contact", "shipping policy", "return policy", "help"],
+  keywords: ["সহায়তা", "যোগাযোগ", "শিপিং পলিসি", "রিটার্ন পলিসি", "হেল্প"],
 });
 
 export default function SupportPage() {

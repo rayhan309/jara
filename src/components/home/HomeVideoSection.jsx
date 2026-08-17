@@ -17,9 +17,9 @@ export default function HomeVideoSection() {
     >
       <StoreContainer>
         <HomeSectionHeader
-          eyebrow="Reviews"
-          title="Product review videos"
-          subtitle="Watch real user reviews and product demos before you buy"
+          eyebrow="রিভিউ"
+          title="পণ্য রিভিউ ভিডিও"
+          subtitle="কেনার আগে আসল ইউজার রিভিউ ও প্রোডাক্ট ডেমো দেখুন"
           align="left"
         />
 
@@ -69,10 +69,10 @@ export default function HomeVideoSection() {
                   <PlayArrowRoundedIcon sx={{ fontSize: { xs: 28, sm: 32 }, ml: 0.25 }} />
                 </Box>
                 <Typography variant="subtitle1" fontWeight={700} maxWidth={400}>
-                  Watch our latest product review videos
+                  আমাদের সর্বশেষ পণ্য রিভিউ ভিডিও দেখুন
                 </Typography>
                 <Typography variant="body2" sx={{ mt: 1, maxWidth: 360, color: "rgba(255,255,255,0.75)" }}>
-                  Real user reviews and product demos — shop with confidence
+                  আসল ইউজার রিভিউ ও প্রোডাক্ট ডেমো — নিশ্চিন্তে কিনুন
                 </Typography>
               </Stack>
             </Box>
@@ -92,8 +92,7 @@ export default function HomeVideoSection() {
               }}
             >
               <Typography variant="body2" color="text.secondary">
-                You'll also find product reviews, unboxings, and usage tips on our
-                official YouTube channel.
+                আমাদের অফিসিয়াল ইউটিউব চ্যানেলেও পণ্য রিভিউ, আনবক্সিং এবং ব্যবহারের টিপস পাবেন।
               </Typography>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25} sx={{ mt: 2.5 }}>
                 <Button
@@ -105,7 +104,7 @@ export default function HomeVideoSection() {
                   startIcon={<PlayArrowRoundedIcon />}
                   sx={{ borderRadius: 1 }}
                 >
-                  Watch videos
+                  ভিডিও দেখুন
                 </Button>
                 <Button
                   component={Link}
@@ -116,7 +115,7 @@ export default function HomeVideoSection() {
                   startIcon={<YouTubeIcon />}
                   sx={{ borderRadius: 1, bgcolor: "background.paper" }}
                 >
-                  YouTube channel
+                  ইউটিউব চ্যানেল
                 </Button>
               </Stack>
             </Stack>

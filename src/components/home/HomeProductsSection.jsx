@@ -41,7 +41,7 @@ export default function HomeProductsSection({
   href,
   products = [],
   isLoading = false,
-  emptyMessage = "No products yet.",
+  emptyMessage = "এখনো কোনো পণ্য নেই।",
   className = "",
 }) {
   return (

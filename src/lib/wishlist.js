@@ -36,7 +36,7 @@ export function normalizeWishlistProduct(product, selectedVariant = "") {
   return {
     _id: product._id,
     slug: product.slug,
-    title: product.title_bn || product.title_en || product.title || "Product",
+    title: product.title_bn || product.title_en || product.title || "পণ্য",
     title_en: product.title_en,
     image: product.images?.[0]?.url || product.image || "",
     price: pricing.sale_price ?? product.price ?? 0,

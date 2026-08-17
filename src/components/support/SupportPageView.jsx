@@ -19,10 +19,10 @@ import { hindSiliguri } from "@/lib/fonts";
 import { SITE_NAME } from "@/lib/siteMetadata";
 
 const navItems = [
-  { id: "contact", label: "Contact support" },
-  { id: "shipping", label: "Shipping policy" },
-  { id: "returns", label: "Return policy" },
-  { id: "privacy", label: "Privacy policy" },
+  { id: "contact", label: "যোগাযোগ" },
+  { id: "shipping", label: "শিপিং পলিসি" },
+  { id: "returns", label: "রিটার্ন পলিসি" },
+  { id: "privacy", label: "প্রাইভেসি পলিসি" },
 ];
 
 const banglaFontFamily = "var(--font-hind-siliguri), 'Hind Siliguri', sans-serif";
@@ -100,7 +100,7 @@ export default function SupportPageView() {
   const settings = useStoreSettings();
   const CONTACT_PHONE = settings.contactPhone || "+8801815131040";
   const CONTACT_EMAIL = settings.contactEmail || "support@raisasglamnest.com";
-  const CONTACT_ADDRESS = settings.contactAddress || "Dhaka, Bangladesh";
+  const CONTACT_ADDRESS = settings.contactAddress || "ঢাকা, বাংলাদেশ";
 
   return (
     <StoreContainer className="py-8 sm:py-10 lg:py-12">
@@ -112,20 +112,20 @@ export default function SupportPageView() {
           transition={{ duration: 0.4, ease: easeOut }}
           sx={{ alignItems: "center", textAlign: "center" }}
         >
-          <Typography variant="caption" fontWeight={700} color="primary" sx={{ letterSpacing: "0.18em", textTransform: "uppercase" }}>
-            Help
+          <Typography variant="caption" fontWeight={700} color="primary" sx={{ letterSpacing: "0.18em" }}>
+            সহায়তা
           </Typography>
           <Typography variant="h4" fontWeight={700} sx={{ mt: 1 }}>
-            Help & policies
+            সহায়তা ও পলিসি
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Contact, delivery, returns, and privacy information in one place.
+            যোগাযোগ, ডেলিভারি, রিটার্ন এবং প্রাইভেসি তথ্য এক জায়গায়।
           </Typography>
         </Stack>
 
         <Stack
           component={motion.nav}
-          aria-label="Help sections"
+          aria-label="সহায়তা সেকশন"
           direction="row"
           flexWrap="wrap"
           justifyContent="center"
@@ -169,9 +169,9 @@ export default function SupportPageView() {
         </Stack>
 
         <Stack spacing={{ xs: 2.5, sm: 3 }} sx={{ mt: { xs: 4, sm: 5 } }}>
-          <PolicySection id="contact" title="Contact support" index={0}>
+          <PolicySection id="contact" title="যোগাযোগ" index={0}>
             <Typography component="p">
-              Contact us for any questions, order issues, or help. We&apos;ll get back to you as soon as possible.
+              যেকোনো প্রশ্ন, অর্ডার সমস্যা বা সাহায্যের জন্য আমাদের সাথে যোগাযোগ করুন। আমরা যত তাড়াতাড়ি সম্ভব উত্তর দেব।
             </Typography>
 
             <Stack spacing={1.5} sx={{ pt: 0.5 }}>
@@ -179,7 +179,7 @@ export default function SupportPageView() {
                 <PhoneOutlinedIcon sx={{ mt: 0.25, color: "primary.main", fontSize: 20 }} />
                 <Box>
                   <Typography variant="caption" fontWeight={600} color="text.secondary">
-                    Phone
+                    ফোন
                   </Typography>
                   <Typography
                     component="a"
@@ -196,7 +196,7 @@ export default function SupportPageView() {
                 <EmailOutlinedIcon sx={{ mt: 0.25, color: "primary.main", fontSize: 20 }} />
                 <Box>
                   <Typography variant="caption" fontWeight={600} color="text.secondary">
-                    Email
+                    ইমেইল
                   </Typography>
                   <Typography
                     component="a"
@@ -213,7 +213,7 @@ export default function SupportPageView() {
                 <LocationOnOutlinedIcon sx={{ mt: 0.25, color: "primary.main", fontSize: 20 }} />
                 <Box>
                   <Typography variant="caption" fontWeight={600} color="text.secondary">
-                    Address
+                    ঠিকানা
                   </Typography>
                   <Typography fontWeight={600}>{CONTACT_ADDRESS}</Typography>
                 </Box>
@@ -227,7 +227,7 @@ export default function SupportPageView() {
                 variant="contained"
                 startIcon={<LocalShippingOutlinedIcon />}
               >
-                Track order
+                অর্ডার ট্র্যাক
               </Button>
               <Button
                 component="a"
@@ -235,27 +235,12 @@ export default function SupportPageView() {
                 variant="outlined"
                 startIcon={<SmsOutlinedIcon />}
               >
-                Call us
+                কল করুন
               </Button>
             </Stack>
           </PolicySection>
 
-          <PolicySection id="shipping" title="Shipping policy" index={1}>
-            <Typography component="p">
-              We ship nationwide with <strong>Cash on Delivery (COD)</strong>. After your order is confirmed, our team will call to confirm delivery.
-            </Typography>
-            <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
-              <Typography component="li">Inside Dhaka, we usually aim to deliver within 1–3 business days.</Typography>
-              <Typography component="li">Outside Dhaka, delivery usually takes 3–7 business days.</Typography>
-              <Typography component="li">Delivery charges are shown on the order/checkout page based on your area.</Typography>
-              <Typography component="li">In special situations (Eid, storms, transport issues), delivery may take a bit longer.</Typography>
-            </Box>
-            <Typography component="p">
-              Inspect your products when you receive them, then pay. If anything is wrong when accepting the parcel from the courier, tell us right away.
-            </Typography>
-          </PolicySection>
-
-          <PolicySection id="shipping-bn" title="শিপিং পলিসি" bangla index={2}>
+          <PolicySection id="shipping" title="শিপিং পলিসি" index={1}>
             <Typography component="p">
               আমরা <strong>ক্যাশ অন ডেলিভারি (COD)</strong> সহ সারাদেশে পণ্য পাঠাই। অর্ডার কনফার্ম হওয়ার পর আমাদের টিম ডেলিভারি নিশ্চিত করতে কল করবে।
             </Typography>
@@ -270,32 +255,7 @@ export default function SupportPageView() {
             </Typography>
           </PolicySection>
 
-          <PolicySection id="returns" title="Return policy" index={3}>
-            <Typography component="p">
-              Your satisfaction comes first. If a product is defective or wrong, we offer return/replacement support.
-            </Typography>
-            <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
-              <Typography component="li">
-                Please report issues within <strong>7 days</strong> of receiving the product.
-              </Typography>
-              <Typography component="li">Products must be unused and in original condition (where applicable).</Typography>
-              <Typography component="li">Wrong or damaged items may be eligible for replacement or refund.</Typography>
-              <Typography component="li">Returns may be limited for custom/personal items or hygiene-sensitive products.</Typography>
-            </Box>
-            <Typography component="p">
-              For returns or replacements, call us with your order number at{" "}
-              <Typography component="a" href={`tel:${CONTACT_PHONE}`} fontWeight={600} color="primary.main">
-                {CONTACT_PHONE}
-              </Typography>{" "}
-              or email{" "}
-              <Typography component="a" href={`mailto:${CONTACT_EMAIL}`} fontWeight={600} color="primary.main">
-                {CONTACT_EMAIL}
-              </Typography>
-              .
-            </Typography>
-          </PolicySection>
-
-          <PolicySection id="returns-bn" title="রিটার্ন পলিসি" bangla index={4}>
+          <PolicySection id="returns" title="রিটার্ন পলিসি" index={2}>
             <Typography component="p">
               আপনার সন্তুষ্টি আমাদের অগ্রাধিকার। পণ্যে ত্রুটি থাকলে বা ভুল পণ্য পেলে আমরা রিটার্ন/রিপ্লেসমেন্ট সাপোর্ট দিই।
             </Typography>
@@ -320,27 +280,7 @@ export default function SupportPageView() {
             </Typography>
           </PolicySection>
 
-          <PolicySection id="privacy" title="Privacy policy" index={5}>
-            <Typography component="p">
-              {SITE_NAME} is committed to keeping your personal information private. We only collect what we need to process orders.
-            </Typography>
-            <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
-              <Typography component="li">We collect: name, phone number, delivery address, and order details.</Typography>
-              <Typography component="li">This information is used only for order processing, delivery, and customer service.</Typography>
-              <Typography component="li">We do not sell or share your data with third parties without your permission.</Typography>
-              <Typography component="li">Payment details are not stored on our servers — transactions use COD.</Typography>
-              <Typography component="li">We may update this policy as needed to improve security.</Typography>
-            </Box>
-            <Typography component="p">
-              For any questions about your data, contact us at{" "}
-              <Typography component="a" href={`mailto:${CONTACT_EMAIL}`} fontWeight={600} color="primary.main">
-                {CONTACT_EMAIL}
-              </Typography>
-              .
-            </Typography>
-          </PolicySection>
-
-          <PolicySection id="privacy-bn" title="প্রাইভেসি পলিসি" bangla index={6}>
+          <PolicySection id="privacy" title="প্রাইভেসি পলিসি" index={3}>
             <Typography component="p">
               {SITE_NAME} আপনার ব্যক্তিগত তথ্য গোপন রাখতে প্রতিশ্রুতিবদ্ধ। অর্ডার প্রসেস করতে যা প্রয়োজন শুধু তাই সংগ্রহ করি।
             </Typography>

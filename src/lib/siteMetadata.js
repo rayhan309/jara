@@ -3,18 +3,18 @@ export const SITE_NAME_SHORT = "Jara";
 export const ADMIN_NAME = "Jara Admin";
 
 export const DEFAULT_DESCRIPTION =
-  "Jara — one of Bangladesh's trusted online shops. Quality products, fast delivery, cash on delivery, and easy order tracking.";
+  "Jara — বাংলাদেশের বিশ্বস্ত অনলাইন শপ। মানসম্মত পণ্য, দ্রুত ডেলিভারি, ক্যাশ অন ডেলিভারি এবং সহজ অর্ডার ট্র্যাকিং।";
 
 export const DEFAULT_KEYWORDS = [
   "Jara",
-  "jara",
-  "online shopping Bangladesh",
-  "e-commerce",
-  "online shopping",
-  "cash on delivery",
+  "জারা",
+  "অনলাইন শপিং বাংলাদেশ",
+  "ই-কমার্স",
+  "অনলাইন শপিং",
+  "ক্যাশ অন ডেলিভারি",
   "COD",
-  "order tracking",
-  "Bangladesh",
+  "অর্ডার ট্র্যাকিং",
+  "বাংলাদেশ",
 ];
 
 const DEFAULT_OG_IMAGE = "/images/banner-1.jpg";
@@ -72,7 +72,7 @@ export function createPageMetadata({
       description,
       url: canonical,
       siteName: SITE_NAME,
-      locale: "en_BD",
+      locale: "bn_BD",
       type,
       images: [
         {
@@ -111,7 +111,7 @@ export function createAdminPageMetadata(title, description) {
 export const rootMetadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: `${SITE_NAME} — Online Shopping`,
+    default: `${SITE_NAME} — অনলাইন শপিং`,
     template: `%s | ${SITE_NAME}`,
   },
   description: DEFAULT_DESCRIPTION,
@@ -128,10 +128,10 @@ export const rootMetadata = {
   },
   openGraph: {
     type: "website",
-    locale: "en_BD",
+    locale: "bn_BD",
     url: getSiteUrl(),
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — Online Shopping`,
+    title: `${SITE_NAME} — অনলাইন শপিং`,
     description: DEFAULT_DESCRIPTION,
     images: [
       {
@@ -144,7 +144,7 @@ export const rootMetadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} — Online Shopping`,
+    title: `${SITE_NAME} — অনলাইন শপিং`,
     description: DEFAULT_DESCRIPTION,
     images: [absoluteUrl(DEFAULT_OG_IMAGE)],
   },

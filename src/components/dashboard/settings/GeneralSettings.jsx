@@ -480,7 +480,7 @@ export default function GeneralSettings() {
               fullWidth
               value={shopTagline}
               onChange={(event) => setShopTagline(event.target.value)}
-              placeholder="Built for modern e-commerce"
+              placeholder="আধুনিক ই-কমার্সের জন্য তৈরি"
             />
             <TextField
               label="Copyright Text"
@@ -488,7 +488,7 @@ export default function GeneralSettings() {
               fullWidth
               value={copyrightText}
               onChange={(event) => setCopyrightText(event.target.value)}
-              placeholder="© {year} Jara. All rights reserved."
+              placeholder="© {year} Jara। সর্বস্বত্ব সংরক্ষিত।"
               helperText={`Use {year} to insert the current year automatically.`}
             />
           </Stack>

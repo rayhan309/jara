@@ -8,10 +8,10 @@ import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined
 import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
 
 const FEATURES = [
-  { icon: AutorenewRoundedIcon, title: "Easy exchange guarantee" },
-  { icon: LocalShippingOutlinedIcon, title: "Cash on delivery nationwide" },
-  { icon: VerifiedUserOutlinedIcon, title: "Safe and simple payment" },
-  { icon: HeadsetMicOutlinedIcon, title: "Fast, always-on customer support" },
+  { icon: AutorenewRoundedIcon, title: "সহজ এক্সচেঞ্জ গ্যারান্টি" },
+  { icon: LocalShippingOutlinedIcon, title: "সারাদেশে ক্যাশ অন ডেলিভারি" },
+  { icon: VerifiedUserOutlinedIcon, title: "নিরাপদ ও সহজ পেমেন্ট" },
+  { icon: HeadsetMicOutlinedIcon, title: "দ্রুত কাস্টমার সাপোর্ট" },
 ];
 
 export default function TrustFeatures() {

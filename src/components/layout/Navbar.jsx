@@ -31,10 +31,10 @@ import ShopLogo from "@/components/layout/ShopLogo";
 import { getShopLogoUrl } from "@/lib/siteSettings";
 
 const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/products", label: "Products", match: (path) => path === "/products" || path.startsWith("/products/") },
-  { href: "/categories", label: "Categories", match: (path) => path === "/categories" || path.startsWith("/categories/") },
-  { href: "/orders-traking", label: "Track order" },
+  { href: "/", label: "হোম" },
+  { href: "/products", label: "পণ্য", match: (path) => path === "/products" || path.startsWith("/products/") },
+  { href: "/categories", label: "ক্যাটাগরি", match: (path) => path === "/categories" || path.startsWith("/categories/") },
+  { href: "/orders-traking", label: "অর্ডার ট্র্যাক" },
 ];
 
 const iconButtonSx = {
@@ -104,9 +104,9 @@ function HeaderSearch({ compact = false }) {
       <InputBase
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder="Search products"
+        placeholder="পণ্য খুঁজুন"
         sx={{ flex: 1, ml: 1, fontSize: 14 }}
-        slotProps={{ input: { "aria-label": "Search products" } }}
+        slotProps={{ input: { "aria-label": "পণ্য খুঁজুন" } }}
       />
     </Box>
   );
@@ -213,7 +213,7 @@ export default function Navbar() {
             }}
           >
             <IconButton
-              aria-label="Open menu"
+              aria-label="মেনু খুলুন"
               onClick={() => setMenuOpen(true)}
               sx={{ ...iconButtonSx, display: { xs: "inline-flex", md: "none" }, ml: -1 }}
             >
@@ -256,7 +256,7 @@ export default function Navbar() {
 
             <Stack direction="row" spacing={0.25} sx={{ ml: "auto", alignItems: "center" }}>
               <IconButton
-                aria-label="Wishlist"
+                aria-label="উইশলিস্ট"
                 onClick={() => setWishlistOpen(true)}
                 sx={iconButtonSx}
               >
@@ -265,7 +265,7 @@ export default function Navbar() {
                 </Badge>
               </IconButton>
               <IconButton
-                aria-label="Cart"
+                aria-label="কার্ট"
                 onClick={() => setCartOpen(true)}
                 sx={iconButtonSx}
               >
@@ -310,7 +310,7 @@ export default function Navbar() {
           }}
         >
           <ShopLogo logoUrl={logoUrl} size="xs" />
-          <IconButton aria-label="Close menu" onClick={() => setMenuOpen(false)} size="small">
+          <IconButton aria-label="মেনু বন্ধ করুন" onClick={() => setMenuOpen(false)} size="small">
             <CloseRoundedIcon fontSize="small" />
           </IconButton>
         </Stack>
@@ -343,7 +343,7 @@ export default function Navbar() {
             <>
               <Divider sx={{ my: 1.5 }} />
               <Typography variant="caption" color="text.secondary" sx={{ px: 1.5, mb: 0.5, fontWeight: 600 }}>
-                Shop by category
+                ক্যাটাগরি অনুযায়ী কিনুন
               </Typography>
               {categories.map((category) => (
                 <Button
@@ -396,7 +396,7 @@ export default function Navbar() {
             <PhoneOutlinedIcon sx={{ fontSize: 18, color: "text.secondary" }} />
             <Box sx={{ minWidth: 0 }}>
               <Typography variant="caption" color="text.secondary" sx={{ display: "block", lineHeight: 1.2 }}>
-                Call us
+                কল করুন
               </Typography>
               <Typography variant="body2" fontWeight={600} noWrap>
                 {CONTACT_PHONE}
@@ -411,7 +411,7 @@ export default function Navbar() {
             fullWidth
             startIcon={<LocalShippingOutlinedIcon />}
           >
-            Track your order
+            অর্ডার ট্র্যাক করুন
           </Button>
         </Stack>
       </Drawer>

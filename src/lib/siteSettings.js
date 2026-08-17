@@ -18,9 +18,9 @@ export const SOCIAL_PLATFORMS = [
 ];
 
 export const DEFAULT_SETTINGS = {
-  shopShortDescription: "Your trusted online shopping destination. Quality products, fast delivery, and easy order tracking.",
-  shopTagline: "Built for modern e-commerce",
-  copyrightText: "© {year} Jara. All rights reserved.",
+  shopShortDescription: "আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। মানসম্মত পণ্য, দ্রুত ডেলিভারি এবং সহজ অর্ডার ট্র্যাকিং।",
+  shopTagline: "আধুনিক ই-কমার্সের জন্য তৈরি",
+  copyrightText: "© {year} Jara। সর্বস্বত্ব সংরক্ষিত।",
   shopLogo: null,
   favicon: null,
   primaryColor: "#4f46e5",
@@ -32,17 +32,17 @@ export const DEFAULT_SETTINGS = {
   steadfastEnabled: false,
   contactPhone: "+8801815131040",
   contactEmail: "support@raisasglamnest.com",
-  contactAddress: "Dhaka, Bangladesh",
+  contactAddress: "ঢাকা, বাংলাদেশ",
   heroBanners: [],
   deliveryAreas: [
-    { id: "inside_dhaka", label: "Inside Dhaka" },
-    { id: "outside_dhaka", label: "Outside Dhaka" },
+    { id: "inside_dhaka", label: "ঢাকার ভিতরে" },
+    { id: "outside_dhaka", label: "ঢাকার বাইরে" },
   ],
   shippingClasses: [
     {
       id: "standard",
-      name: "Standard",
-      description: "Default shipping class",
+      name: "স্ট্যান্ডার্ড",
+      description: "ডিফল্ট শিপিং ক্লাস",
       freeDelivery: false,
       charges: { inside_dhaka: 60, outside_dhaka: 120 },
     },

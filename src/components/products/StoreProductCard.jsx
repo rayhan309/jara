@@ -41,7 +41,7 @@ export default function StoreProductCard({ product, index = 0 }) {
     event.preventDefault();
     event.stopPropagation();
     if (outOfStock) {
-      toast.error("This product is out of stock");
+      toast.error("এই পণ্যটি স্টকে নেই");
       return;
     }
     toggleCart(product);
@@ -180,7 +180,7 @@ export default function StoreProductCard({ product, index = 0 }) {
                 letterSpacing: "0.04em",
               }}
             >
-              Out of stock
+              স্টক নেই
             </Typography>
           </Box>
         ) : null}
@@ -188,7 +188,7 @@ export default function StoreProductCard({ product, index = 0 }) {
         <IconButton
           component={motion.button}
           whileTap={{ scale: 0.9 }}
-          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          aria-label={wishlisted ? "উইশলিস্ট থেকে সরান" : "উইশলিস্টে যোগ করুন"}
           onClick={handleWishlistToggle}
           size="small"
           sx={{
@@ -234,7 +234,7 @@ export default function StoreProductCard({ product, index = 0 }) {
             whileTap={{ scale: 0.92 }}
             onClick={handleCartToggle}
             disabled={outOfStock}
-            aria-label={inCart ? "Remove from cart" : "Add to cart"}
+            aria-label={inCart ? "কার্ট থেকে সরান" : "কার্টে যোগ করুন"}
             sx={{
               width: { xs: 28, sm: 40 },
               height: { xs: 28, sm: 40 },
@@ -278,7 +278,7 @@ export default function StoreProductCard({ product, index = 0 }) {
               },
             }}
           >
-            Order now
+            অর্ডার করুন
           </Button>
         </Stack>
       </Box>

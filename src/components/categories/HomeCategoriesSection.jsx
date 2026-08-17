@@ -146,7 +146,7 @@ export default function HomeCategoriesSection() {
       <StoreContainer>
         <Stack sx={{ mb: { xs: 3, sm: 4 }, alignItems: "center" }}>
           <Typography variant="h5" fontWeight={700} sx={{ textAlign: "center" }}>
-            Our top categories
+            আমাদের টপ ক্যাটাগরি
           </Typography>
           <Stack direction="row" spacing={0.75} sx={{ mt: 1.5, alignItems: "center" }}>
             <Box
@@ -200,7 +200,7 @@ export default function HomeCategoriesSection() {
         {isLoading ? (
           <Stack direction="row" spacing={1} sx={{ mt: 2.5, color: "text.disabled", alignItems: "center", justifyContent: "center" }}>
             <CircularProgress size={14} color="inherit" />
-            <Typography variant="caption">Loading categories...</Typography>
+            <Typography variant="caption">ক্যাটাগরি লোড হচ্ছে...</Typography>
           </Stack>
         ) : null}
       </StoreContainer>

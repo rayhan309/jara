@@ -59,10 +59,10 @@ export default function ThankYou() {
     try {
       await navigator.clipboard.writeText(displayOrderNumber);
       setCopied(true);
-      toast.success("Order number copied");
+      toast.success("অর্ডার নম্বর কপি হয়েছে");
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Could not copy");
+      toast.error("কপি করা যায়নি");
     }
   }
 
@@ -103,16 +103,16 @@ export default function ThankYou() {
           </Box>
 
           <Typography variant="caption" fontWeight={600} color="success.main" sx={{ letterSpacing: "0.12em" }}>
-            Order confirmed
+            অর্ডার নিশ্চিত
           </Typography>
           <Typography variant="h3" fontWeight={700} sx={{ mt: 1.5 }}>
-            Thank you for your order!
+            অর্ডারের জন্য ধন্যবাদ!
           </Typography>
 
           {displayOrderNumber ? (
             <Paper variant="outlined" sx={{ mt: 2, px: 2, py: 1.5, textAlign: "center" }}>
               <Typography variant="caption" fontWeight={600} color="text.disabled">
-                Order number
+                অর্ডার নম্বর
               </Typography>
               <Stack direction="row" alignItems="center" justifyContent="center" spacing={1} sx={{ mt: 0.5 }}>
                 <Typography fontWeight={700} color="primary.main">
@@ -123,14 +123,14 @@ export default function ThankYou() {
                   variant="outlined"
                   startIcon={<ContentCopyRoundedIcon sx={{ fontSize: 16 }} />}
                   onClick={handleCopyOrderId}
-                  aria-label="Copy order number"
+                  aria-label="অর্ডার নম্বর কপি করুন"
                 >
-                  {copied ? "Copied" : "Copy"}
+                  {copied ? "কপি হয়েছে" : "কপি"}
                 </Button>
               </Stack>
               {orderInfo.total ? (
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Total:{" "}
+                  মোট:{" "}
                   <Typography component="span" fontWeight={600} color="text.primary">
                     ৳{Number(orderInfo.total).toLocaleString()}
                   </Typography>
@@ -140,7 +140,7 @@ export default function ThankYou() {
           ) : null}
 
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2, lineHeight: 1.7 }}>
-            We've received your order and will contact you shortly. You can track delivery anytime.
+            আমরা আপনার অর্ডার পেয়েছি এবং শিগগিরই যোগাযোগ করব। যেকোনো সময় ডেলিভারি ট্র্যাক করতে পারবেন।
           </Typography>
 
           <Stack
@@ -160,10 +160,10 @@ export default function ThankYou() {
               startIcon={<Inventory2OutlinedIcon />}
               sx={{ width: { xs: 1, sm: "auto" } }}
             >
-              Track order
+              অর্ডার ট্র্যাক
             </Button>
             <Button component={Link} href="/" variant="outlined" sx={{ width: { xs: 1, sm: "auto" } }}>
-              Continue shopping
+              কেনাকাটা চালিয়ে যান
             </Button>
           </Stack>
         </Box>

@@ -83,17 +83,17 @@ function SectionHeader() {
     <Stack alignItems="center" sx={{ mb: { xs: 4, sm: 5 }, textAlign: "center" }}>
       <Chip
         icon={<AutoAwesomeOutlinedIcon sx={{ fontSize: "14px !important" }} />}
-        label="Brands"
+        label="ব্র্যান্ড"
         size="small"
         sx={{ mb: 1.5, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}
         color="primary"
         variant="outlined"
       />
       <Typography variant="h5" fontWeight={700}>
-        Our brands
+        আমাদের ব্র্যান্ড
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mt: 1, maxWidth: 480 }}>
-        Quality originals from trusted brands
+        বিশ্বস্ত ব্র্যান্ডের মানসম্মত অরিজিনাল পণ্য
       </Typography>
       <Box
         aria-hidden
@@ -112,7 +112,7 @@ function SectionHeader() {
         endIcon={<ArrowForwardRoundedIcon />}
         sx={{ mt: 2.5, borderRadius: 1 }}
       >
-        View all
+        সব দেখুন
       </Button>
     </Stack>
   );

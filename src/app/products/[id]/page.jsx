@@ -10,8 +10,8 @@ export async function generateMetadata({ params }) {
 
   if (!product) {
     return createPageMetadata({
-      title: "Product not found",
-      description: "The product you are looking for could not be found.",
+      title: "পণ্য পাওয়া যায়নি",
+      description: "আপনি যে পণ্যটি খুঁজছেন সেটি পাওয়া যায়নি।",
       path: `/products/${id}`,
       noIndex: true,
     });
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }) {
   const title = product.title_bn || product.title_en;
   const description =
     product.description?.slice(0, 160) ||
-    `${title} — buy at Jara. Fast delivery and cash on delivery available.`;
+    `${title} — Jara থেকে কিনুন। দ্রুত ডেলিভারি ও ক্যাশ অন ডেলিভারি আছে।`;
 
   return createPageMetadata({
     title,
@@ -31,8 +31,8 @@ export async function generateMetadata({ params }) {
       title,
       product.category,
       product.brand_or_vendor,
-      "buy online",
-      "buy online",
+      "অনলাইনে কিনুন",
+      "ক্যাশ অন ডেলিভারি",
     ].filter(Boolean),
   });
 }

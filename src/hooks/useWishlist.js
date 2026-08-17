@@ -14,7 +14,7 @@ import {
 } from "@/lib/wishlist";
 
 function productTitle(product) {
-  return product.title_bn || product.title_en || product.title || "Product";
+  return product.title_bn || product.title_en || product.title || "পণ্য";
 }
 
 export function useWishlist() {
@@ -37,7 +37,7 @@ export function useWishlist() {
       const result = addProductToWishlist(product, selectedVariant);
       syncWishlist();
       if (result.added) {
-        toast.success(`${productTitle(product)} added to wishlist`);
+        toast.success(`${productTitle(product)} উইশলিস্টে যোগ হয়েছে`);
       }
       return result;
     },
@@ -48,7 +48,7 @@ export function useWishlist() {
     (productId, title, selectedVariant = "") => {
       removeProductFromWishlist(productId, selectedVariant);
       syncWishlist();
-      toast(title ? `${title} removed from wishlist` : "Removed from wishlist");
+      toast(title ? `${title} উইশলিস্ট থেকে সরানো হয়েছে` : "উইশলিস্ট থেকে সরানো হয়েছে");
     },
     [syncWishlist]
   );
@@ -58,9 +58,9 @@ export function useWishlist() {
       const result = toggleWishlistItem(product, selectedVariant);
       syncWishlist();
       if (result.added) {
-        toast.success(`${productTitle(product)} added to wishlist`);
+        toast.success(`${productTitle(product)} উইশলিস্টে যোগ হয়েছে`);
       } else {
-        toast(`${productTitle(product)} removed from wishlist`);
+        toast(`${productTitle(product)} উইশলিস্ট থেকে সরানো হয়েছে`);
       }
       return result;
     },

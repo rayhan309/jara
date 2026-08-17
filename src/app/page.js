@@ -3,9 +3,9 @@ import HomeView from "@/components/home/HomeView";
 import { createPageMetadata } from "@/lib/siteMetadata";
 
 export const metadata = createPageMetadata({
-  title: "Home",
+  title: "হোম",
   description:
-    "Shop quality products at Jara. Fast delivery, cash on delivery, and a secure online shopping experience.",
+    "Jara থেকে মানসম্মত পণ্য কিনুন। দ্রুত ডেলিভারি, ক্যাশ অন ডেলিভারি এবং নিরাপদ অনলাইন শপিং।",
   path: "/",
 });
 

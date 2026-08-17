@@ -134,7 +134,7 @@ export default function NotFoundPage() {
             color="primary.main"
             sx={{ letterSpacing: "0.12em" }}
           >
-            Page not found
+            পেজ পাওয়া যায়নি
           </Typography>
 
           <Typography
@@ -181,7 +181,7 @@ export default function NotFoundPage() {
             color="text.secondary"
             sx={{ mt: 2, maxWidth: 420, lineHeight: 1.7 }}
           >
-            The page you are looking for doesn't exist or has been moved. Let's get you back on track.
+            আপনি যে পেজটি খুঁজছেন সেটি নেই বা সরিয়ে নেওয়া হয়েছে। চলুন আবার ঠিক পথে যাই।
           </Typography>
 
           <Stack
@@ -200,7 +200,7 @@ export default function NotFoundPage() {
               startIcon={<HomeOutlinedIcon />}
               sx={{ width: { xs: 1, sm: "auto" } }}
             >
-              Back to home
+              হোমে ফিরুন
             </Button>
             <Button
               component={Link}
@@ -209,7 +209,7 @@ export default function NotFoundPage() {
               startIcon={<SearchRoundedIcon />}
               sx={{ width: { xs: 1, sm: "auto" } }}
             >
-              Track order
+              অর্ডার ট্র্যাক
             </Button>
           </Stack>
 
@@ -223,7 +223,7 @@ export default function NotFoundPage() {
             startIcon={<ArrowBackRoundedIcon />}
             sx={{ mt: 3, color: "text.disabled" }}
           >
-            Go back
+            পেছনে যান
           </Button>
           </Stack>
         </StoreContainer>
