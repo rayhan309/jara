@@ -7,6 +7,7 @@ export const metadata = createPageMetadata({
   noIndex: true,
 });
 
+
 export default function NotFound() {
   return <NotFoundPage />;
 }
