@@ -1,5 +1,7 @@
 # Jara — Full-Stack E-Commerce Platform (Bangladesh)
 
+**Live:** [https://jarabd.store](https://jarabd.store)
+
 Jara is a production-oriented online store built for the Bangladesh retail market. It covers the complete commerce loop: a Bengali storefront, cash-on-delivery checkout, courier fulfillment with [Steadfast](https://steadfast.com.bd/), and a role-based admin dashboard for catalog, orders, customers, and store configuration.
 
 The app is designed as a **COD-first** shop (no customer accounts required). Shoppers browse, add to cart, checkout with name / phone / address, then track orders by phone number.
